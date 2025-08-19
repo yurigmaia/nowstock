@@ -1,0 +1,14 @@
+{
+  "login": {
+    "title": "Login",
+    "subtitle": "Fill in the fields to log in",
+    "emailLabel": "Email",
+    "emailPlaceholder": "your@email.com",
+    "passwordLabel": "Password",
+    "button": "Sign In"
+  },
+  "signup": {
+    "title": "Sign Up",
+    "subtitle": "Click here if you don't have an account"
+  }
+}
