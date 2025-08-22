@@ -17,7 +17,7 @@ public class User {
     private String username;
 
     @Column(nullable = false)
-    private String password; // This will be stored hashed!
+    private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

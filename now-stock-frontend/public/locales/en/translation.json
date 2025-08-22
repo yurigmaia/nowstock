@@ -10,5 +10,27 @@
   "signup": {
     "title": "Sign Up",
     "subtitle": "Click here if you don't have an account"
+  },
+  "language": {
+    "switcher": {
+      "tooltip": "Change language",
+      "label": "Select language"
+    }
+},
+"signupPage": {
+  "title": "Create your account",
+  "subtitle": "It's quick and easy",
+  "companyNameLabel": "Company Name",
+  "cnpjLabel": "CNPJ (Brazilian Tax ID)",
+  "emailLabel": "Email",
+  "passwordLabel": "Password",
+  "confirmPasswordLabel": "Confirm Password",
+  "button": "Sign Up",
+  "errors": {
+    "cnpjLength": "CNPJ must contain 14 digits",
+    "passwordMismatch": "Passwords do not match",
+    "passwordRequirements": "Password needs 6+ chars, 1 uppercase, 1 number & 1 special character."
   }
+}
+
 }

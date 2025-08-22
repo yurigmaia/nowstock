@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useForm } from "@mantine/form";
 import { useTranslation } from "react-i18next";
 import { IconUserPlus } from "@tabler/icons-react";
@@ -12,22 +12,41 @@ import {
   Container,
   Group,
   Box,
+  Center,
 } from "@mantine/core";
 
-const backgroundImages = [
-  "src/assets/backgrounds/1.png",
-  "src/assets/backgrounds/2.jpg",
-  "src/assets/backgrounds/3.jpg",
-  "src/assets/backgrounds/4.jpg",
-];
+import { Link } from "react-router-dom";
+
+import { LanguageSwitcher } from "../components/common/LanguageSwitcher";
+import Logo from "../assets/textlogo.svg?react";
+import bg1 from "../assets/backgrounds/1.png";
+import bg2 from "../assets/backgrounds/2.jpg";
+import bg3 from "../assets/backgrounds/3.jpg";
+import bg4 from "../assets/backgrounds/4.jpg";
+
+const backgroundImages = [bg1, bg2, bg3, bg4];
 
 export function LoginView() {
   const { t } = useTranslation();
-  const [bgImage, setBgImage] = useState("");
 
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * backgroundImages.length);
-    setBgImage(backgroundImages[randomIndex]);
+    const selectedImage = backgroundImages[randomIndex];
+    document.body.style.backgroundImage = `url(${selectedImage})`;
+    document.body.style.backgroundSize = "cover";
+    document.body.style.backgroundPosition = "center";
+    document.body.style.backgroundRepeat = "no-repeat";
+    document.body.style.height = "100vh";
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.backgroundImage = "";
+      document.body.style.backgroundSize = "";
+      document.body.style.backgroundPosition = "";
+      document.body.style.backgroundRepeat = "";
+      document.body.style.height = "";
+      document.body.style.overflow = "";
+    };
   }, []);
 
   const form = useForm({
@@ -44,87 +63,84 @@ export function LoginView() {
   };
 
   return (
-    <Box
-      style={{
-        height: "100vh",
-        backgroundImage: `url(${bgImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "flex-start",
-        padding: "0 5%",
-      }}
-    >
-      <Container size={460}>
-        <Paper
-          p={30}
-          radius="md"
-          style={{
-            backgroundColor: "rgba(0, 0, 0, 0.4)",
-            backdropFilter: "blur(10px)",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-          }}
-        >
-          <Title order={1} c="white" mb={5}>
-            NowStock
-          </Title>
-          <Title order={2} c="white">
-            {t("login.title")}
-          </Title>
-          <Text c="dimmed" size="sm" mt="xs" mb={30}>
-            {t("login.subtitle")}
-          </Text>
-
-          <form onSubmit={form.onSubmit(handleSubmit)}>
-            <TextInput
-              label={t("login.emailLabel")}
-              placeholder={t("login.emailPlaceholder")}
-              required
-              {...form.getInputProps("email")}
-              styles={{ label: { color: "white" } }}
+    <Box style={{ minHeight: "100vh", position: "relative" }}>
+      <Box style={{ position: "absolute", top: 20, right: 20, zIndex: 10 }}>
+        <LanguageSwitcher />
+      </Box>
+      <Center style={{ height: "100vh", padding: "0 5%" }}>
+        <Container size={460} w="100%">
+          <Paper
+            p={30}
+            radius="md"
+            style={{
+              backgroundColor: "rgba(0, 0, 0, 0.4)",
+              backdropFilter: "blur(10px)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+            }}
+          >
+            <Container style={{ display: "flex", justifyContent: "center" }}>
+            <Logo
+              style={{ width: "250px", marginBottom: "20px", color: "white"}}
             />
-            <PasswordInput
-              label={t("login.passwordLabel")}
-              placeholder="******"
-              required
-              mt="md"
-              {...form.getInputProps("password")}
-              styles={{ label: { color: "white" } }}
-            />
-            <Button type="submit" fullWidth mt="xl" size="md">
-              {t("login.button")}
-            </Button>
-          </form>
-        </Paper>
+            </Container>
+            <Title order={2} c="white">
+              {t("login.title")}
+            </Title>
+            <Text c="dimmed" size="sm" mt="xs" mb={30}>
+              {t("login.subtitle")}
+            </Text>
 
-        <Paper
-          p="md"
-          mt="lg"
-          radius="md"
-          withBorder
-          style={{
-            backgroundColor: "rgba(0, 0, 0, 0.4)",
-            backdropFilter: "blur(10px)",
-            cursor: "pointer",
-            borderColor: "rgba(255, 255, 255, 0.1)",
-          }}
-        >
-          <Group justify="space-between" align="center">
-            <div>
-              <Title order={4} c="white">
-                {t("signup.title")}
-              </Title>
-              <Text c="dimmed" size="xs">
-                {t("signup.subtitle")}
-              </Text>
-            </div>
-            <Box bg="orange" p="sm" style={{ borderRadius: "50%" }}>
-              <IconUserPlus style={{ color: "white" }} />
-            </Box>
-          </Group>
-        </Paper>
-      </Container>
+            <form onSubmit={form.onSubmit(handleSubmit)}>
+              <TextInput
+                label={t("login.emailLabel")}
+                placeholder={t("login.emailPlaceholder")}
+                required
+                {...form.getInputProps("email")}
+                styles={{ label: { color: "white" } }}
+              />
+              <PasswordInput
+                label={t("login.passwordLabel")}
+                placeholder="******"
+                required
+                mt="md"
+                {...form.getInputProps("password")}
+                styles={{ label: { color: "white" } }}
+              />
+              <Button type="submit" fullWidth mt="xl" size="md">
+                {t("login.button")}
+              </Button>
+            </form>
+          </Paper>
+          <Link to="/signup" style={{ textDecoration: "none" }}>
+          <Paper
+            p="md"
+            mt="lg"
+            radius="md"
+            withBorder
+            style={{
+              backgroundColor: "rgba(0, 0, 0, 0.4)",
+              backdropFilter: "blur(10px)",
+              cursor: "pointer",
+              borderColor: "rgba(255, 255, 255, 0.1)",
+            }}
+          >
+            <Group justify="space-between" align="center">
+              <div>
+                <Title order={4} c="white">
+                  {t("signup.title")}
+                </Title>
+                <Text c="dimmed" size="xs">
+                  {t("signup.subtitle")}
+                </Text>
+              </div>
+              <Box bg="orange" p="sm" style={{ borderRadius: "50%" }}>
+                <IconUserPlus style={{ color: "white" }} />
+              </Box>
+            </Group>
+          </Paper>
+          </Link>
+        </Container>
+      </Center>
     </Box>
   );
 }
