@@ -31,6 +31,29 @@
     "passwordMismatch": "Passwords do not match",
     "passwordRequirements": "Password needs 6+ chars, 1 uppercase, 1 number & 1 special character."
   }
+},
+"nav": {
+  "dashboard": "Dashboard",
+  "products": "Products",
+  "stock": "Stock",
+  "reports": "Reports",
+  "admin": "Administration"
+},
+"header": {
+  "profile": {
+    "edit": "Edit Profile",
+    "logout": "Logout"
+  }
+},
+"dashboard": {
+  "title": "Dashboard",
+  "stats": {
+    "totalProducts": "Total Products",
+    "lowStock": "Low Stock Items",
+    "movementsToday": "Movements Today"
+  },
+  "recentMovements": "Recent Movements",
+  "topProducts": "Top Products"
 }
 
 }

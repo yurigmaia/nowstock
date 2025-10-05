@@ -75,18 +75,18 @@ export function LoginView() {
             style={{
               backgroundColor: "rgba(0, 0, 0, 0.4)",
               backdropFilter: "blur(10px)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
+              border: "1px solid rgba(255, 255, 255, 0)",
             }}
           >
             <Container style={{ display: "flex", justifyContent: "center" }}>
-            <Logo
-              style={{ width: "250px", marginBottom: "20px", color: "white"}}
-            />
+              <Logo
+                style={{ width: "250px", marginBottom: "20px", color: "white" }}
+              />
             </Container>
             <Title order={2} c="white">
               {t("login.title")}
             </Title>
-            <Text c="dimmed" size="sm" mt="xs" mb={30}>
+            <Text c="#c2c2c2" size="sm" mt="xs" mb={30}>
               {t("login.subtitle")}
             </Text>
 
@@ -112,32 +112,32 @@ export function LoginView() {
             </form>
           </Paper>
           <Link to="/signup" style={{ textDecoration: "none" }}>
-          <Paper
-            p="md"
-            mt="lg"
-            radius="md"
-            withBorder
-            style={{
-              backgroundColor: "rgba(0, 0, 0, 0.4)",
-              backdropFilter: "blur(10px)",
-              cursor: "pointer",
-              borderColor: "rgba(255, 255, 255, 0.1)",
-            }}
-          >
-            <Group justify="space-between" align="center">
-              <div>
-                <Title order={4} c="white">
-                  {t("signup.title")}
-                </Title>
-                <Text c="dimmed" size="xs">
-                  {t("signup.subtitle")}
-                </Text>
-              </div>
-              <Box bg="orange" p="sm" style={{ borderRadius: "50%" }}>
-                <IconUserPlus style={{ color: "white" }} />
-              </Box>
-            </Group>
-          </Paper>
+            <Paper
+              p="md"
+              mt="lg"
+              radius="md"
+              withBorder
+              style={{
+                backgroundColor: "rgba(0, 0, 0, 0.4)",
+                backdropFilter: "blur(10px)",
+                cursor: "pointer",
+                borderColor: "rgba(255, 255, 255, 0.1)",
+              }}
+            >
+              <Group justify="space-between" align="center">
+                <div>
+                  <Title order={4} c="white">
+                    {t("signup.title")}
+                  </Title>
+                  <Text c="#c2c2c2" size="xs">
+                    {t("signup.subtitle")}
+                  </Text>
+                </div>
+                <Box bg="orange" p="sm" style={{ borderRadius: "10%" }}>
+                  <IconUserPlus style={{ color: "white" }} />
+                </Box>
+              </Group>
+            </Paper>
           </Link>
         </Container>
       </Center>

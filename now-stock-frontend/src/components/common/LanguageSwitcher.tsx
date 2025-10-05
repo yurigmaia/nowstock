@@ -1,5 +1,3 @@
-// src/components/common/LanguageSwitcher.tsx
-
 import { useTranslation } from "react-i18next";
 import { ActionIcon, Menu, Tooltip } from "@mantine/core";
 import { IconWorld, IconCheck } from "@tabler/icons-react";
@@ -17,8 +15,13 @@ export function LanguageSwitcher() {
     <Menu shadow="md" width={200}>
       <Menu.Target>
         <Tooltip label={t("language.switcher.tooltip")}>
-          <ActionIcon variant="filled" color="white" size="lg" radius="xl">
-            <IconWorld style={{ color: "black" }} />
+          <ActionIcon
+            variant="default"
+            size="lg"
+            radius="xl"
+            aria-label="Change language"
+          >
+            <IconWorld />
           </ActionIcon>
         </Tooltip>
       </Menu.Target>

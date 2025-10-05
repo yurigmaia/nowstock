@@ -17,6 +17,12 @@
       "label": "Selecione o idioma"
     }
   },
+  "theme": {
+    "switcher": {
+      "tooltip": "Alterar tema",
+      "label": "Selecione o tema"
+    }
+  },
   "signupPage": {
   "title": "Crie sua conta",
   "subtitle": "É rápido e fácil",
@@ -30,6 +36,30 @@
     "cnpjLength": "O CNPJ deve conter 14 dígitos",
     "passwordMismatch": "As senhas não coincidem",
     "passwordRequirements": "A senha precisa de 6+ caracteres, 1 maiúscula, 1 número e 1 caractere especial."
+    },
+    "nav": {
+  "dashboard": "Dashboard",
+  "products": "Produtos",
+  "stock": "Estoque",
+  "reports": "Relatórios",
+  "admin": "Administração"
+},
+"header": {
+  "profile": {
+    "edit": "Editar Perfil",
+    "logout": "Sair"
   }
+},
+"dashboard": {
+  "title": "Dashboard",
+  "stats": {
+    "totalProducts": "Total de Produtos",
+    "lowStock": "Itens com Estoque Baixo",
+    "movementsToday": "Movimentações Hoje"
+  },
+  "recentMovements": "Movimentações Recentes",
+  "topProducts": "Produtos Mais Movimentados"
 }
+  }
+  
 }
