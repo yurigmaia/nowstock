@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Ignora as dependencias do Node.js
+/now-stock-backend/node_modules/
+
+# Ignora o arquivo de credenciais
+/now-stock-backend/.env
