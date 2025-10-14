@@ -1,9 +1,9 @@
 const express = require('express');
 require('dotenv').config(); 
 const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/user'); // <--- 1. Importa a nova rota de usuários
+const userRoutes = require('./routes/user'); //Importa a nova rota de usuários
+const produtoRoutes = require('./routes/produto');
 const cors = require('cors'); 
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -19,6 +19,7 @@ app.use('/api/auth', authRoutes);
 
 // Rotas Protegidas: Gestão de Usuários (necessita de token e admin)
 app.use('/api/users', userRoutes); // <--- 2. Monta a rota /api/users
+app.use('/api/produtos', produtoRoutes);
 
 // Rota de teste
 app.get('/', (req, res) => {

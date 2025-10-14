@@ -16,7 +16,7 @@ router.post('/', authenticateToken, checkAdmin, async (req, res) => {
     if (nivel_acesso === 'admin') {
         return res.status(400).json({ message: "Administradores não podem ser criados por esta rota interna. Use o Cadastro Inicial." });
     }
-    const status_inicial = 'pendente'; 
+    const status_inicial = 'ativo'; 
     
     if (!nome || !email || !senha || !nivel_acesso) {
         return res.status(400).json({ message: "Nome, e-mail, senha e nível de acesso são obrigatórios." });
