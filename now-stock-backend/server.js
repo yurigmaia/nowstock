@@ -1,7 +1,8 @@
 const express = require('express');
 require('dotenv').config(); 
 const authRoutes = require('./routes/auth');
-const cors = require('cors'); //Importação do CORS
+const userRoutes = require('./routes/user'); // <--- 1. Importa a nova rota de usuários
+const cors = require('cors'); 
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,12 +14,15 @@ app.use(cors());
 app.use(express.json()); 
 
 // === ROTAS ===
-// Monta as rotas de autenticação (cadastro e login)
+// Rotas Abertas: Cadastro Inicial e Login
 app.use('/api/auth', authRoutes); 
+
+// Rotas Protegidas: Gestão de Usuários (necessita de token e admin)
+app.use('/api/users', userRoutes); // <--- 2. Monta a rota /api/users
 
 // Rota de teste
 app.get('/', (req, res) => {
-    res.send("API do Leitor RFID está online e Express rodando!");
+    res.send("API do NowStock (Leitor RFID) está online e Express rodando!");
 });
 
 // Inicia o servidor Express
@@ -27,4 +31,6 @@ app.listen(PORT, () => {
 });
 
 // Garante que a conexão com o MySQL é testada e iniciada
-require('./db');
+require('./config/db');
+
+

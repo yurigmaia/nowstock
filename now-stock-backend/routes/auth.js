@@ -1,55 +1,89 @@
 const express = require('express');
 const router = express.Router();
-const promisePool = require('../db'); // <--- AGORA SE CHAMA 'promisePool'
+const promisePool = require('../config/db'); // Conexão com Promises
 const bcrypt = require('bcryptjs'); 
 const jwt = require('jsonwebtoken'); 
 require('dotenv').config(); 
 
 // ===================================
-// Rota de CADASTRO: POST /api/auth/register
+// Rota de CADASTRO INICIAL (Usuário + Empresa): POST /api/auth/register-initial
+// Esta rota usa uma TRANSAÇÃO SQL para garantir que ambos sejam criados e vinculados.
 // ===================================
-router.post('/register', async (req, res) => {
+router.post('/register-initial', async (req, res) => {
     const { 
-        id_empresa, nome, email, senha, nivel_acesso 
+        nome_usuario, 
+        email, 
+        senha, 
+        nivel_acesso = 'admin', // Assume admin no cadastro inicial
+        nome_empresa,
+        cnpj
     } = req.body;
 
-    if (!nome || !email || !senha || !nivel_acesso || !id_empresa) {
-        return res.status(400).json({ message: "Todos os campos são obrigatórios." });
+    if (!nome_usuario || !email || !senha || !nome_empresa || !cnpj) {
+        return res.status(400).json({ message: "Todos os campos de usuário (Nome, Email, Senha) e empresa (Nome, CNPJ) são obrigatórios." });
     }
 
+    let connection; // Variável para armazenar a conexão da transação
+
     try {
-        // 1. Verificar se o e-mail já existe
-        const [existingUser] = await promisePool.query('SELECT id_usuario FROM usuarios WHERE email = ?', [email]);
-        
+        // 1. Iniciar Transação
+        connection = await promisePool.getConnection();
+        await connection.beginTransaction();
+
+        // --- 1º PASSO: CADASTRO DO USUÁRIO ---
+        // Verifica se o e-mail já existe
+        const [existingUser] = await connection.query('SELECT id_usuario FROM usuarios WHERE email = ?', [email]);
         if (existingUser.length > 0) {
+            await connection.rollback();
             return res.status(409).json({ message: "Este e-mail já está cadastrado." });
         }
 
-        // 2. HASHEAR a senha
+        // HASHEAR a senha
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(senha, salt);
 
-        // 3. Inserir o novo usuário no MySQL
-        const query = `
-            INSERT INTO usuarios (id_empresa, nome, email, senha, nivel_acesso)
-            VALUES (?, ?, ?, ?, ?)
-        `;
+        // Insere o usuário com id_empresa NULO (temporariamente - por isso o ALTER TABLE é crucial)
+        const [userResult] = await connection.query(
+            `INSERT INTO usuarios (nome, email, senha, nivel_acesso, status, id_empresa) VALUES (?, ?, ?, ?, 'ativo', NULL)`, 
+            [nome_usuario, email, hashedPassword, nivel_acesso]
+        );
+        const id_usuario = userResult.insertId;
+
+        // --- 2º PASSO: CADASTRO DA EMPRESA ---
         
-        const [result] = await promisePool.query(query, [
-            id_empresa, nome, email, hashedPassword, nivel_acesso
-        ]);
+        // Insere a empresa usando o id_usuario como responsável
+        const [companyResult] = await connection.query(
+            `INSERT INTO empresas (nome, cnpj, id_usuario_responsavel) VALUES (?, ?, ?)`,
+            [nome_empresa, cnpj, id_usuario]
+        );
+        const id_empresa = companyResult.insertId;
+
+        // --- 3º PASSO: ATUALIZAR O USUÁRIO ---
+        // Vincula o usuário Administrador à empresa que ele acabou de criar
+        await connection.query(
+            `UPDATE usuarios SET id_empresa = ? WHERE id_usuario = ?`, 
+            [id_empresa, id_usuario]
+        );
+
+        // 4. Finalizar Transação (salvar as mudanças)
+        await connection.commit();
 
         res.status(201).json({ 
-            message: "Usuário cadastrado com sucesso!", 
-            userId: result.insertId 
+            message: "Empresa e usuário administrador cadastrados com sucesso!", 
+            userId: id_usuario,
+            companyId: id_empresa
         });
 
     } catch (error) {
-        if (error.errno === 1452) {
-             return res.status(400).json({ message: "Empresa não encontrada. Verifique o id_empresa." });
+        if (connection) {
+            await connection.rollback(); // Desfaz tudo em caso de erro
         }
-        console.error("Erro ao cadastrar usuário:", error);
-        res.status(500).json({ message: "Erro interno do servidor." });
+        console.error("Erro na transação de cadastro inicial:", error);
+        res.status(500).json({ message: "Erro interno do servidor durante o cadastro inicial." });
+    } finally {
+        if (connection) {
+            connection.release(); // Libera a conexão para o pool
+        }
     }
 });
 
@@ -72,6 +106,11 @@ router.post('/login', async (req, res) => {
         if (!user) {
             return res.status(401).json({ message: "Credenciais inválidas." });
         }
+        
+        // 1b. Bloquear login se status for 'pendente' ou 'inativo'
+        if (user.status !== 'ativo') {
+             return res.status(403).json({ message: `Sua conta está com status: ${user.status}. Entre em contato com o administrador.` });
+        }
 
         // 2. Compara a senha (bcrypt)
         const isMatch = await bcrypt.compare(senha, user.senha);
@@ -93,7 +132,8 @@ router.post('/login', async (req, res) => {
             user: {
                 id: user.id_usuario,
                 nome: user.nome,
-                nivel: user.nivel_acesso
+                nivel: user.nivel_acesso,
+                id_empresa: user.id_empresa
             }
         });
 
