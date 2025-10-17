@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { LoginView } from './pages/LoginView';
 import { CompanySignUpView } from './pages/CompanySignUpView';
+import { SignUpView } from './pages/SignUpView';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import { AppLayout } from './components/layout/AppLayout';
 import { DashboardView } from './pages/DashboardView';
@@ -11,6 +12,7 @@ function App() {
     <Routes>
       {/* Rotas Públicas */}
       <Route path="/login" element={<LoginView />} />
+      <Route path="/signup" element={<SignUpView />} />
       <Route path="/signup-company" element={<CompanySignUpView />} />
 
       {/* Rotas Protegidas que usam o Layout Principal */}

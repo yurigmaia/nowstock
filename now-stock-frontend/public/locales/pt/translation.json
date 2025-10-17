@@ -7,6 +7,10 @@
     "passwordLabel": "Senha",
     "button": "Login"
   },
+    "validation": {
+    "email": "E-mail inválido",
+    "passwordLength": "A senha deve ter no mínimo 6 caracteres"
+  },
   "signup": {
     "title": "Cadastro",
     "subtitle": "Clique aqui caso não tenha login"

@@ -13,10 +13,10 @@ import {
   Group,
   Box,
   Center,
-  Alert, // <-- Adicionado Alert para exibir mensagens
+  Alert,
 } from "@mantine/core";
 
-import { Link, useNavigate } from "react-router-dom"; // <-- Adicionado useNavigate para redirecionar
+import { Link, useNavigate } from "react-router-dom";
 
 import { LanguageSwitcher } from "../components/common/LanguageSwitcher";
 import Logo from "../assets/textlogo.svg?react";
@@ -31,14 +31,12 @@ const backgroundImages = [bg1, bg2, bg3, bg4];
 
 export function LoginView() {
   const { t } = useTranslation();
-  const navigate = useNavigate(); // <-- Hook de navegação
+  const navigate = useNavigate();
 
-  // --- NOVOS ESTADOS PARA A INTEGRAÇÃO ---
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // ... (lógica de fundo) ...
     const randomIndex = Math.floor(Math.random() * backgroundImages.length);
     const selectedImage = backgroundImages[randomIndex];
     document.body.style.backgroundImage = `url(${selectedImage})`;
@@ -68,27 +66,21 @@ export function LoginView() {
   });
 
   const handleSubmit = async (values: typeof form.values) => {
-    // 1. Limpa o erro e ativa o loading
     setError(null);
     setLoading(true);
 
     try {
-      // 2. CHAMA A FUNÇÃO DE LOGIN
-      // Nota: o campo 'password' do front mapeia para 'senha' no back
       const userData = await login(values.email, values.password);
 
       console.log("Login bem-sucedido:", userData);
 
-      // 3. Redireciona para a rota principal após o sucesso
-      // Você deve decidir qual é a rota principal do seu sistema
       navigate("/dashboard");
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      // 4. Captura e exibe a mensagem de erro do backend (ex: "E-mail ou senha inválidos.")
       console.error("Erro na autenticação:", err.message);
       setError(err.message || t("login.genericError"));
     } finally {
-      // 5. Desativa o loading
       setLoading(false);
     }
   };
@@ -100,7 +92,6 @@ export function LoginView() {
       </Box>
       <Center style={{ height: "100vh", padding: "0 5%" }}>
         <Container size={460} w="100%">
-          {/* Alerta de erro aqui, logo acima do formulário */}
           {error && (
             <Alert title={t("common.error")} color="red" mb="md">
               {error}
@@ -144,7 +135,6 @@ export function LoginView() {
                 {...form.getInputProps("password")}
                 styles={{ label: { color: "white" } }}
               />
-              {/* Adicionando o prop 'loading' ao botão */}
               <Button type="submit" fullWidth mt="xl" size="md" loading={loading} disabled={loading}> 
                 {t("login.button")}
               </Button>

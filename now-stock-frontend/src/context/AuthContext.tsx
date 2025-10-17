@@ -10,7 +10,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [/*token*/, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
     const storedToken = localStorage.getItem('authToken');
@@ -29,8 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('authToken');
   };
 
-  const isAuthenticated = true;
-  //const isAuthenticated = !!token;
+  const isAuthenticated = !!token;
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, login, logout }}>

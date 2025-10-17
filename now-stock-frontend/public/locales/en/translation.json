@@ -7,6 +7,10 @@
     "passwordLabel": "Password",
     "button": "Sign In"
   },
+  "validation": {
+    "email": "Invalid email address",
+    "passwordLength": "Password must be at least 6 characters"
+  },
   "signup": {
     "title": "Sign Up",
     "subtitle": "Click here if you don't have an account"
