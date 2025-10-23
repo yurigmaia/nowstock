@@ -1,0 +1,209 @@
+.appShell {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+[data-mantine-color-scheme="dark"] .appShell {
+  background: linear-gradient(135deg, #090909 0%, #181818 100%);
+  min-height: 100vh;
+}
+
+.logoSvg {
+  height: 28px;
+  width: auto;
+  color: var(--mantine-color-text);
+}
+
+.header {
+  background: rgba(255, 255, 255, 0.8   ) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 2px solid rgba(255, 162, 0, 1) !important;
+  box-shadow: 0 1px 40px 0 rgba(0, 0, 0, 0.04);
+  z-index: 100;
+}
+
+[data-mantine-color-scheme="dark"] .header {
+  background: rgba(30, 30, 30, 1) !important;
+  border-bottom: 2px solid rgba(255, 162, 0, 1) !important;
+}
+
+.logo {
+  font-weight: 600;
+  background: linear-gradient(135deg, #FF6E00 0%, #FFAE00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+  font-size: 1.3rem;
+}
+
+.burger {
+  transition: all 0.2s ease;
+}
+
+.burger:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+}
+
+.iconButton {
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.iconButton:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-mantine-color-scheme="dark"] .iconButton:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.avatar {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: linear-gradient(135deg, #FF6E00 0%, #FFAE00 100%);
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.menuDropdown {
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+[data-mantine-color-scheme="dark"] .menuDropdown {
+  background: rgba(30, 30, 30, 0.98) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.menuItem {
+  border-radius: 6px;
+  margin: 4px;
+  transition: all 0.2s ease;
+}
+
+.navbar {
+  background: rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 1px 0 40px 0 rgba(0, 0, 0, 0.04);
+}
+
+[data-mantine-color-scheme="dark"] .navbar {
+  background: rgba(30, 30, 30, 1) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navSection {
+  padding: 8px;
+}
+
+.navLink {
+  margin-bottom: 4px;
+}
+
+.navLinkRoot {
+  border-radius: 12px !important;
+  padding: 10px 12px !important;
+  transition: all 0.2s ease;
+  border: 0px solid transparent;
+  font-size: 0.95rem;
+}
+
+.navLinkLabel {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.85);
+}
+
+[data-mantine-color-scheme="dark"] .navLinkLabel {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.navLinkRoot:hover:not([data-disabled]) {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0,06);
+}
+
+[data-mantine-color-scheme="dark"] .navLinkRoot:hover:not([data-disabled]) {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navLinkRoot[data-active] {
+  background: linear-gradient(135deg, #FF6E00 0%, #FFAE00 100%);
+  color: white !important;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.navLinkRoot[data-active] .navLinkLabel {
+  color: white !important;
+}
+
+.navLinkRoot[data-active] svg {
+  color: white !important;
+}
+
+.navLinkRoot[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.navLinkRoot[data-disabled] .navLinkLabel {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+[data-mantine-color-scheme="dark"] .navLinkRoot[data-disabled] .navLinkLabel {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.main {
+  padding: 24px;
+}
+
+.content {
+  max-width: 1400px;
+  margin: 0 auto;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+  }
+  
+  .navbar {
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+  }
+  
+  .logo {
+    font-size: 1.1rem;
+  }
+  
+  .main {
+    padding: 16px;
+  }
+}

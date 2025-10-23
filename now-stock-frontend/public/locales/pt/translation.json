@@ -1,0 +1,65 @@
+{
+  "login": {
+    "title": "Login",
+    "subtitle": "Preencha os campos para efetuar o login",
+    "emailLabel": "E-mail",
+    "emailPlaceholder": "seu@email.com",
+    "passwordLabel": "Senha",
+    "button": "Login"
+  },
+  "signup": {
+    "title": "Cadastro",
+    "subtitle": "Clique aqui caso não tenha login"
+  },
+  "language": {
+    "switcher": {
+      "tooltip": "Alterar idioma",
+      "label": "Selecione o idioma"
+    }
+  },
+  "theme": {
+    "switcher": {
+      "tooltip": "Alterar tema",
+      "label": "Selecione o tema"
+    }
+  },
+  "signupPage": {
+  "title": "Crie sua conta",
+  "subtitle": "É rápido e fácil",
+  "companyNameLabel": "Nome da Empresa",
+  "cnpjLabel": "CNPJ",
+  "emailLabel": "E-mail",
+  "passwordLabel": "Senha",
+  "confirmPasswordLabel": "Confirme sua Senha",
+  "button": "Cadastrar",
+  "errors": {
+    "cnpjLength": "O CNPJ deve conter 14 dígitos",
+    "passwordMismatch": "As senhas não coincidem",
+    "passwordRequirements": "A senha precisa de 6+ caracteres, 1 maiúscula, 1 número e 1 caractere especial."
+    },
+    "nav": {
+  "dashboard": "Dashboard",
+  "products": "Produtos",
+  "stock": "Estoque",
+  "reports": "Relatórios",
+  "admin": "Administração"
+},
+"header": {
+  "profile": {
+    "edit": "Editar Perfil",
+    "logout": "Sair"
+  }
+},
+"dashboard": {
+  "title": "Dashboard",
+  "stats": {
+    "totalProducts": "Total de Produtos",
+    "lowStock": "Itens com Estoque Baixo",
+    "movementsToday": "Movimentações Hoje"
+  },
+  "recentMovements": "Movimentações Recentes",
+  "topProducts": "Produtos Mais Movimentados"
+}
+  }
+  
+}
