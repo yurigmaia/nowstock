@@ -109,4 +109,33 @@ router.put('/:id', authenticateToken, checkAdmin, async (req, res) => {
     }
 });
 
+// --- Rota para EXCLUIR um fornecedor ---
+// ENDPOINT: DELETE /api/fornecedores/:id
+// Apenas Administradores podem excluir
+router.delete('/:id', authenticateToken, checkAdmin, async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // [OPCIONAL] Adicionar verificação se há produtos usando este fornecedor antes de deletar (Integridade referencial)
+
+        const [result] = await promisePool.query(
+            'DELETE FROM fornecedores WHERE id_fornecedor = ?',
+            [id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Fornecedor não encontrado para exclusão." });
+        }
+
+        res.status(200).json({
+            message: `Fornecedor ID ${id} excluído com sucesso.`,
+            deleted: true
+        });
+
+    } catch (error) {
+        console.error("Erro ao excluir fornecedor:", error);
+        res.status(500).json({ message: "Erro interno do servidor ao excluir fornecedor. Verifique se não há produtos vinculados." });
+    }
+});
+
 module.exports = router;

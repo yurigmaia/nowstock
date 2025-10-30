@@ -96,4 +96,33 @@ router.put('/:id', authenticateToken, checkAdmin, async (req, res) => {
     }
 });
 
+// --- Rota para EXCLUIR uma categoria ---
+// ENDPOINT: DELETE /api/categorias/:id
+// Apenas Administradores podem excluir
+router.delete('/:id', authenticateToken, checkAdmin, async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // [OPCIONAL] Adicionar verificação se há produtos usando esta categoria antes de deletar (Integridade referencial)
+        
+        const [result] = await promisePool.query(
+            'DELETE FROM categorias WHERE id_categoria = ?',
+            [id]
+        );
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: "Categoria não encontrada para exclusão." });
+        }
+
+        res.status(200).json({
+            message: `Categoria ID ${id} excluída com sucesso.`,
+            deleted: true
+        });
+
+    } catch (error) {
+        console.error("Erro ao excluir categoria:", error);
+        res.status(500).json({ message: "Erro interno do servidor ao excluir categoria. Verifique se não há produtos vinculados." });
+    }
+});
+
 module.exports = router;
