@@ -4,9 +4,6 @@
  * Serviço dedicado para lidar com todas as chamadas de API relacionadas
  * à autenticação, incluindo login, registro e logout.
  */
-
-// --- 1. Definindo os Tipos (Contratos da API) ---
-
 export interface LoginPayload {
   email: string;
   senha: string;
@@ -41,12 +38,8 @@ export interface RegisterInitialPayload {
   cnpj: string;
 }
 
-// --- Configuração da API ---
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
-/**
- * Lida com respostas de erro da API de forma padronizada.
- */
 const handleResponse = async (response: Response) => {
   const result = await response.json();
   if (!response.ok) {
@@ -55,11 +48,6 @@ const handleResponse = async (response: Response) => {
   return result;
 };
 
-// --- Funções de Serviço ---
-
-/**
- * Registra a empresa e o usuário admin inicial.
- */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const registerInitial = async (data: RegisterInitialPayload): Promise<any> => {
   try {
@@ -77,9 +65,6 @@ export const registerInitial = async (data: RegisterInitialPayload): Promise<any
   }
 };
 
-/**
- * Autentica um usuário e retorna um token e dados do usuário.
- */
 export const login = async (email: string, senha: string): Promise<AuthResponse> => {
   try {
     const response = await fetch(`${API_URL}/auth/login`, {
@@ -102,17 +87,11 @@ export const login = async (email: string, senha: string): Promise<AuthResponse>
   }
 };
 
-/**
- * Remove os dados de autenticação do localStorage.
- */
 export const logout = (): void => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
 };
 
-/**
- * Registra um novo usuário (Operador) e o deixa com status 'PENDENTE'.
- */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const registerUser = async (data: UserRegisterPayload): Promise<any> => {
   try {

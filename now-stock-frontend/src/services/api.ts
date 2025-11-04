@@ -14,9 +14,6 @@ import type { User, Product, Category, Supplier } from "../types/entities";
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
-/**
- * Pega o token de autenticação do localStorage para enviar nas requisições.
- */
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
   return {
@@ -25,12 +22,8 @@ const getAuthHeaders = () => {
   };
 };
 
-/**
- * Lida com respostas de erro da API
- */
 const handleResponse = async (response: Response) => {
   if (!response.ok) {
-    // Tenta extrair a mensagem de erro do JSON do backend
     try {
       const errorData = await response.json();
       throw new Error(errorData.message || `Erro HTTP: ${response.status}`);
