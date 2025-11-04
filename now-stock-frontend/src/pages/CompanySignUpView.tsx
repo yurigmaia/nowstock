@@ -1,142 +1,204 @@
-import { useForm } from '@mantine/form';
-import { useTranslation } from 'react-i18next';
+/**
+ * @component CompanySignUpView
+ * @description
+ * Tela de cadastro inicial para um novo cliente (Empresa + Administrador).
+ * Coleta dados da empresa e do usuário admin, valida-os e os envia
+ * para a rota de 'register-initial' no backend.
+ */
+import { useState } from "react";
 import {
-  TextInput,
-  PasswordInput,
-  Button,
+  Box,
   Paper,
   Title,
   Text,
-  Container,
-  Box,
-  Center,
+  TextInput,
+  PasswordInput,
+  Button,
+  Stack,
   Divider,
   Anchor,
-} from '@mantine/core';
-import { LanguageSwitcher } from '../components/common/LanguageSwitcher';
-import { useNavigate, Link } from 'react-router-dom';
+  Center,
+  Container,
+} from "@mantine/core";
+import { IconX, IconCheck } from "@tabler/icons-react";
+import { useForm } from "@mantine/form";
+import { useNavigate, Link } from "react-router-dom";
+import { notifications } from "@mantine/notifications";
+import { registerInitial } from "../services/authService";
 
 export function CompanySignUpView() {
-  const { t } = useTranslation();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const form = useForm({
     initialValues: {
-      companyName: '',
-      cnpj: '',
-      adminName: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
+      companyName: "",
+      cnpj: "",
+      adminName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
     },
     validate: {
-      companyName: (value) => (value.trim().length < 2 ? 'Company name is too short' : null),
+      companyName: (value) => (value.trim().length < 2 ? 'Nome da empresa muito curto' : null),
       cnpj: (value) => (
-        /^\d{14}$/.test(value.replace(/[^\d]/g, '')) ? null : t('signupPage.errors.cnpjLength')
+        /^\d{14}$/.test(value.replace(/[^\d]/g, '')) ? null : 'O CNPJ deve conter 14 dígitos'
       ),
-      adminName: (value) =>
-        value.trim().length < 3 ? 'Full name must have at least 3 characters' : null,
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
+      adminName: (value) => (value.trim().length < 3 ? 'Nome completo deve ter 3+ caracteres' : null),
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'E-mail inválido'),
       password: (value) => (
         /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{6,}/.test(value)
           ? null
-          : t('signupPage.errors.passwordRequirements')
+          : 'A senha precisa de 6+ caracteres, 1 maiúscula, 1 número e 1 caractere especial.'
       ),
       confirmPassword: (value, values) =>
-        value !== values.password ? t('signupPage.errors.passwordMismatch') : null,
+        value !== values.password ? 'As senhas não coincidem' : null,
     },
   });
 
-  const handleSubmit = (values: typeof form.values) => {
-    console.log('New company and admin data:', {
-      companyName: values.companyName,
-      cnpj: values.cnpj,
-      adminName: values.adminName,
-      email: values.email,
-      password: values.password,
-    });
+  const handleSubmit = async (values: typeof form.values) => {
+    setLoading(true);
+    try {
+      const payload = {
+        nome_empresa: values.companyName,
+        cnpj: values.cnpj.replace(/[^\d]/g, ''),
+        nome_usuario: values.adminName,
+        email: values.email,
+        senha: values.password,
+      };
+
+      await registerInitial(payload);
+
+      notifications.show({
+        title: 'Cadastro Realizado!',
+        message: 'Sua empresa e usuário foram criados com sucesso. Faça o login.',
+        color: 'green',
+        icon: <IconCheck />,
+      });
+      navigate('/login');
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      notifications.show({
+        title: 'Erro no Cadastro',
+        message: error.message || 'Não foi possível completar o cadastro.',
+        color: 'red',
+        icon: <IconX />,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <Box bg="dark.8" style={{ minHeight: '100vh', paddingTop: 40, paddingBottom: 40 }}>
-      <Box style={{ position: 'absolute', top: 20, right: 20, zIndex: 10 }}>
-        <LanguageSwitcher />
-      </Box>
+    <Box
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#1a1a1a",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 20,
+        position: "relative",
+      }}
+    >
       <Center>
         <Container size={500} w="100%">
           <Title ta="center" c="white">
-            {t('companySignupPage.title')}
+            Crie sua conta
           </Title>
           <Text c="dimmed" size="sm" ta="center" mt={5}>
-            {t('companySignupPage.subtitle')}
+            É rápido e fácil
           </Text>
 
-          <Paper withBorder shadow="md" p={30} mt={30} radius="md">
+          <Paper
+            p={30}
+            withBorder
+            radius="md"
+            style={{
+              width: "100%",
+              maxWidth: 500,
+              background: "rgba(30, 30, 30, 0.72)",
+              backdropFilter: "blur(20px)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              marginTop: 30,
+            }}
+          >
             <form onSubmit={form.onSubmit(handleSubmit)}>
-              <Title order={4} c="dimmed" tt="uppercase" fz="xs" fw={700}>
-                {t('companySignupPage.companyData')}
-              </Title>
-              <TextInput
-                label={t('companySignupPage.companyNameLabel')}
-                placeholder="Nome da sua empresa"
-                required
-                mt="md"
-                {...form.getInputProps('companyName')}
-              />
-              <TextInput
-                label={t('companySignupPage.cnpjLabel')}
-                placeholder="Apenas números"
-                required
-                mt="md"
-                maxLength={14}
-                {...form.getInputProps('cnpj')}
-              />
+              <Stack gap="md">
+                <div>
+                  <Title order={3} c="orange.6" mb={16}>
+                    Dados da Empresa
+                  </Title>
+                  <Stack gap="md">
+                    <TextInput
+                      label="Nome da Empresa"
+                      placeholder="Sua empresa"
+                      required
+                      {...form.getInputProps("companyName")}
+                      styles={{ label: { color: "white" } }}
+                    />
+                    <TextInput
+                      label="CNPJ"
+                      placeholder="00000000000000"
+                      maxLength={14}
+                      required
+                      {...form.getInputProps("cnpj")}
+                      styles={{ label: { color: "white" } }}
+                    />
+                  </Stack>
+                </div>
 
-              <Divider my="lg" />
+                <Divider />
 
-              <Title order={4} c="dimmed" tt="uppercase" fz="xs" fw={700}>
-                {t('companySignupPage.adminData')}
-              </Title>
-              <TextInput
-                label={t('companySignupPage.adminNameLabel')}
-                placeholder="Seu nome completo"
-                required
-                mt="md"
-                {...form.getInputProps('adminName')}
-              />
-              <TextInput
-                label={t('companySignupPage.emailLabel')}
-                placeholder={t('companySignupPage.emailPlaceholder')}
-                required
-                mt="md"
-                {...form.getInputProps('email')}
-              />
-              <PasswordInput
-                label={t('companySignupPage.passwordLabel')}
-                placeholder="******"
-                required
-                mt="md"
-                {...form.getInputProps('password')}
-              />
-              <PasswordInput
-                label={t('companySignupPage.confirmPasswordLabel')}
-                placeholder="******"
-                required
-                mt="md"
-                {...form.getInputProps('confirmPassword')}
-              />
+                <div>
+                  <Title order={3} c="orange.6" mb={16}>
+                    Dados do Administrador
+                  </Title>
+                  <Stack gap="md">
+                    <TextInput
+                      label="Nome Completo"
+                      placeholder="João Silva"
+                      required
+                      {...form.getInputProps("adminName")}
+                      styles={{ label: { color: "white" } }}
+                    />
+                    <TextInput
+                      label="E-mail"
+                      placeholder="admin@email.com"
+                      required
+                      {...form.getInputProps("email")}
+                      styles={{ label: { color: "white" } }}
+                    />
+                    <PasswordInput
+                      label="Senha"
+                      placeholder="******"
+                      required
+                      {...form.getInputProps("password")}
+                      styles={{ label: { color: "white" } }}
+                    />
+                    <PasswordInput
+                      label="Confirme sua Senha"
+                      placeholder="******"
+                      required
+                      {...form.getInputProps("confirmPassword")}
+                      styles={{ label: { color: "white" } }}
+                    />
+                  </Stack>
+                </div>
 
-              <Button type="submit" fullWidth mt="xl">
-                {t('companySignupPage.button')}
-              </Button>
+                <Button fullWidth bg="orange.6" c="white" type="submit" loading={loading}>
+                  Criar Conta
+                </Button>
+              </Stack>
             </form>
           </Paper>
-
+          
           <Text ta="center" mt="md" size="sm" c="dimmed">
-            Already have an account?{' '}
+            Já tem uma conta?{' '}
             <Anchor component={Link} to="/login" c="orange">
-              Sign in
+              Entrar
             </Anchor>
           </Text>
         </Container>
