@@ -2,8 +2,10 @@
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   min-height: 100vh;
 }
+
 [data-mantine-color-scheme="dark"] .appShell {
   background: linear-gradient(135deg, #090909 0%, #181818 100%);
+  background: #1a1a1a;
   min-height: 100vh;
 }
 
