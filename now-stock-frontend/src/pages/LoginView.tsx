@@ -30,7 +30,7 @@ import bg2 from "../assets/backgrounds/2.jpg";
 import bg3 from "../assets/backgrounds/3.jpg";
 import bg4 from "../assets/backgrounds/4.jpg";
 import { login as apiLogin } from "../services/authService";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from '../hooks/useAuth';
 import { notifications } from "@mantine/notifications";
 
 const backgroundImages = [bg1, bg2, bg3, bg4];

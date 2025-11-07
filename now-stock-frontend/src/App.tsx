@@ -16,6 +16,7 @@ import { CategoriesView } from './pages/CategoriesView';
 import { ReportsView } from './pages/ReportsView';
 import { MovementsView } from './pages/MovementsView';
 import { ProfileView } from './pages/ProfileView';
+import { SettingsView } from './pages/SettingsView';
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
         <Route path="reports" element={<ReportsView />} />
         <Route path="movements" element={<MovementsView />} />
         <Route path="profile" element={<ProfileView />} />
+        <Route path="settings" element={<SettingsView />} />
       </Route>
     </Routes>
   );

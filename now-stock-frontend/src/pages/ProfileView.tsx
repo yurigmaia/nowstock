@@ -18,7 +18,7 @@ import {
   Modal,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from '../hooks/useAuth';
 import { notifications } from "@mantine/notifications";
 import { IconAlertTriangle, IconCheck, IconX } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";

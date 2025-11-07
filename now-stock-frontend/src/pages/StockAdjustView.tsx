@@ -25,7 +25,7 @@ import { useState, useEffect } from "react";
 import { notifications } from "@mantine/notifications";
 import { IconCheck, IconX } from "@tabler/icons-react";
 
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from '../hooks/useAuth';
 import { apiService } from "../services/api";
 import type { Product } from "../types/entities";
 

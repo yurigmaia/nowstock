@@ -15,6 +15,8 @@ export interface UserResponse {
   email: string;
   nivel: 'admin' | 'operador';
   id_empresa: number;
+  tema: 'light' | 'dark';
+  idioma: 'pt' | 'en';
 }
 
 export interface AuthResponse {
@@ -38,7 +40,7 @@ export interface RegisterInitialPayload {
   cnpj: string;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 const handleResponse = async (response: Response) => {
   const result = await response.json();
