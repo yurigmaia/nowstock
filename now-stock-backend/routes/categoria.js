@@ -1,15 +1,23 @@
+/**
+ * @file categoria.js
+ * @description
+ * Define as rotas (endpoints) para o CRUD (Criar, Ler, Atualizar, Deletar)
+ * da entidade 'categorias'. Inclui middlewares de autenticação (authenticateToken)
+ * e autorização (checkAdmin), e garante o isolamento de dados (multi-tenancy)
+ * filtrando todas as consultas pelo 'id_empresa' do usuário logado.
+ */
 const express = require('express');
 const router = express.Router();
 const promisePool = require('../config/db'); 
 const { authenticateToken, checkAdmin } = require('../middleware/auth');
 
-// --- Rota para LISTAR todas as categorias ---
-// ENDPOINT: GET /api/categorias
-// Permite que qualquer usuário autenticado acesse
 router.get('/', authenticateToken, async (req, res) => {
+    const id_empresa = req.user.empresa;
+
     try {
         const [rows] = await promisePool.query(
-            'SELECT id_categoria, nome, descricao FROM categorias ORDER BY nome'
+            'SELECT id_categoria, nome, descricao FROM categorias WHERE id_empresa = ? ORDER BY nome',
+            [id_empresa]
         );
         res.status(200).json(rows);
     } catch (error) {
@@ -18,32 +26,29 @@ router.get('/', authenticateToken, async (req, res) => {
     }
 });
 
-// --- Rota para CADASTRAR uma nova categoria ---
-// ENDPOINT: POST /api/categorias
-// Apenas Administradores podem criar categorias (checkAdmin)
 router.post('/', authenticateToken, checkAdmin, async (req, res) => {
     const { nome, descricao } = req.body;
+    const id_empresa = req.user.empresa;
 
     if (!nome) {
         return res.status(400).json({ message: "O nome da categoria é obrigatório." });
     }
 
     try {
-        // 1. Verificar unicidade do nome (recomendado)
         const [existingCategory] = await promisePool.query(
-            'SELECT id_categoria FROM categorias WHERE nome = ?',
-            [nome]
+            'SELECT id_categoria FROM categorias WHERE nome = ? AND id_empresa = ?',
+            [nome, id_empresa]
         );
         if (existingCategory.length > 0) {
             return res.status(409).json({ message: "Uma categoria com este nome já existe." });
         }
         
-        // 2. Inserir a nova categoria
         const query = `
-            INSERT INTO categorias (nome, descricao)
-            VALUES (?, ?)
+            INSERT INTO categorias (id_empresa, nome, descricao)
+            VALUES (?, ?, ?)
         `;
         const [result] = await promisePool.query(query, [
+            id_empresa,
             nome,
             descricao || null 
         ]);
@@ -59,26 +64,24 @@ router.post('/', authenticateToken, checkAdmin, async (req, res) => {
     }
 });
 
-// --- Rota para ATUALIZAR uma categoria ---
-// ENDPOINT: PUT /api/categorias/:id
-// Apenas Administradores podem atualizar categorias (checkAdmin)
 router.put('/:id', authenticateToken, checkAdmin, async (req, res) => {
     const { id } = req.params;
     const { nome, descricao } = req.body;
+    const id_empresa = req.user.empresa;
 
     if (!nome) {
         return res.status(400).json({ message: "O nome da categoria é obrigatório para atualização."});
     }
 
     try {
-        // 1. Atualizar a categoria
         const query = `
-            UPDATE categorias SET nome = ?, descricao = ? WHERE id_categoria = ?
+            UPDATE categorias SET nome = ?, descricao = ? WHERE id_categoria = ? AND id_empresa = ?
         `;
         const [result] = await promisePool.query(query, [
             nome,
             descricao || null,
-            id
+            id,
+            id_empresa
         ]);
 
         if (result.affectedRows === 0) {
@@ -96,18 +99,14 @@ router.put('/:id', authenticateToken, checkAdmin, async (req, res) => {
     }
 });
 
-// --- Rota para EXCLUIR uma categoria ---
-// ENDPOINT: DELETE /api/categorias/:id
-// Apenas Administradores podem excluir
 router.delete('/:id', authenticateToken, checkAdmin, async (req, res) => {
     const { id } = req.params;
+    const id_empresa = req.user.empresa;
 
     try {
-        // [OPCIONAL] Adicionar verificação se há produtos usando esta categoria antes de deletar (Integridade referencial)
-        
         const [result] = await promisePool.query(
-            'DELETE FROM categorias WHERE id_categoria = ?',
-            [id]
+            'DELETE FROM categorias WHERE id_categoria = ? AND id_empresa = ?',
+            [id, id_empresa]
         );
 
         if (result.affectedRows === 0) {

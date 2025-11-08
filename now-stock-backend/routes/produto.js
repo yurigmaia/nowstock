@@ -1,14 +1,20 @@
+/**
+ * @file produto.js
+ * @description
+ * Define as rotas (endpoints) para o CRUD (Criar, Ler, Atualizar, Deletar)
+ * da entidade 'produtos'. Inclui middlewares de autenticação (authenticateToken)
+ * e autorização (checkAdminOrOperator), e garante o isolamento de dados (multi-tenancy)
+ * filtrando todas as consultas pelo 'id_empresa' do usuário logado.
+ */
 const express = require('express');
 const router = express.Router();
 const promisePool = require('../config/db'); 
 const { authenticateToken, checkAdminOrOperator } = require('../middleware/auth'); 
 
-// --- Rota para LISTAR todos os produtos ---
-// ENDPOINT: GET /api/produtos
-// Permite Administradores e Operadores
 router.get('/', authenticateToken, checkAdminOrOperator, async (req, res) => {
+    const id_empresa = req.user.empresa;
+
     try {
-        // Seleciona todos os campos do produto e os nomes da categoria e fornecedor (JOIN)
         const query = `
             SELECT 
                 p.id_produto, 
@@ -21,13 +27,17 @@ router.get('/', authenticateToken, checkAdminOrOperator, async (req, res) => {
                 p.id_categoria, 
                 c.nome AS nome_categoria, 
                 p.id_fornecedor, 
-                f.nome AS nome_fornecedor
+                f.nome AS nome_fornecedor,
+                COALESCE(e.quantidade_atual, 0) AS quantidade_atual,
+                e.localizacao
             FROM produtos p
             LEFT JOIN categorias c ON p.id_categoria = c.id_categoria
             LEFT JOIN fornecedores f ON p.id_fornecedor = f.id_fornecedor
+            LEFT JOIN estoque e ON p.id_produto = e.id_produto
+            WHERE p.id_empresa = ?
             ORDER BY p.nome
         `;
-        const [rows] = await promisePool.query(query);
+        const [rows] = await promisePool.query(query, [id_empresa]);
         res.status(200).json(rows);
     } catch (error) {
         console.error("Erro ao listar produtos:", error);
@@ -35,10 +45,6 @@ router.get('/', authenticateToken, checkAdminOrOperator, async (req, res) => {
     }
 });
 
-
-// --- Rota para CADASTRAR um novo produto (POST) ---
-// ENDPOINT: POST /api/produtos
-// Permite Administradores e Operadores
 router.post('/', authenticateToken, checkAdminOrOperator, async (req, res) => {
     const { 
         id_categoria, 
@@ -51,34 +57,32 @@ router.post('/', authenticateToken, checkAdminOrOperator, async (req, res) => {
         etiqueta_rfid 
     } = req.body;
     
-    // O ID do usuário que cadastrou vem do token (req.user.id)
     const id_usuario_cadastro = req.user.id; 
+    const id_empresa = req.user.empresa;
 
-    // Validação básica dos campos obrigatórios
     if (!nome || !etiqueta_rfid) {
         return res.status(400).json({ message: "Nome e Etiqueta RFID são campos obrigatórios." });
     }
 
     try {
-        // 1. Verificar se a Etiqueta RFID já existe (garantindo a UNICIDADE)
         const [existingTag] = await promisePool.query(
-            'SELECT id_produto FROM produtos WHERE etiqueta_rfid = ?', 
-            [etiqueta_rfid]
+            'SELECT id_produto FROM produtos WHERE etiqueta_rfid = ? AND id_empresa = ?', 
+            [etiqueta_rfid, id_empresa]
         );
         if (existingTag.length > 0) {
             return res.status(409).json({ message: "Esta Etiqueta RFID (EPC) já está cadastrada em outro produto." });
         }
         
-        // 2. Inserir o novo produto na tabela
         const query = `
             INSERT INTO produtos (
-                id_categoria, id_fornecedor, nome, descricao, preco_custo, 
+                id_empresa, id_categoria, id_fornecedor, nome, descricao, preco_custo, 
                 preco_venda, quantidade_minima, etiqueta_rfid
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         
         const [result] = await promisePool.query(query, [
+            id_empresa,
             id_categoria || null, 
             id_fornecedor || null, 
             nome, 
@@ -100,39 +104,33 @@ router.post('/', authenticateToken, checkAdminOrOperator, async (req, res) => {
     }
 });
 
-
-// --- Rota para ATUALIZAR um produto ---
-// ENDPOINT: PUT /api/produtos/:id
-// Permite Administradores e Operadores
 router.put('/:id', authenticateToken, checkAdminOrOperator, async (req, res) => {
     const { id } = req.params;
     const { 
         id_categoria, id_fornecedor, nome, descricao, preco_custo, 
         preco_venda, quantidade_minima, etiqueta_rfid
     } = req.body;
+    const id_empresa = req.user.empresa;
 
-    // Validação básica
     if (!nome || !etiqueta_rfid) {
         return res.status(400).json({ message: "Nome e Etiqueta RFID são obrigatórios para atualização." });
     }
 
     try {
-        // 1. Verificar unicidade da etiqueta RFID, excluindo o produto atual
         const [existingTag] = await promisePool.query(
-            'SELECT id_produto FROM produtos WHERE etiqueta_rfid = ? AND id_produto != ?', 
-            [etiqueta_rfid, id]
+            'SELECT id_produto FROM produtos WHERE etiqueta_rfid = ? AND id_produto != ? AND id_empresa = ?', 
+            [etiqueta_rfid, id, id_empresa]
         );
         if (existingTag.length > 0) {
             return res.status(409).json({ message: "Outro produto já está usando esta Etiqueta RFID (EPC)." });
         }
         
-        // 2. Atualizar o produto
         const query = `
             UPDATE produtos SET 
                 id_categoria = ?, id_fornecedor = ?, nome = ?, descricao = ?, 
                 preco_custo = ?, preco_venda = ?, quantidade_minima = ?, 
                 etiqueta_rfid = ?
-            WHERE id_produto = ?
+            WHERE id_produto = ? AND id_empresa = ?
         `;
         
         const [result] = await promisePool.query(query, [
@@ -144,7 +142,8 @@ router.put('/:id', authenticateToken, checkAdminOrOperator, async (req, res) => 
             preco_venda || 0.00,
             quantidade_minima || 0,
             etiqueta_rfid,
-            id
+            id,
+            id_empresa
         ]);
 
         if (result.affectedRows === 0) {
@@ -162,21 +161,14 @@ router.put('/:id', authenticateToken, checkAdminOrOperator, async (req, res) => 
     }
 });
 
-
-// --- Rota para EXCLUIR um produto ---
-// ENDPOINT: DELETE /api/produtos/:id
-// Permite Administradores e Operadores
 router.delete('/:id', authenticateToken, checkAdminOrOperator, async (req, res) => {
     const { id } = req.params;
+    const id_empresa = req.user.empresa;
 
     try {
-        // Nota: É importante que qualquer entrada em outras tabelas (como estoque/movimentação)
-        // que faça referência a este produto seja tratada (ex: configurada para CASCADE DELETE 
-        // no MySQL ou tratada aqui) para manter a integridade.
-
         const [result] = await promisePool.query(
-            'DELETE FROM produtos WHERE id_produto = ?',
-            [id]
+            'DELETE FROM produtos WHERE id_produto = ? AND id_empresa = ?',
+            [id, id_empresa]
         );
 
         if (result.affectedRows === 0) {
