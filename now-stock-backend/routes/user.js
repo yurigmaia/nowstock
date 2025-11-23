@@ -1,10 +1,9 @@
 /**
  * @file user.js
  * @description
- * Define as rotas (endpoints) para o CRUD (Criar, Ler, Atualizar, Deletar)
- * da entidade 'usuarios'. Estas rotas são protegidas e restritas a administradores (checkAdmin),
- * e garantem o isolamento de dados (multi-tenancy) filtrando todas as consultas
- * pelo 'id_empresa' do administrador logado.
+ * Define as rotas (endpoints) para o CRUD de usuários e gestão de preferências.
+ * As rotas administrativas são protegidas por 'checkAdmin'.
+ * A rota de preferências é aberta para o próprio usuário atualizar seus dados.
  */
 const express = require('express');
 const router = express.Router();
@@ -32,11 +31,10 @@ router.get('/', authenticateToken, checkAdmin, async (req, res) => {
 
 router.post('/', authenticateToken, checkAdmin, async (req, res) => {
     const { nome, email, senha, nivel_acesso } = req.body;
-    
     const id_empresa = req.user.empresa; 
 
     if (nivel_acesso === 'admin') {
-        return res.status(400).json({ message: "Administradores não podem ser criados por esta rota interna. Use o Cadastro Inicial." });
+        return res.status(400).json({ message: "Administradores não podem ser criados por esta rota interna." });
     }
     const status_inicial = 'ativo'; 
     
@@ -63,12 +61,12 @@ router.post('/', authenticateToken, checkAdmin, async (req, res) => {
         ]);
 
         res.status(201).json({ 
-            message: `Usuário '${nome}' cadastrado com sucesso! Status: ${status_inicial}.`, 
+            message: `Usuário '${nome}' cadastrado com sucesso!`, 
             userId: result.insertId 
         });
 
     } catch (error) {
-        console.error("Erro ao cadastrar usuário (rota interna):", error);
+        console.error("Erro ao cadastrar usuário:", error);
         res.status(500).json({ message: "Erro interno do servidor." });
     }
 });
@@ -76,7 +74,6 @@ router.post('/', authenticateToken, checkAdmin, async (req, res) => {
 router.put('/:id', authenticateToken, checkAdmin, async (req, res) => {
     const { id } = req.params;
     const { nome, email, nivel_acesso, status } = req.body;
-    
     const id_empresa = req.user.empresa;
 
     if (id === req.user.id.toString()) {
@@ -144,7 +141,7 @@ router.delete('/:id', authenticateToken, checkAdmin, async (req, res) => {
         );
 
         if (result.affectedRows === 0) {
-            return res.status(404).json({ message: "Usuário não encontrado ou não pertence à sua empresa para exclusão." });
+            return res.status(404).json({ message: "Usuário não encontrado ou não pertence à sua empresa." });
         }
 
         res.status(200).json({
@@ -164,7 +161,7 @@ router.patch('/:id/status', authenticateToken, checkAdmin, async (req, res) => {
     const id_empresa = req.user.empresa;
 
     if (!status || !['ativo', 'inativo', 'pendente'].includes(status)) {
-        return res.status(400).json({ message: "Status inválido. Use 'ativo', 'inativo' ou 'pendente'." });
+        return res.status(400).json({ message: "Status inválido." });
     }
 
     try {
@@ -174,13 +171,52 @@ router.patch('/:id/status', authenticateToken, checkAdmin, async (req, res) => {
         );
 
         if (result.affectedRows === 0) {
-            return res.status(404).json({ message: "Usuário não encontrado ou não pertence à sua empresa." });
+            return res.status(404).json({ message: "Usuário não encontrado." });
         }
 
-        res.status(200).json({ message: `Status do usuário ID ${id} atualizado para ${status}.` });
+        res.status(200).json({ message: `Status atualizado para ${status}.` });
 
     } catch (error) {
-        console.error("Erro ao atualizar status do usuário:", error);
+        console.error("Erro ao atualizar status:", error);
+        res.status(500).json({ message: "Erro interno do servidor." });
+    }
+});
+
+router.put('/:id/preferences', authenticateToken, async (req, res) => {
+    const { id } = req.params;
+    const { tema, idioma } = req.body;
+
+    if (req.user.id != id) {
+        return res.status(403).json({ message: "Você só pode alterar suas próprias preferências." });
+    }
+
+    try {
+        let fields = [];
+        let values = [];
+
+        if (tema) {
+            fields.push('tema = ?');
+            values.push(tema);
+        }
+        if (idioma) {
+            fields.push('idioma = ?');
+            values.push(idioma);
+        }
+
+        if (fields.length === 0) {
+            return res.status(400).json({ message: "Nenhuma preferência enviada para atualização." });
+        }
+
+        values.push(id);
+
+        const query = `UPDATE usuarios SET ${fields.join(', ')} WHERE id_usuario = ?`;
+        
+        await promisePool.query(query, values);
+
+        res.status(200).json({ message: "Preferências atualizadas com sucesso." });
+
+    } catch (error) {
+        console.error("Erro ao atualizar preferências:", error);
         res.status(500).json({ message: "Erro interno do servidor." });
     }
 });

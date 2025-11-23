@@ -87,11 +87,12 @@ export function AppLayout() {
         </Group>
       </AppShell.Header>
 
-      <AppShell.Navbar p="md" className={classes.navbar}>
-        <Stack justify="space-between" style={{ height: '100%' }}>
+      <AppShell.Navbar p={0} className={classes.navbar}>
+        {/* Container Flex que gerencia o layout vertical */}
+        <div className={classes.navbarStack}>
           
-          {/* --- SEÇÃO SUPERIOR (NAVEGAÇÃO PRINCIPAL) --- */}
-          <Box className={classes.navSection}>
+          {/* --- SEÇÃO SUPERIOR (COM SCROLL) --- */}
+          <Box className={classes.navSectionMain}>
             <NavLink 
               component={Link} to="/" 
               label="Dashboard" 
@@ -113,7 +114,6 @@ export function AppLayout() {
               <NavLink component={Link} to="/categories" label="Categorias" leftSection={<IconCategory size="1.0rem" stroke={1.5} />} active={pathname === '/categories'} className={classes.navLink} classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} />
               <NavLink component={Link} to="/suppliers" label="Fornecedores" leftSection={<IconTruckDelivery size="1.0rem" stroke={1.5} />} active={pathname === '/suppliers'} className={classes.navLink} classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} />
               
-              {/* Link de Usuários agora restrito a ADMIN */}
               {isAdmin && (
                 <NavLink component={Link} to="/users" label="Usuários" leftSection={<IconUsers size="1.0rem" stroke={1.5} />} active={pathname === '/users'} className={classes.navLink} classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} />
               )}
@@ -135,19 +135,9 @@ export function AppLayout() {
               label="Movimentações"
               component={Link} to="/movements"
               leftSection={<IconArrowLeftRight size="1.1rem" stroke={1.5} />}
+              active={pathname === '/movements'}
               className={classes.navLink}
               classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }}
-              childrenOffset={28}
-              defaultOpened={pathname.startsWith('/movements') || pathname.startsWith('/move-returns')}
-            >
-            </NavLink>
-            <NavLink 
-              component={Link} to="/rfid-config" 
-              label="Configurar RFID" 
-              leftSection={<IconNfc size="1.1rem" stroke={1.5} />} 
-              active={pathname === '/rfid-config'} 
-              className={classes.navLink} 
-              classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} 
             />
 
             <NavLink 
@@ -158,10 +148,20 @@ export function AppLayout() {
               className={classes.navLink} 
               classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} 
             />
+
+            {/* Link de RFID movido para cá (com os operacionais) */}
+            <NavLink 
+              component={Link} to="/rfid-config" 
+              label="Configurar RFID" 
+              leftSection={<IconNfc size="1.1rem" stroke={1.5} />} 
+              active={pathname === '/rfid-config'} 
+              className={classes.navLink} 
+              classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} 
+            />
           </Box>
 
-          {/* --- SEÇÃO INFERIOR (CONFIGURAÇÕES GERAIS E ADMIN) --- */}
-          <Box className={classes.navSection}>
+          {/* --- SEÇÃO INFERIOR (FIXA NO RODAPÉ) --- */}
+          <Box className={classes.navSectionFooter}>
             {isAdmin && (
               <NavLink 
                 component={Link} to="/admin" 
@@ -181,7 +181,7 @@ export function AppLayout() {
               classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} 
             />
           </Box>
-        </Stack>
+        </div>
       </AppShell.Navbar>
 
       <AppShell.Main className={classes.main}>

@@ -10,7 +10,7 @@
  */
 
 import type { DashboardSummary } from "../types/dashboard";
-import type { User, Product, Category, Supplier, UserStatus } from "../types/entities";
+import type { User, Product, Category, Supplier, UserStatus, Company } from "../types/entities";
 
 const API_BASE_URL = 'http://localhost:3000/api';
 
@@ -22,28 +22,28 @@ const getAuthHeaders = () => {
   };
 };
 
-/**
- * Lida com respostas de erro da API de forma padronizada.
- */
 const handleResponse = async (response: Response) => {
-  if (!response.ok) {
-    const result = await response.json();
-    throw new Error(result.message || `Erro HTTP: ${response.status}`);
-  }
-  // Para DELETE, a resposta pode vir vazia (204 No Content)
   if (response.status === 204) {
     return;
   }
-  return response.json();
-};
 
-// =======================================================================
-// --- Objeto de Serviço da API (100% REAL) ---
-// =======================================================================
+  const contentType = response.headers.get("content-type");
+  if (contentType && contentType.indexOf("application/json") !== -1) {
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || `Erro HTTP: ${response.status}`);
+    }
+    return result;
+  } else {
+    if (!response.ok) {
+      throw new Error(`Erro na requisição: ${response.status} ${response.statusText}`);
+    }
+    return response.text();
+  }
+};
 
 export const apiService = {
 
-  // --- DASHBOARD ---
   getDashboardSummary: async (): Promise<DashboardSummary> => {
     const response = await fetch(`${API_BASE_URL}/dashboard/summary`, {
       headers: getAuthHeaders()
@@ -51,7 +51,6 @@ export const apiService = {
     return handleResponse(response);
   },
 
-  // --- USUÁRIOS (Users) ---
   getUsers: async (): Promise<User[]> => {
     const response = await fetch(`${API_BASE_URL}/users`, {
       headers: getAuthHeaders()
@@ -84,7 +83,6 @@ export const apiService = {
     return handleResponse(response);
   },
 
-  // --- PRODUTOS (Products) ---
   getProducts: async (): Promise<Product[]> => {
     const response = await fetch(`${API_BASE_URL}/produtos`, {
       headers: getAuthHeaders()
@@ -92,7 +90,6 @@ export const apiService = {
     return handleResponse(response);
   },
   
-  // --- CATEGORIAS (Categories) ---
   getCategories: async (): Promise<Category[]> => {
     const response = await fetch(`${API_BASE_URL}/categorias`, {
       headers: getAuthHeaders()
@@ -136,7 +133,6 @@ export const apiService = {
     return handleResponse(response);
   },
 
-  // --- FORNECEDORES (Suppliers) ---
   getSuppliers: async (): Promise<Supplier[]> => {
     const response = await fetch(`${API_BASE_URL}/fornecedores`, {
       headers: getAuthHeaders()
@@ -186,20 +182,18 @@ export const apiService = {
     return handleResponse(response);
   },
 
-  // --- MOVIMENTAÇÕES DE ESTOQUE ---
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createMovement: async (data: any): Promise<void> => {
     const payload = {
-      id_produto: data.id_produto,
+      id_produto_manual: data.id_produto,
       tipo: data.movementType,
       quantidade: data.quantidade,
       unidade: data.unidade,
       justificativa: data.justificativa,
       estado: data.state,
       etiqueta_rfid: data.etiqueta_rfid,
-      id_usuario: data.id_usuario,
     };
-    const response = await fetch(`${API_BASE_URL}/stock/adjust`, {
+    const response = await fetch(`${API_BASE_URL}/movimentacoes`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(payload)
@@ -207,14 +201,13 @@ export const apiService = {
     return handleResponse(response);
   },
 
-  // --- PERFIL DO USUÁRIO ---
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateProfile: async (userId: number, data: any): Promise<User> => {
     const payload = {
       nome: data.nome,
       email: data.email,
     };
-    const response = await fetch(`${API_BASE_URL}/users/${userId}/profile`, {
+    const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(payload)
@@ -230,7 +223,6 @@ export const apiService = {
     return handleResponse(response);
   },
 
-  // --- RELATÓRIOS ---
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getReport: async (reportType: string): Promise<any[]> => {
     const response = await fetch(`${API_BASE_URL}/reports/${reportType}`, {
@@ -239,7 +231,6 @@ export const apiService = {
     return handleResponse(response);
   },
 
-  // --- RFID ---
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   simulateRfidScan: async (rfidTag: string): Promise<any> => {
     const response = await fetch(`${API_BASE_URL}/inventory/simulate-rfid`, {
@@ -250,7 +241,6 @@ export const apiService = {
     return handleResponse(response);
   },
 
-  // --- PREFERÊNCIAS (Tema/Idioma) ---
   getAvailableLanguages: async (): Promise<{ value: string, label: string }[]> => {
     const response = await fetch(`${API_BASE_URL}/languages`, {
       headers: getAuthHeaders()
@@ -264,6 +254,22 @@ export const apiService = {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(preferences)
+    });
+    return handleResponse(response);
+  },
+  getCompanyDetails: async (): Promise<Company> => {
+    const response = await fetch(`${API_BASE_URL}/empresa/me`, {
+      headers: getAuthHeaders()
+    });
+    return handleResponse(response);
+  },
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  updateCompanyDetails: async (data: any): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/empresa/me`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
     });
     return handleResponse(response);
   },

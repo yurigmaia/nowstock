@@ -2,16 +2,19 @@
  * @file main.tsx
  * @description
  * Ponto de entrada principal da aplicação React.
- * Renderiza a árvore de componentes, incluindo provedores globais
- * como Router, Auth, Theme e Notifications.
  */
 import React, { Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 import { Loader, Center } from '@mantine/core';
-import '@mantine/core/styles.css';
+import '@mantine/core/styles.css'; // Estilos base do Mantine
+
+// --- AQUI ESTAVA O PROBLEMA ---
 import { Notifications } from '@mantine/notifications';
+import '@mantine/notifications/styles.css'; // <--- ADICIONE ESTA LINHA OBRIGATÓRIA
+// ------------------------------
+
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './providers/AuthProvider';
 import { CustomThemeProvider } from './providers/CustomThemeProvider';
@@ -29,7 +32,12 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <AuthProvider>
         <CustomThemeProvider>
-          <Notifications />
+          <Notifications 
+            position="bottom-right"
+            zIndex={10000}
+            autoClose={4000}
+            limit={5}
+          />
           <Suspense fallback={loadingMarkup}>
             <App />
           </Suspense>

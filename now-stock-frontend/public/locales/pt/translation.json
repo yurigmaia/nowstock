@@ -59,7 +59,56 @@
   },
   "recentMovements": "Movimentações Recentes",
   "topProducts": "Produtos Mais Movimentados"
-}
+},
+"settings": {
+  "title": "Configurações",
+  "themeTitle": "Tema da Aplicação",
+  "themeSubtitle": "Escolha entre a interface clara ou escura.",
+  "themeLight": "Claro",
+  "themeDark": "Escuro",
+  "langTitle": "Idioma",
+  "langSubtitle": "Selecione o idioma de preferência para a interface."
+},
+"common": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "success": "Sucesso!",
+    "error": "Erro!"
+  },
+  "validation": {
+    "nameShort": "Nome muito curto",
+    "cnpjInvalid": "CNPJ inválido"
+  },
+  "admin": {
+    "title": "Administração do Sistema",
+    "loadError": "Falha ao carregar dados da empresa.",
+    "updateSuccess": "Dados da empresa atualizados.",
+    "saveError": "Falha ao salvar.",
+    "tabs": {
+      "general": "Configurações Gerais",
+      "system": "Parâmetros do Sistema",
+      "logs": "Logs do Sistema"
+    },
+    "form": {
+      "storeName": "Nome da Loja",
+      "cnpj": "CNPJ",
+      "backupInterval": "Intervalo de Backup",
+      "alertEmail": "E-mail para Alertas de Estoque",
+      "saveParams": "Salvar Parâmetros",
+      "runBackup": "Executar Backup Manual Agora"
+    },
+    "backup": {
+      "daily": "Diário",
+      "weekly": "Semanal",
+      "monthly": "Mensal"
+    },
+    "logs": {
+      "user": "Usuário",
+      "action": "Ação Realizada",
+      "date": "Data do Log",
+      "empty": "Nenhum log encontrado."
+    }
+  }
   }
   
 }

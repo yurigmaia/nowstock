@@ -4,20 +4,23 @@
  * Tela de Configurações onde o usuário pode alterar o tema (claro/escuro)
  * e o idioma da aplicação. Lê e altera o AuthContext.
  */
-import { Box, Title, Paper, Select, SegmentedControl, Stack, Text, Center, Loader } from "@mantine/core";
-import { IconSun, IconMoon } from "@tabler/icons-react";
+import { Box, Title, Paper, Select, SegmentedControl, Stack, Text, Center, Loader, Button, Group } from "@mantine/core";
+import { IconSun, IconMoon, IconCheck } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from '../hooks/useAuth';
 import { useState, useEffect } from "react";
 import { apiService } from "../services/api";
+import { notifications } from "@mantine/notifications";
 
 export function SettingsView() {
   const { t, i18n } = useTranslation();
-  // Pega as preferências e as funções de alteração do AuthContext
   const { theme, setTheme, language, setLanguage } = useAuth();
   
   const [languages, setLanguages] = useState<{ value: string, label: string }[]>([]);
   const [loadingLangs, setLoadingLangs] = useState(true);
+  const [localTheme, setLocalTheme] = useState(theme);
+  const [localLanguage, setLocalLanguage] = useState(language);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     apiService.getAvailableLanguages()
@@ -25,18 +28,26 @@ export function SettingsView() {
       .finally(() => setLoadingLangs(false));
   }, []);
 
-  // Handler para o SegmentedControl de Tema
-  const handleThemeChange = (value: string) => {
-    if (value === 'light' || value === 'dark') {
-      setTheme(value); // Chama a função do AuthContext
-    }
-  };
+  useEffect(() => {
+    setLocalTheme(theme);
+    setLocalLanguage(language);
+  }, [theme, language]);
 
-  // Handler para o Select de Idioma
-  const handleLanguageChange = (langCode: string | null) => {
-    if (langCode) {
-      setLanguage(langCode); // Chama a função do AuthContext
-      i18n.changeLanguage(langCode); // Informa o i18next
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      setTheme(localTheme);
+      setLanguage(localLanguage);
+      await i18n.changeLanguage(localLanguage);
+      
+      notifications.show({
+        title: 'Sucesso',
+        message: 'Configurações salvas com sucesso.',
+        color: 'green',
+        icon: <IconCheck size={16} />,
+      });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -55,8 +66,8 @@ export function SettingsView() {
               {t('settings.themeSubtitle')}
             </Text>
             <SegmentedControl
-              value={theme} // Lê o valor do AuthContext
-              onChange={handleThemeChange} // Chama a função do AuthContext
+              value={localTheme}
+              onChange={(value) => setLocalTheme(value as 'light' | 'dark')}
               data={[
                 { value: 'light', label: (
                     <Center><IconSun size={16} /><Box ml="xs">{t('settings.themeLight')}</Box></Center>
@@ -81,12 +92,22 @@ export function SettingsView() {
               <Select
                 placeholder="Carregando..."
                 data={languages}
-                value={language.split('-')[0]} // Lê o valor do AuthContext
-                onChange={handleLanguageChange}
+                value={localLanguage.split('-')[0]}
+                onChange={(value) => value && setLocalLanguage(value)}
                 allowDeselect={false}
               />
             )}
           </Box>
+
+          <Group justify="flex-end">
+            <Button 
+              onClick={handleSave} 
+              loading={saving} 
+              bg="orange.6"
+            >
+              Salvar Configurações
+            </Button>
+          </Group>
 
         </Stack>
       </Paper>

@@ -1,72 +1,116 @@
-/* src/components/layout/AppLayout.module.css */
-
 .appShell {
-  /* Definição de variáveis locais para fácil ajuste */
-  --main-blue: #182533;       /* Azul de saturação média para Header e Navbar */
-  --main-blue-darker: #203a54; /* Um tom levemente mais escuro para detalhes se precisar */
-  --accent-orange: #fe7f2d;   /* Seu laranja para destaques */
-  --text-white-muted: rgba(255, 255, 255, 0.75); /* Branco levemente transparente para itens inativos */
-
+  --main-orange: #fe7f2d;
+  --text-dark: #212529;
+  --text-light: #ffffff;
   min-height: 100vh;
 }
 
-/* Fundo geral da aplicação (onde vai o conteúdo principal) */
 [data-mantine-color-scheme="dark"] .appShell {
-  background-color: #0a0f15; /* Quase preto, levemente azulado */
+  background-color: #0f0f0f;
 }
 [data-mantine-color-scheme="light"] .appShell {
-  background-color: #f0f4f8; /* Cinza muito claro */
+  background-color: 2#f1f1f1;
 }
 
-/* *
- * CABEÇALHO (HEADER)
- * Tudo azul, com a borda inferior laranja
- */
 .header {
-  background-color: var(--main-blue) !important;
-  border-bottom: 2px solid var(--accent-orange) !important; /* Bordinha laranja */
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.15);
+  background-color: #ffffff !important;
+  border-bottom: 2px solid var(--main-orange) !important;
+  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.05);
   z-index: 101;
 }
 
-/* Ícones e Logo sempre brancos para contrastar com o azul */
+[data-mantine-color-scheme="dark"] .header {
+  background-color: #1a1a1a !important;
+  border-bottom: 2px solid var(--main-orange) !important;
+}
+
 .logoSvg {
   height: 28px;
   width: auto;
-  color: white;
+  color: var(--text-dark);
 }
-.profileButton {
-  color: var(--accent-orange) !important; /* Força a cor laranja */
-  border-color: var(--accent-orange) !important; /* Opcional: se quiser a borda do botão laranja também */
-  background-color: transparent !important; /* Garante fundo transparente para destacar o ícone */
+[data-mantine-color-scheme="dark"] .logoSvg {
+  color: var(--text-light);
 }
-.profileButton:hover {
-   background-color: rgba(254, 127, 45, 0.1) !important; /* Um laranja bem clarinho no hover */
-}
+
 .burger {
-  color: white;
+  color: var(--text-dark);
+  transition: background-color 0.2s ease;
 }
 .burger:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+}
+[data-mantine-color-scheme="dark"] .burger {
+  color: var(--text-light);
+}
+[data-mantine-color-scheme="dark"] .burger:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* *
- * BARRA LATERAL (NAVBAR)
- * Tudo azul, com a borda lateral laranja
- */
+.profileButton {
+  color: var(--main-orange) !important;
+  border-color: var(--main-orange) !important;
+  background-color: transparent !important;
+}
+.profileButton:hover {
+   background-color: rgba(254, 127, 45, 0.1) !important;
+}
+
+.menuDropdown {
+  background: #ffffff !important;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+[data-mantine-color-scheme="dark"] .menuDropdown {
+  background: #25262b !important;
+  border: 1px solid #373a40;
+}
+
+.menuItem {
+  border-radius: 6px;
+  margin: 4px;
+}
+
 .navbar {
-  background-color: var(--main-blue) !important;
-  border-right: 2px solid var(--accent-orange) !important; /* Bordinha laranja */
+  background-color: #ffffff !important;
+  border-right: 2px solid var(--main-orange) !important;
   z-index: 100;
 }
-
-.navSection {
-  padding: 12px;
+[data-mantine-color-scheme="dark"] .navbar {
+  background-color: #1a1a1a !important;
+  border-right: 2px solid var(--main-orange) !important;
 }
 
-/* *
- * LINKS DE NAVEGAÇÃO
- */
+.navbarStack {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.navSectionMain {
+  padding: 12px;
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+[data-mantine-color-scheme="dark"] .navSectionMain {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.navSectionFooter {
+  padding: 12px;
+  flex-shrink: 0;
+  background-color: inherit;
+  border-top: 1px solid #e9ecef;
+  z-index: 10;
+}
+[data-mantine-color-scheme="dark"] .navSectionFooter {
+  border-top: 1px solid #373a40;
+}
+
 .navLink {
   margin-bottom: 4px;
 }
@@ -75,50 +119,49 @@
   border-radius: 8px !important;
   padding: 10px 12px !important;
   transition: all 0.2s ease;
-  border: 1px solid transparent; /* Borda transparente por padrão para evitar "pulo" no hover */
+  border: 1px solid transparent;
   font-weight: 500;
 }
 
-/* Estado Normal (Inativo) - Texto Branco suave */
 .navLinkRoot .navLinkLabel,
 .navLinkRoot svg {
-  color: var(--text-white-muted) !important;
+  color: var(--text-dark) !important;
   transition: all 0.2s ease;
+  opacity: 0.7;
+}
+[data-mantine-color-scheme="dark"] .navLinkRoot .navLinkLabel,
+[data-mantine-color-scheme="dark"] .navLinkRoot svg {
+  color: var(--text-light) !important;
 }
 
-/* Hover - Fica mais claro */
 .navLinkRoot:hover:not([data-disabled]) {
-  background-color: rgba(255, 255, 255, 0.1); /* Clareia levemente o azul */
+  background-color: rgba(0, 0, 0, 0.05);
 }
 .navLinkRoot:hover:not([data-disabled]) .navLinkLabel,
 .navLinkRoot:hover:not([data-disabled]) svg {
-  color: white !important; /* Texto fica branco total */
   opacity: 1;
 }
+[data-mantine-color-scheme="dark"] .navLinkRoot:hover:not([data-disabled]) {
+  background-color: rgba(255, 255, 255, 0.1);
+}
 
-/* ATIVO - Usa o Laranja para destacar qual tela está aberta */
 .navLinkRoot[data-active] {
-  background-color: var(--accent-orange) !important; /* Fundo laranja */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  background-color: var(--main-orange) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 .navLinkRoot[data-active] .navLinkLabel,
 .navLinkRoot[data-active] svg {
-  color: white !important; /* Texto branco no fundo laranja */
+  color: white !important;
   opacity: 1;
 }
 
-/* Desabilitado */
 .navLinkRoot[data-disabled] {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* *
- * ÁREA PRINCIPAL
- */
 .main {
-  padding-top: 80px;
-  padding-bottom: 30px;
+  padding: 24px;
 }
 
 .content {
@@ -130,4 +173,13 @@
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .logoSvg {
+    height: 24px;
+  }
+  .main {
+    padding: 16px;
+  }
 }

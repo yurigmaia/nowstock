@@ -1,15 +1,16 @@
 /**
  * @component ProductForm
  * @description
- * Formulário reutilizável para criar ou editar um produto.
+ * Formulário reutilizável para criar ou editar um produto (Catálogo).
  * Busca dinamicamente categorias e fornecedores do 'apiService'.
+ * Este formulário NÃO gerencia a quantidade atual, apenas a mínima.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
 import { TextInput, Textarea, NumberInput, Select, Button, Group, SimpleGrid } from '@mantine/core';
-import { apiService } from '../services/api';
-import type { Product } from '../types/entities';
+import { apiService } from '../../services/api';
+import type { Product } from '../../types/entities';
 
 interface ProductFormProps {
   product?: Product | null;
@@ -42,7 +43,6 @@ export function ProductForm({ product, onSubmit, onCancel, loading }: ProductFor
       etiqueta_rfid: product?.etiqueta_rfid || '',
       id_categoria: formatIdToString(product?.id_categoria),
       id_fornecedor: formatIdToString(product?.id_fornecedor),
-      quantidade_atual: product?.quantidade_atual ?? 0,
       preco_custo: product?.preco_custo ?? 0,
       preco_venda: product?.preco_venda ?? 0,
       quantidade_minima: product?.quantidade_minima ?? 0,
@@ -83,14 +83,11 @@ export function ProductForm({ product, onSubmit, onCancel, loading }: ProductFor
       </SimpleGrid>
       
       <TextInput label="Etiqueta RFID" mt="md" required {...form.getInputProps('etiqueta_rfid')} />
-      <TextInput label="Localização" mt="md" {...form.getInputProps('localizacao')} />
+      <TextInput label="Localização Padrão" mt="md" {...form.getInputProps('localizacao')} />
 
       <SimpleGrid cols={3} mt="md">
-         <NumberInput label="Qtd. Atual" required {...form.getInputProps('quantidade_atual')} min={0} />
+         {/* REMOVIDO: Campo de Quantidade Atual */}
          <NumberInput label="Qtd. Mínima" {...form.getInputProps('quantidade_minima')} min={0} />
-      </SimpleGrid>
-      
-      <SimpleGrid cols={2} mt="md">
          <NumberInput label="Preço de Custo" prefix="R$ " decimalScale={2} fixedDecimalScale {...form.getInputProps('preco_custo')} />
          <NumberInput label="Preço de Venda" prefix="R$ " decimalScale={2} fixedDecimalScale {...form.getInputProps('preco_venda')} />
       </SimpleGrid>

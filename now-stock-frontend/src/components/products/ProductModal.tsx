@@ -6,10 +6,12 @@
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Modal } from '@mantine/core';
-import { ProductForm } from '../../pages/ProductForm.tsx';
+// Corrigido: O formulário está na mesma pasta, dentro de /components/products
+import { ProductForm } from './ProductForm'; 
 import type { Product } from '../../types/entities';
 import { useState } from 'react';
 import { notifications } from '@mantine/notifications';
+import { apiService } from '../../services/api'; // Importa o serviço de API real
 
 interface ProductModalProps {
   opened: boolean;
@@ -24,21 +26,35 @@ export function ProductModal({ opened, onClose, product, onSaveSuccess }: Produc
 
   const handleFormSubmit = async (values: any) => {
     setIsSubmitting(true);
-    console.log("Simulando salvamento:", values);
+    
+    // O 'values' já vem do formulário no formato snake_case (ex: id_categoria)
+    // graças ao nosso ProductForm.tsx
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      notifications.show({
-          title: 'Sucesso!',
-          message: `Produto ${product ? 'atualizado' : 'criado'} com sucesso.`,
-          color: 'green',
-        });
-      onSaveSuccess();
-      onClose();
+      if (product) {
+        // Modo Edição: Chama o updateProduct
+        await apiService.updateProduct(product.id_produto, values);
+        notifications.show({
+            title: 'Sucesso!',
+            message: 'Produto atualizado com sucesso.',
+            color: 'green',
+          });
+      } else {
+        // Modo Criação: Chama o createProduct
+        await apiService.createProduct(values);
+        notifications.show({
+            title: 'Sucesso!',
+            message: 'Produto criado com sucesso.',
+            color: 'green',
+          });
+      }
+      onSaveSuccess(); // Recarrega a tabela na tela principal
+      onClose(); // Fecha o modal
+    
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
       notifications.show({
-        title: 'Erro',
+        title: 'Erro ao Salvar',
         message: errorMessage,
         color: 'red',
       });
