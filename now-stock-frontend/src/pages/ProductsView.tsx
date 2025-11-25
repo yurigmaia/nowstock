@@ -5,6 +5,7 @@
  * Exibe uma lista de produtos e permite ao usuário adicionar, editar
  * e excluir itens através de um modal.
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import {
   Table,
@@ -24,7 +25,8 @@ import { IconPencil, IconTrash, IconPlus, IconAlertCircle } from "@tabler/icons-
 import { useDisclosure } from "@mantine/hooks";
 import { apiService } from "../services/api";
 import type { Product } from "../types/entities";
-import { ProductModal } from "../components/products/ProductModal.tsx";
+import { ProductModal } from "../components/products/ProductModal";
+import { notifications } from "@mantine/notifications";
 
 export function ProductsView() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -59,9 +61,16 @@ export function ProductsView() {
     openModal();
   };
 
-  const handleDelete = (productId: number) => {
-    console.log("Simulando exclusão:", productId);
-    setProducts(currentProducts => currentProducts.filter(p => p.id_produto !== productId));
+  const handleDelete = async (productId: number) => {
+    if (confirm("Tem certeza que deseja excluir este produto?")) {
+        try {
+            await apiService.deleteProduct(productId);
+            notifications.show({ title: 'Sucesso', message: 'Produto excluído.', color: 'gray' });
+            fetchProducts();
+        } catch (err: any) {
+            notifications.show({ title: 'Erro', message: err.message, color: 'red' });
+        }
+    }
   };
 
   const handleSaveSuccess = () => {

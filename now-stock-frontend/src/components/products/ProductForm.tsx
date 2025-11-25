@@ -1,9 +1,8 @@
 /**
  * @component ProductForm
  * @description
- * Formulário reutilizável para criar ou editar um produto (Catálogo).
- * Busca dinamicamente categorias e fornecedores do 'apiService'.
- * Este formulário NÃO gerencia a quantidade atual, apenas a mínima.
+ * Formulário para criar/editar produtos.
+ * Integração com useRfid para preenchimento automático da tag.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
@@ -11,6 +10,10 @@ import { useForm } from '@mantine/form';
 import { TextInput, Textarea, NumberInput, Select, Button, Group, SimpleGrid } from '@mantine/core';
 import { apiService } from '../../services/api';
 import type { Product } from '../../types/entities';
+import { useRfid } from '../../hooks/useRfid';
+import { notifications } from '@mantine/notifications';
+// CORRIGIDO: IconRfid -> IconNfc
+import { IconNfc } from '@tabler/icons-react';
 
 interface ProductFormProps {
   product?: Product | null;
@@ -24,6 +27,8 @@ const formatIdToString = (id: number | undefined | null): string | null => {
 };
 
 export function ProductForm({ product, onSubmit, onCancel, loading }: ProductFormProps) {
+  const { lastTag, clearTag } = useRfid();
+  
   const [categories, setCategories] = useState<{ value: string; label: string }[]>([]);
   const [suppliers, setSuppliers] = useState<{ value: string; label: string }[]>([]);
 
@@ -56,6 +61,23 @@ export function ProductForm({ product, onSubmit, onCancel, loading }: ProductFor
     },
   });
 
+  useEffect(() => {
+    if (lastTag) {
+      form.setFieldValue('etiqueta_rfid', lastTag);
+      
+      notifications.show({ 
+        title: 'Tag Capturada!', 
+        message: `Código ${lastTag} inserido no formulário.`, 
+        color: 'blue',
+        // CORRIGIDO
+        icon: <IconNfc size={16}/>
+      });
+      
+      clearTag();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastTag]);
+
   return (
     <form onSubmit={form.onSubmit(onSubmit)}>
       <TextInput label="Nome do Produto" required {...form.getInputProps('nome')} />
@@ -82,11 +104,19 @@ export function ProductForm({ product, onSubmit, onCancel, loading }: ProductFor
         />
       </SimpleGrid>
       
-      <TextInput label="Etiqueta RFID" mt="md" required {...form.getInputProps('etiqueta_rfid')} />
+      <TextInput 
+        label="Etiqueta RFID" 
+        description="Aproxime a tag do leitor para preencher automaticamente"
+        // CORRIGIDO
+        rightSection={<IconNfc size={16} style={{ opacity: 0.5 }} />}
+        mt="md" 
+        required 
+        {...form.getInputProps('etiqueta_rfid')} 
+      />
+      
       <TextInput label="Localização Padrão" mt="md" {...form.getInputProps('localizacao')} />
 
       <SimpleGrid cols={3} mt="md">
-         {/* REMOVIDO: Campo de Quantidade Atual */}
          <NumberInput label="Qtd. Mínima" {...form.getInputProps('quantidade_minima')} min={0} />
          <NumberInput label="Preço de Custo" prefix="R$ " decimalScale={2} fixedDecimalScale {...form.getInputProps('preco_custo')} />
          <NumberInput label="Preço de Venda" prefix="R$ " decimalScale={2} fixedDecimalScale {...form.getInputProps('preco_venda')} />

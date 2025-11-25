@@ -1,42 +1,36 @@
 /**
  * @component MovementsView
  * @description
- * Tela unificada para registro de movimentações de estoque (Entrada, Saída e Devolução).
- * Permite a seleção de produtos, definição de quantidades e justificativas,
- * e exibe campos dinamicamente com base no tipo de movimentação.
+ * Tela unificada para registro de movimentações.
+ * Integração RFID: Ao ler uma tag, seleciona o produto automaticamente.
  */
 import {
-  Box,
-  Title,
-  Paper,
-  Select,
-  SegmentedControl,
-  NumberInput,
-  Textarea,
-  Button,
-  Stack,
-  TextInput,
-  Group,
+  Box, Title, Paper, Select, SegmentedControl, NumberInput, Textarea, Button, Stack, TextInput, Group
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useState, useEffect } from "react";
 import { notifications } from "@mantine/notifications";
-import { IconCheck, IconX } from "@tabler/icons-react";
+import { IconCheck, IconX, IconNfc } from "@tabler/icons-react";
 
 import { useAuth } from '../hooks/useAuth';
 import { apiService } from "../services/api";
 import type { Product } from "../types/entities";
+import { useRfid } from "../hooks/useRfid";
 
 type MovementFlow = 'entrada' | 'saida' | 'devolucao';
 
 export function MovementsView() {
   const { user } = useAuth();
+  const { lastTag, clearTag } = useRfid();
+  
   const [loading, setLoading] = useState(false);
   const [productList, setProductList] = useState<{ value: string; label: string }[]>([]);
+  const [rawProducts, setRawProducts] = useState<Product[]>([]); 
   const [movementType, setMovementType] = useState<MovementFlow>('entrada');
 
   useEffect(() => {
     apiService.getProducts().then((products: Product[]) => {
+      setRawProducts(products);
       const formattedProducts = products.map(p => ({
         value: String(p.id_produto),
         label: `${p.nome} (Tag: ${p.etiqueta_rfid})`,
@@ -63,6 +57,36 @@ export function MovementsView() {
         (movementType === 'devolucao' && !value.trim()) ? "O motivo é obrigatório para devoluções" : null,
     }
   });
+
+  useEffect(() => {
+    if (lastTag) {
+      form.setFieldValue('rfidTag', lastTag);
+
+      const foundProduct = rawProducts.find(p => p.etiqueta_rfid === lastTag);
+
+      if (foundProduct) {
+        form.setFieldValue('productId', String(foundProduct.id_produto));
+        
+        notifications.show({ 
+          title: 'Produto Identificado!', 
+          message: `Selecionado: ${foundProduct.nome}`, 
+          color: 'green',
+          icon: <IconCheck size={16}/>
+        });
+      } else {
+        notifications.show({ 
+          title: 'Tag Desconhecida', 
+          message: 'Nenhum produto cadastrado com esta tag.', 
+          color: 'yellow',
+          // CORRIGIDO
+          icon: <IconNfc size={16}/>
+        });
+      }
+      
+      clearTag();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastTag, rawProducts]);
 
   const handleSubmit = async (values: typeof form.values) => {
     setLoading(true);
@@ -104,9 +128,7 @@ export function MovementsView() {
 
   return (
     <Box>
-      <Title order={2} c="orange.7" mb="lg">
-        Registrar Movimentação
-      </Title>
+      <Title order={2} c="orange.7" mb="lg">Registrar Movimentação</Title>
 
       <Paper p="md" withBorder shadow="md" radius="md" style={{ maxWidth: 600 }}>
         <form onSubmit={form.onSubmit(handleSubmit)}>
@@ -125,80 +147,40 @@ export function MovementsView() {
 
             <TextInput
               label="Etiqueta RFID"
-              placeholder="Aproxime a tag do leitor..."
+              placeholder="Aproxime a tag..."
+              description="Detecta automaticamente o produto"
+              // CORRIGIDO
+              rightSection={<IconNfc size={16} style={{ opacity: 0.5 }} />}
               {...form.getInputProps("rfidTag")}
             />
             
             <Select
-              label="Produto (Seleção Manual)"
-              placeholder="Ou selecione um produto da lista..."
+              label="Produto"
+              placeholder="Selecione ou passe a tag..."
               searchable
               required
               data={productList}
               {...form.getInputProps("productId")}
             />
             
-            <NumberInput
-              label="Quantidade"
-              placeholder="1"
-              min={1}
-              required
-              {...form.getInputProps("quantity")}
-            />
+            <NumberInput label="Quantidade" placeholder="1" min={1} required {...form.getInputProps("quantity")} />
 
             {movementType !== 'devolucao' && (
-              <Select
-                label="Unidade"
-                data={[
-                  { value: "unidade", label: "Unidade" },
-                  { value: "lote", label: "Lote" },
-                ]}
-                required
-                {...form.getInputProps("unit")}
-              />
+              <Select label="Unidade" data={[{ value: "unidade", label: "Unidade" }, { value: "lote", label: "Lote" }]} required {...form.getInputProps("unit")} />
             )}
 
             {movementType === 'devolucao' && (
               <>
-                <Textarea
-                  label="Motivo da Devolução"
-                  placeholder="Ex: Produto com defeito, cliente arrependeu-se..."
-                  required
-                  {...form.getInputProps("reason")}
-                />
-                <Select
-                  label="Destino da Devolução"
-                  data={[
-                    { value: "estoque", label: "Retornar ao Estoque" },
-                    { value: "descarte", label: "Descartar Produto" },
-                  ]}
-                  required
-                  {...form.getInputProps("state")}
-                />
+                <Textarea label="Motivo" placeholder="Ex: Defeito..." required {...form.getInputProps("reason")} />
+                <Select label="Destino" data={[{ value: "estoque", label: "Retornar ao Estoque" }, { value: "descarte", label: "Descartar" }]} required {...form.getInputProps("state")} />
               </>
             )}
 
-            <TextInput
-              label="Usuário"
-              disabled
-              {...form.getInputProps("user")}
-            />
-            <TextInput
-              label="Data da Movimentação"
-              type="date"
-              disabled
-              {...form.getInputProps("date")}
-            />
+            <TextInput label="Usuário" disabled {...form.getInputProps("user")} />
+            <TextInput label="Data" type="date" disabled {...form.getInputProps("date")} />
 
             <Group justify="flex-end" mt="md">
-              <Button 
-                fullWidth 
-                bg="orange.6" 
-                type="submit" 
-                loading={loading}
-              >
-                Registrar Movimentação
-              </Button>
+              <Button fullWidth bg="orange.6" type="submit" loading={loading}>Registrar Movimentação</Button>
             </Group>
           </Stack>
         </form>

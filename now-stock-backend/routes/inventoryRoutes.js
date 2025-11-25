@@ -2,8 +2,7 @@
  * @file inventoryRoutes.js
  * @description
  * Define as rotas (endpoints) para consulta de inventário e simulação de RFID.
- * Todas as rotas são protegidas por autenticação e repassam o 'req'
- * completo para os controladores, permitindo o acesso ao 'req.user'.
+ * Todas as rotas são protegidas por autenticação.
  */
 const express = require('express');
 const router = express.Router();

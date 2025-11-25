@@ -18,6 +18,7 @@ import '@mantine/notifications/styles.css'; // <--- ADICIONE ESTA LINHA OBRIGATÃ
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './providers/AuthProvider';
 import { CustomThemeProvider } from './providers/CustomThemeProvider';
+import { RfidProvider } from './providers/RfidProvider';
 
 import './i18n';
 
@@ -38,9 +39,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             autoClose={4000}
             limit={5}
           />
+          <RfidProvider>
           <Suspense fallback={loadingMarkup}>
             <App />
           </Suspense>
+          </RfidProvider>
         </CustomThemeProvider>
       </AuthProvider>
     </BrowserRouter>

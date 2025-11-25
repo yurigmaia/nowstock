@@ -1,21 +1,18 @@
-// controllers/inventoryController.js (Revisado)
-
+/**
+ * @file inventoryController.js
+ * @description
+ * Controlador responsável pela lógica de negócio do inventário.
+ * Gerencia a leitura de tags RFID, decisão de entrada/saída e
+ * comunicação com o Model para persistência.
+ */
 const InventoryModel = require('../models/inventoryModel');
-// Configurações do Scanner (ID do usuário, pois a leitura RFID não tem login de usuário)
-const { ID_USUARIO_LEITOR } = require('../config/rfidScanner'); // Assumimos que o Scanner exporta o ID do operador
 
-// Rota de API para listar o inventário (usada pelo Front-end)
+// Rota de API para listar o inventário
 exports.getInventory = async (req, res) => {
     try {
         const id_empresa = req.user.empresa; 
-        // Esta função deve ser implementada no Model para buscar (Produtos + Estoque)
-        // Por exemplo: JOIN produtos p ON p.id_empresa = id_empresa LEFT JOIN estoque e ON e.id_produto = p.id_produto
-        // Aqui, vou retornar apenas a lista de Produtos por simplicidade.
-        // const inventory = await InventoryModel.findAllProducts(id_empresa);
-        // res.json(inventory);
-
-        // Retornando uma mensagem para o front-end saber que esta rota precisa ser implementada
-        res.status(501).json({ message: "Rota GET /api/inventory em construção. Implementar JOIN entre 'produtos' e 'estoque'." });
+        // TODO: Implementar no Model a busca com JOIN (Produtos + Estoque) filtrando por id_empresa
+        res.status(501).json({ message: "Rota GET /api/inventory em construção." });
 
     } catch (error) {
         console.error("Erro ao buscar inventário:", error);
@@ -23,35 +20,35 @@ exports.getInventory = async (req, res) => {
     }
 };
 
-// ===============================================
-// LÓGICA PRINCIPAL: Processamento da leitura RFID
-// ===============================================
-exports.handleRfidScan = async (rfidTag, idUsuario) => {
+/**
+ * Lógica central de processamento do RFID.
+ * Pode ser chamada via API (simulação) ou futuramente por MQTT/Socket.
+ */
+exports.handleRfidScan = async (rfidTag, idUsuario, idEmpresa) => {
     try {
-        const product = await InventoryModel.findProductByRfid(rfidTag);
+        // 1. Busca o produto (Filtrando pela empresa para garantir segurança)
+        const product = await InventoryModel.findProductByRfid(rfidTag, idEmpresa);
         
         if (!product) {
-            // ITEM NÃO CADASTRADO: Pede ao Front-end para cadastrar o produto (PUT/POST)
-            console.log(`[RFID] Tag ${rfidTag} não encontrada na tabela 'produtos'. Requer cadastro.`);
+            console.log(`[RFID] Tag ${rfidTag} não encontrada para a empresa ${idEmpresa}.`);
             return { 
                 rfidTag, 
                 action: 'ERROR', 
-                message: "Produto não cadastrado para esta etiqueta RFID." 
+                message: "Produto não cadastrado para esta etiqueta RFID nesta empresa." 
             };
         }
         
-        // 1. Verificar o último status/quantidade (A forma mais precisa é olhar o estoque atual)
-        const currentStock = await InventoryModel.getCurrentStock(product.id_produto);
+        // 2. Verificar o saldo atual
+        const currentStock = await InventoryModel.getCurrentStock(product.id_produto, idEmpresa);
         
-        // 2. Determinar a Ação: 
-        // Se a quantidade atual for 0, o próximo movimento DEVE ser 'entrada'.
-        // Se a quantidade for > 0, o próximo movimento DEVE ser 'saida'.
+        // 3. Determinar a Ação (Regra de Negócio: Saldo 0 = Entrada, Saldo > 0 = Saída)
         const tipoMovimento = currentStock === 0 ? 'entrada' : 'saida';
 
-        // 3. Processar Movimentação (Transacional)
-        const result = await InventoryModel.processRfidMovement(
+        // 4. Processar Movimentação (Transacional)
+        await InventoryModel.processRfidMovement(
             product.id_produto, 
-            idUsuario, // ID do Scanner ou do Operador Logado
+            idUsuario, 
+            idEmpresa, // Passamos a empresa para registrar no log correto
             tipoMovimento
         );
 
@@ -75,10 +72,10 @@ exports.handleRfidScan = async (rfidTag, idUsuario) => {
     }
 };
 
-// Rota de Simulação (Chamando o handleRfidScan)
+// Rota de Simulação (Endpoint chamado pelo Frontend ou Hardware via HTTP)
 exports.simulateRfidScan = async (req, res) => {
-    // Você pode usar o id_usuario do token para simulação, ou um ID fixo.
     const idUsuario = req.user.id; 
+    const idEmpresa = req.user.empresa; // Importante: Pega a empresa do token
     const { rfidTag } = req.body;
     
     if (!rfidTag) {
@@ -86,9 +83,17 @@ exports.simulateRfidScan = async (req, res) => {
     }
     
     try {
-        // Assume que a empresa no token é a empresa do produto (para futura validação de segurança)
-        const result = await exports.handleRfidScan(rfidTag, idUsuario); 
+        // Chama a lógica de negócio passando os dados do contexto (Usuário e Empresa)
+        const result = await exports.handleRfidScan(rfidTag, idUsuario, idEmpresa); 
+        
+        // Retorna o resultado (seja sucesso ou erro de "produto não encontrado")
+        // Se foi um erro fatal de servidor, o status muda, senão é 200 com a mensagem de erro lógica
+        if (result.action === 'FATAL_ERROR') {
+            return res.status(500).json(result);
+        }
+        
         res.json(result);
+
     } catch (error) {
         res.status(500).json({ message: "Erro interno do servidor durante a simulação de leitura." });
     }
