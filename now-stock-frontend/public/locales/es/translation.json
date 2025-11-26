@@ -1,0 +1,93 @@
+{
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "success": "¡Éxito!",
+    "error": "¡Error!",
+    "loading": "Cargando..."
+  },
+  "validation": {
+    "nameShort": "Nombre muy corto",
+    "cnpjInvalid": "CNPJ inválido",
+    "emailInvalid": "E-mail inválido",
+    "required": "Campo obligatorio"
+  },
+  "header": {
+    "profile": {
+      "edit": "Editar Perfil",
+      "logout": "Salir"
+    }
+  },
+  "nav": {
+    "dashboard": "Tablero",
+    "cadastros": "Registros",
+    "produtos": "Productos",
+    "categorias": "Categorías",
+    "fornecedores": "Proveedores",
+    "usuarios": "Usuarios",
+    "estoque": "Inventario",
+    "estoqueAtual": "Stock Actual",
+    "ajusteManual": "Ajuste Manual",
+    "movimentacoes": "Movimientos",
+    "entradasSaidas": "Entradas/Salidas",
+    "devolucoes": "Devoluciones",
+    "relatorios": "Informes",
+    "admin": "Administración",
+    "configuracoes": "Configuraciones",
+    "configurarRfid": "Configurar RFID"
+  },
+  "settings": {
+    "title": "Configuraciones",
+    "themeTitle": "Tema de la Aplicación",
+    "themeSubtitle": "Elija entre interfaz clara u oscura.",
+    "themeLight": "Claro",
+    "themeDark": "Oscuro",
+    "langTitle": "Idioma",
+    "langSubtitle": "Seleccione su idioma preferido."
+  },
+  "admin": {
+    "title": "Administración del Sistema",
+    "loadError": "Error al cargar datos de la empresa.",
+    "updateSuccess": "Datos de la empresa actualizados.",
+    "saveError": "Error al guardar.",
+    "tabs": {
+      "general": "Configuración General",
+      "system": "Parámetros del Sistema",
+      "logs": "Registros del Sistema"
+    },
+    "form": {
+      "storeName": "Nombre de la Tienda",
+      "cnpj": "CNPJ",
+      "backupInterval": "Intervalo de Respaldo",
+      "alertEmail": "Email de Alerta de Stock",
+      "saveParams": "Guardar Parámetros",
+      "runBackup": "Ejecutar Respaldo Manual Ahora"
+    },
+    "backup": {
+      "daily": "Diario",
+      "weekly": "Semanal",
+      "monthly": "Mensual"
+    },
+    "logs": {
+      "user": "Usuario",
+      "action": "Acción Realizada",
+      "date": "Fecha del Registro",
+      "empty": "No se encontraron registros."
+    },
+    "appLayout": {
+      "nav": {
+        "products": "Productos",
+        "categories": "Categorías",
+        "suppliers": "Proveedores",
+        "users": "Usuarios",
+        "stockCurrent": "Stock Actual",
+        "stockAdjust": "Ajuste Manual",
+        "movements": "Movimientos",
+        "reports": "Informes",
+        "rfidConfig": "Configurar RFID",
+        "admin": "Administración",
+        "settings": "Configuraciones"
+      }
+    }
+  }
+}

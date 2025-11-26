@@ -1,83 +1,49 @@
 {
-  "login": {
-    "title": "Login",
-    "subtitle": "Preencha os campos para efetuar o login",
-    "emailLabel": "E-mail",
-    "emailPlaceholder": "seu@email.com",
-    "passwordLabel": "Senha",
-    "button": "Login"
-  },
-  "signup": {
-    "title": "Cadastro",
-    "subtitle": "Clique aqui caso não tenha login"
-  },
-  "language": {
-    "switcher": {
-      "tooltip": "Alterar idioma",
-      "label": "Selecione o idioma"
-    }
-  },
-  "theme": {
-    "switcher": {
-      "tooltip": "Alterar tema",
-      "label": "Selecione o tema"
-    }
-  },
-  "signupPage": {
-  "title": "Crie sua conta",
-  "subtitle": "É rápido e fácil",
-  "companyNameLabel": "Nome da Empresa",
-  "cnpjLabel": "CNPJ",
-  "emailLabel": "E-mail",
-  "passwordLabel": "Senha",
-  "confirmPasswordLabel": "Confirme sua Senha",
-  "button": "Cadastrar",
-  "errors": {
-    "cnpjLength": "O CNPJ deve conter 14 dígitos",
-    "passwordMismatch": "As senhas não coincidem",
-    "passwordRequirements": "A senha precisa de 6+ caracteres, 1 maiúscula, 1 número e 1 caractere especial."
-    },
-    "nav": {
-  "dashboard": "Dashboard",
-  "products": "Produtos",
-  "stock": "Estoque",
-  "reports": "Relatórios",
-  "admin": "Administração"
-},
-"header": {
-  "profile": {
-    "edit": "Editar Perfil",
-    "logout": "Sair"
-  }
-},
-"dashboard": {
-  "title": "Dashboard",
-  "stats": {
-    "totalProducts": "Total de Produtos",
-    "lowStock": "Itens com Estoque Baixo",
-    "movementsToday": "Movimentações Hoje"
-  },
-  "recentMovements": "Movimentações Recentes",
-  "topProducts": "Produtos Mais Movimentados"
-},
-"settings": {
-  "title": "Configurações",
-  "themeTitle": "Tema da Aplicação",
-  "themeSubtitle": "Escolha entre a interface clara ou escura.",
-  "themeLight": "Claro",
-  "themeDark": "Escuro",
-  "langTitle": "Idioma",
-  "langSubtitle": "Selecione o idioma de preferência para a interface."
-},
-"common": {
+  "common": {
     "save": "Salvar",
     "cancel": "Cancelar",
     "success": "Sucesso!",
-    "error": "Erro!"
+    "error": "Erro!",
+    "loading": "Carregando..."
   },
   "validation": {
     "nameShort": "Nome muito curto",
-    "cnpjInvalid": "CNPJ inválido"
+    "cnpjInvalid": "CNPJ inválido",
+    "emailInvalid": "E-mail inválido",
+    "required": "Campo obrigatório"
+  },
+  "header": {
+    "profile": {
+      "edit": "Editar Perfil",
+      "logout": "Sair"
+    }
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "cadastros": "Cadastros",
+    "produtos": "Produtos",
+    "categorias": "Categorias",
+    "fornecedores": "Fornecedores",
+    "usuarios": "Usuários",
+    "estoque": "Estoque",
+    "estoqueAtual": "Estoque Atual",
+    "ajusteManual": "Ajuste Manual",
+    "movimentacoes": "Movimentações",
+    "entradasSaidas": "Entradas/Saídas",
+    "devolucoes": "Devoluções",
+    "relatorios": "Relatórios",
+    "admin": "Administração",
+    "configuracoes": "Configurações",
+    "configurarRfid": "Configurar RFID"
+  },
+  "settings": {
+    "title": "Configurações",
+    "themeTitle": "Tema da Aplicação",
+    "themeSubtitle": "Escolha entre a interface clara ou escura.",
+    "themeLight": "Claro",
+    "themeDark": "Escuro",
+    "langTitle": "Idioma",
+    "langSubtitle": "Selecione o idioma de preferência para a interface."
   },
   "admin": {
     "title": "Administração do Sistema",
@@ -107,8 +73,22 @@
       "action": "Ação Realizada",
       "date": "Data do Log",
       "empty": "Nenhum log encontrado."
+    },
+    "appLayout": {
+      "nav": {
+        "home": "Dashboard",
+        "products": "Produtos",
+        "categories": "Categorias",
+        "suppliers": "Fornecedores",
+        "users": "Usuários",
+        "stockCurrent": "Estoque Atual",
+        "stockAdjust": "Ajuste Manual",
+        "movements": "Movimentações",
+        "reports": "Relatórios",
+        "rfidConfig": "Configurar RFID",
+        "admin": "Administração",
+        "settings": "Configurações"
+      }
     }
   }
-  }
-  
 }

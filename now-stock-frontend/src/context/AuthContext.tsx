@@ -14,8 +14,7 @@ export interface AuthContextType {
   user: UserResponse | null;
   login: (token: string, user: UserResponse) => void;
   logout: () => void;
-  
-  // --- ADICIONE ESTAS LINHAS DE VOLTA ---
+
   theme: AppColorScheme;
   language: string;
   setTheme: (theme: AppColorScheme) => void;

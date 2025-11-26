@@ -1,59 +1,93 @@
 {
-  "login": {
-    "title": "Login",
-    "subtitle": "Fill in the fields to log in",
-    "emailLabel": "Email",
-    "emailPlaceholder": "your@email.com",
-    "passwordLabel": "Password",
-    "button": "Sign In"
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "success": "Success!",
+    "error": "Error!",
+    "loading": "Loading..."
   },
-  "signup": {
-    "title": "Sign Up",
-    "subtitle": "Click here if you don't have an account"
+  "validation": {
+    "nameShort": "Name too short",
+    "cnpjInvalid": "Invalid CNPJ",
+    "emailInvalid": "Invalid email",
+    "required": "Required field"
   },
-  "language": {
-    "switcher": {
-      "tooltip": "Change language",
-      "label": "Select language"
+  "header": {
+    "profile": {
+      "edit": "Edit Profile",
+      "logout": "Logout"
     }
-},
-"signupPage": {
-  "title": "Create your account",
-  "subtitle": "It's quick and easy",
-  "companyNameLabel": "Company Name",
-  "cnpjLabel": "CNPJ (Brazilian Tax ID)",
-  "emailLabel": "Email",
-  "passwordLabel": "Password",
-  "confirmPasswordLabel": "Confirm Password",
-  "button": "Sign Up",
-  "errors": {
-    "cnpjLength": "CNPJ must contain 14 digits",
-    "passwordMismatch": "Passwords do not match",
-    "passwordRequirements": "Password needs 6+ chars, 1 uppercase, 1 number & 1 special character."
-  }
-},
-"nav": {
-  "dashboard": "Dashboard",
-  "products": "Products",
-  "stock": "Stock",
-  "reports": "Reports",
-  "admin": "Administration"
-},
-"header": {
-  "profile": {
-    "edit": "Edit Profile",
-    "logout": "Logout"
-  }
-},
-"dashboard": {
-  "title": "Dashboard",
-  "stats": {
-    "totalProducts": "Total Products",
-    "lowStock": "Low Stock Items",
-    "movementsToday": "Movements Today"
   },
-  "recentMovements": "Recent Movements",
-  "topProducts": "Top Products"
-}
-
+  "nav": {
+    "dashboard": "Dashboard",
+    "cadastros": "Registers",
+    "produtos": "Products",
+    "categorias": "Categories",
+    "fornecedores": "Suppliers",
+    "usuarios": "Users",
+    "estoque": "Inventory",
+    "estoqueAtual": "Current Stock",
+    "ajusteManual": "Manual Adjustment",
+    "movimentacoes": "Movements",
+    "entradasSaidas": "In/Out",
+    "devolucoes": "Returns",
+    "relatorios": "Reports",
+    "admin": "Administration",
+    "configuracoes": "Settings",
+    "configurarRfid": "RFID Config"
+  },
+  "settings": {
+    "title": "Settings",
+    "themeTitle": "App Theme",
+    "themeSubtitle": "Choose between light or dark interface.",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "langTitle": "Language",
+    "langSubtitle": "Select your preferred language."
+  },
+  "admin": {
+    "title": "System Administration",
+    "loadError": "Failed to load company data.",
+    "updateSuccess": "Company data updated.",
+    "saveError": "Failed to save.",
+    "tabs": {
+      "general": "General Settings",
+      "system": "System Parameters",
+      "logs": "System Logs"
+    },
+    "form": {
+      "storeName": "Store Name",
+      "cnpj": "Tax ID (CNPJ)",
+      "backupInterval": "Backup Interval",
+      "alertEmail": "Stock Alert Email",
+      "saveParams": "Save Parameters",
+      "runBackup": "Run Manual Backup Now"
+    },
+    "backup": {
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly"
+    },
+    "logs": {
+      "user": "User",
+      "action": "Action Performed",
+      "date": "Log Date",
+      "empty": "No logs found."
+    },
+    "appLayout": {
+      "nav": {
+        "products": "Products",
+        "categories": "Categories",
+        "suppliers": "Suppliers",
+        "users": "Users",
+        "stockCurrent": "Current Stock",
+        "stockAdjust": "Manual Adjustment",
+        "movements": "Movements",
+        "reports": "Reports",
+        "rfidConfig": "RFID Config",
+        "admin": "Administration",
+        "settings": "Settings"
+      }
+    }
+  }
 }

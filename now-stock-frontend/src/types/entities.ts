@@ -15,6 +15,7 @@ export type ReturnState = 'estoque' | 'descarte';
 export type ReaderType = 'USB' | 'WiFi' | 'Bluetooth';
 export type BackupInterval = 'diario' | 'semanal' | 'mensal';
 export type AppColorScheme = 'light' | 'dark';
+export type AppLanguage = 'pt' | 'en' | 'es';
 
 export interface Company {
   id_empresa: number;
@@ -67,9 +68,8 @@ export interface Product {
   etiqueta_rfid: string | null;
   data_cadastro: string;
   
-  // --- Campos vindos da tabela 'estoque' (JOIN) ---
   quantidade_atual: number;
-  localizacao: string | null; // <--- O ERRO ESTAVA AQUI (Faltava ou estava com nome errado)
+  localizacao: string | null;
 }
 
 export interface Stock {

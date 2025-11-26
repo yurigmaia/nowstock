@@ -1,9 +1,9 @@
 /**
  * @file i18n.ts
  * @description
- * Configuração principal da biblioteca i18next para internacionalização.
- * Utiliza o backend para carregar arquivos JSON da pasta /public/locales
- * e o LanguageDetector para persistir a escolha do usuário no localStorage.
+ * Configuração do i18next.
+ * Suporta: pt, en, es.
+ * Carrega traduções de: /public/locales/{idioma}/translation.json
  */
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
@@ -15,21 +15,18 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
+    supportedLngs: ['pt', 'en', 'es'],
     fallbackLng: 'pt',
-    lng: 'pt',
-    debug: true,
+    debug: false,
     interpolation: {
       escapeValue: false,
     },
     backend: {
       loadPath: '/locales/{{lng}}/translation.json',
     },
-    react: {
-      useSuspense: true,
-    },
     detection: {
       order: ['localStorage', 'navigator'],
-      caches: ['i18nextLng'],
+      caches: ['localStorage'],
     }
   });
 
