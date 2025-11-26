@@ -4,29 +4,26 @@
  * Tela de Configurações onde o usuário pode alterar o tema (claro/escuro)
  * e o idioma da aplicação. Lê e altera o AuthContext.
  */
-import { Box, Title, Paper, Select, SegmentedControl, Stack, Text, Center, Loader, Button, Group } from "@mantine/core";
+import { Box, Title, Paper, Select, SegmentedControl, Stack, Text, Center, Button, Group } from "@mantine/core";
 import { IconSun, IconMoon, IconCheck } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from '../hooks/useAuth';
 import { useState, useEffect } from "react";
-import { apiService } from "../services/api";
 import { notifications } from "@mantine/notifications";
+
+const SUPPORTED_LANGUAGES = [
+  { value: 'pt', label: 'Português (Brasil)' },
+  { value: 'en', label: 'English' },
+  { value: 'es', label: 'Español' },
+];
 
 export function SettingsView() {
   const { t, i18n } = useTranslation();
   const { theme, setTheme, language, setLanguage } = useAuth();
   
-  const [languages, setLanguages] = useState<{ value: string, label: string }[]>([]);
-  const [loadingLangs, setLoadingLangs] = useState(true);
   const [localTheme, setLocalTheme] = useState(theme);
   const [localLanguage, setLocalLanguage] = useState(language);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    apiService.getAvailableLanguages()
-      .then(setLanguages)
-      .finally(() => setLoadingLangs(false));
-  }, []);
 
   useEffect(() => {
     setLocalTheme(theme);
@@ -38,6 +35,7 @@ export function SettingsView() {
     try {
       setTheme(localTheme);
       setLanguage(localLanguage);
+      
       await i18n.changeLanguage(localLanguage);
       
       notifications.show({
@@ -86,17 +84,13 @@ export function SettingsView() {
             <Text size="xs" c="dimmed" mb="xs">
               {t('settings.langSubtitle')}
             </Text>
-            {loadingLangs ? (
-              <Loader color="orange" size="sm" />
-            ) : (
-              <Select
-                placeholder="Carregando..."
-                data={languages}
-                value={localLanguage.split('-')[0]}
-                onChange={(value) => value && setLocalLanguage(value)}
-                allowDeselect={false}
-              />
-            )}
+            <Select
+              placeholder="Selecione..."
+              data={SUPPORTED_LANGUAGES}
+              value={localLanguage.split('-')[0]}
+              onChange={(value) => value && setLocalLanguage(value)}
+              allowDeselect={false}
+            />
           </Box>
 
           <Group justify="flex-end">
