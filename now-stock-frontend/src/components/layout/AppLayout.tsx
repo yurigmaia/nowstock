@@ -5,7 +5,7 @@
  * e a barra lateral de navegação dividida em duas seções (principal e rodapé).
  * Controla a exibição de links baseados no nível de acesso do usuário (admin).
  */
-import { AppShell, Burger, Group, NavLink, Menu, rem, Box, ActionIcon, Stack } from '@mantine/core';
+import { AppShell, Burger, Group, NavLink, Menu, rem, Box, ActionIcon } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
@@ -16,11 +16,13 @@ import {
 import { useAuth } from '../../hooks/useAuth';
 import classes from './AppLayout.module.css';
 import Logo from '../../assets/textlogoorange.svg?react';
+import { useTranslation } from 'react-i18next';
 
 export function AppLayout() {
   const [opened, { toggle }] = useDisclosure();
   const { logout, user } = useAuth();
   const { pathname } = useLocation();
+  const { t } = useTranslation();
 
   const isAdmin = user?.nivel === 'admin';
 
@@ -70,7 +72,7 @@ export function AppLayout() {
                   leftSection={<IconEdit style={{ width: rem(16), height: rem(16) }} />}
                   className={classes.menuItem}
                 >
-                  Editar Perfil
+                  {t('header.profile.edit')}
                 </Menu.Item>
                 <Menu.Divider />
                 <Menu.Item
@@ -79,7 +81,7 @@ export function AppLayout() {
                   leftSection={<IconLogout style={{ width: rem(16), height: rem(16) }} />}
                   className={classes.menuItem}
                 >
-                  Sair
+                  {t('header.profile.logout')}
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>
@@ -88,14 +90,11 @@ export function AppLayout() {
       </AppShell.Header>
 
       <AppShell.Navbar p={0} className={classes.navbar}>
-        {/* Container Flex que gerencia o layout vertical */}
         <div className={classes.navbarStack}>
-          
-          {/* --- SEÇÃO SUPERIOR (COM SCROLL) --- */}
-          <Box className={classes.navSectionMain}>
+                    <Box className={classes.navSectionMain}>
             <NavLink 
               component={Link} to="/" 
-              label="Dashboard" 
+              label={t('nav.dashboard')}
               leftSection={<IconHome size="1.1rem" stroke={1.5} />} 
               active={pathname === '/'} 
               className={classes.navLink} 
@@ -103,36 +102,36 @@ export function AppLayout() {
             />
             
             <NavLink
-              label="Cadastros"
+              label={t('nav.cadastros')}
               leftSection={<IconFilePlus size="1.1rem" stroke={1.5} />}
               className={classes.navLink}
               classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }}
               childrenOffset={28}
               defaultOpened={pathname.startsWith('/products') || pathname.startsWith('/suppliers') || pathname.startsWith('/categories') || pathname.startsWith('/users')}
             >
-              <NavLink component={Link} to="/products" label="Produtos" leftSection={<IconBox size="1.0rem" stroke={1.5} />} active={pathname === '/products'} className={classes.navLink} classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} />
-              <NavLink component={Link} to="/categories" label="Categorias" leftSection={<IconCategory size="1.0rem" stroke={1.5} />} active={pathname === '/categories'} className={classes.navLink} classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} />
-              <NavLink component={Link} to="/suppliers" label="Fornecedores" leftSection={<IconTruckDelivery size="1.0rem" stroke={1.5} />} active={pathname === '/suppliers'} className={classes.navLink} classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} />
+              <NavLink component={Link} to="/products" label={t('nav.produtos')} leftSection={<IconBox size="1.0rem" stroke={1.5} />} active={pathname === '/products'} className={classes.navLink} classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} />
+              <NavLink component={Link} to="/categories" label={t('nav.categorias')} leftSection={<IconCategory size="1.0rem" stroke={1.5} />} active={pathname === '/categories'} className={classes.navLink} classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} />
+              <NavLink component={Link} to="/suppliers" label={t('nav.fornecedores')} leftSection={<IconTruckDelivery size="1.0rem" stroke={1.5} />} active={pathname === '/suppliers'} className={classes.navLink} classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} />
               
               {isAdmin && (
-                <NavLink component={Link} to="/users" label="Usuários" leftSection={<IconUsers size="1.0rem" stroke={1.5} />} active={pathname === '/users'} className={classes.navLink} classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} />
+                <NavLink component={Link} to="/users" label={t('nav.usuarios')} leftSection={<IconUsers size="1.0rem" stroke={1.5} />} active={pathname === '/users'} className={classes.navLink} classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} />
               )}
             </NavLink>
             
             <NavLink
-              label="Estoque"
+              label={t('nav.estoque')}
               leftSection={<IconBox size="1.1rem" stroke={1.5} />}
               className={classes.navLink}
               classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }}
               childrenOffset={28}
               defaultOpened={pathname.startsWith('/stock-current') || pathname.startsWith('/stock-adjust')}
             >
-               <NavLink component={Link} to="/stock-current" label="Estoque Atual" leftSection={<IconFileAnalytics size="1.0rem" stroke={1.5} />} active={pathname === '/stock-current'} className={classes.navLink} classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} />
-               <NavLink component={Link} to="/stock-adjust" label="Ajuste Manual" leftSection={<IconTools size="1.0rem" stroke={1.5} />} active={pathname === '/stock-adjust'} className={classes.navLink} classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} />
+               <NavLink component={Link} to="/stock-current" label={t('nav.estoqueAtual')} leftSection={<IconFileAnalytics size="1.0rem" stroke={1.5} />} active={pathname === '/stock-current'} className={classes.navLink} classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} />
+               <NavLink component={Link} to="/stock-adjust" label={t('nav.ajusteManual')} leftSection={<IconTools size="1.0rem" stroke={1.5} />} active={pathname === '/stock-adjust'} className={classes.navLink} classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} />
             </NavLink>
             
             <NavLink
-              label="Movimentações"
+              label={t('nav.movimentacoes')}
               component={Link} to="/movements"
               leftSection={<IconArrowLeftRight size="1.1rem" stroke={1.5} />}
               active={pathname === '/movements'}
@@ -142,17 +141,16 @@ export function AppLayout() {
 
             <NavLink 
               component={Link} to="/reports" 
-              label="Relatórios" 
+              label={t('nav.relatorios')}
               leftSection={<IconReport size="1.1rem" stroke={1.5} />} 
               active={pathname === '/reports'} 
               className={classes.navLink} 
               classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} 
             />
 
-            {/* Link de RFID movido para cá (com os operacionais) */}
             <NavLink 
               component={Link} to="/rfid-config" 
-              label="Configurar RFID" 
+              label={t('nav.configurarRfid')}
               leftSection={<IconNfc size="1.1rem" stroke={1.5} />} 
               active={pathname === '/rfid-config'} 
               className={classes.navLink} 
@@ -160,12 +158,11 @@ export function AppLayout() {
             />
           </Box>
 
-          {/* --- SEÇÃO INFERIOR (FIXA NO RODAPÉ) --- */}
           <Box className={classes.navSectionFooter}>
             {isAdmin && (
               <NavLink 
                 component={Link} to="/admin" 
-                label="Administração" 
+                label={t('nav.admin')}
                 leftSection={<IconSettings size="1.1rem" stroke={1.5} />} 
                 active={pathname === '/admin'} 
                 className={classes.navLink} 
@@ -174,7 +171,7 @@ export function AppLayout() {
             )}
             <NavLink 
               component={Link} to="/settings" 
-              label="Configurações" 
+              label={t('nav.configuracoes')}
               leftSection={<IconTools size="1.1rem" stroke={1.5} />} 
               active={pathname === '/settings'} 
               className={classes.navLink} 
