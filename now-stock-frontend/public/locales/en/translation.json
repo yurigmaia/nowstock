@@ -88,6 +88,17 @@
         "admin": "Administration",
         "settings": "Settings"
       }
+    },
+    "errors": {
+      "fetchError": "Failed to load administration data."
     }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "fetchError": "Failed to load dashboard data.",
+    "totalProducts": "Total Products",
+    "lowStockItems": "Low Stock Items",
+    "movementsToday": "Movements Today",
+    "recentMovements": "Recent Movements"
   }
 }

@@ -88,6 +88,17 @@
         "admin": "Administración",
         "settings": "Configuraciones"
       }
+    },
+    "errors": {
+      "fetchError": "Error al cargar datos de la administración."
     }
+  },
+  "dashboard": {
+    "title": "Tablero",
+    "totalProducts": "Total de Productos",
+    "lowStockItems": "Artículos con Bajo Stock",
+    "movementsToday": "Movimientos Hoy",
+    "recentMovements": "Movimientos Recientes",
+    "fetchError": "Error al cargar datos del tablero."
   }
 }

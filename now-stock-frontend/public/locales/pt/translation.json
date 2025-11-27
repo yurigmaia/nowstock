@@ -89,6 +89,17 @@
         "admin": "Administração",
         "settings": "Configurações"
       }
+    },
+    "errors": {
+      "fetchError": "Falha ao carregar dados da administração."
     }
+  },
+    "dashboard": {
+      "title": "Dashboard",
+      "totalProducts": "Total de Produtos",
+      "lowStockItems": "Itens com Estoque Baixo",
+      "movementsToday": "Movimentações Hoje",
+      "recentMovements": "Movimentações Recentes",
+      "fetchError": "Falha ao carregar dados do dashboard."
   }
 }

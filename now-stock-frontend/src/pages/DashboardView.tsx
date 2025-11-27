@@ -1,17 +1,16 @@
 /**
  * @component DashboardView
  * @description
- * Tela principal (home) da aplicação. Exibe um resumo das informações
- * mais importantes do sistema, como total de produtos, itens com
- * estoque baixo e movimentações recentes. Busca os dados do 'apiService'.
+ * Tela principal com cards de estatísticas e tabela de movimentações recentes.
  */
-import { Grid, Paper, Text, Title, Group, ThemeIcon, Loader, Center, Alert } from '@mantine/core';
+import { Grid, Paper, Text, Title, Group, ThemeIcon, Loader, Center, Alert, Table, Badge } from '@mantine/core';
 import type { MantineColor } from '@mantine/core';
 import { IconBox, IconAlertCircle, IconAlertTriangle, IconArrowsLeftRight } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
 import { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
 import type { DashboardSummary } from '../types/dashboard';
+import { useTranslation } from 'react-i18next';
 
 interface StatCardProps {
   title: string;
@@ -39,6 +38,7 @@ export function DashboardView() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,7 +47,7 @@ export function DashboardView() {
         const data = await apiService.getDashboardSummary();
         setSummary(data);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Falha ao carregar dados do dashboard.";
+        const errorMessage = err instanceof Error ? err.message : "Erro ao carregar dashboard.";
         setError(errorMessage);
       } finally {
         setLoading(false);
@@ -64,15 +64,32 @@ export function DashboardView() {
     );
   }
 
+  const rows = summary?.recentMovements?.map((mov) => (
+    <Table.Tr key={mov.id_mov}>
+      <Table.Td>{mov.produto}</Table.Td>
+      <Table.Td>
+        <Badge 
+          color={mov.tipo === 'entrada' || mov.tipo === 'devolucao' ? 'green' : 'red'} 
+          variant="light"
+        >
+          {mov.tipo.toUpperCase()}
+        </Badge>
+      </Table.Td>
+      <Table.Td style={{ textAlign: 'center' }}>{mov.quantidade}</Table.Td>
+      <Table.Td>{mov.usuario || 'Sistema'}</Table.Td>
+      <Table.Td>{new Date(mov.data_movimentacao).toLocaleString('pt-BR')}</Table.Td>
+    </Table.Tr>
+  ));
+
   return (
     <>
       <Title order={2} mb="lg" c="orange.7">
-        Dashboard
+        {t('dashboard.title')}
       </Title>
       <Grid>
         <Grid.Col span={{ base: 12, md: 4 }}>
           <StatCard 
-            title="Total de Produtos" 
+            title={t('dashboard.totalProducts')} 
             value={summary?.totalProducts ?? 0} 
             icon={<IconBox size="1.4rem" />} 
             color="blue"
@@ -81,7 +98,7 @@ export function DashboardView() {
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 4 }}>
           <StatCard 
-            title="Itens com Estoque Baixo" 
+            title={t('dashboard.lowStockItems')} 
             value={summary?.lowStockItems ?? 0}
             icon={<IconAlertTriangle size="1.4rem" />} 
             color="orange"
@@ -90,7 +107,7 @@ export function DashboardView() {
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 4 }}>
           <StatCard 
-            title="Movimentações Hoje"
+            title={t('dashboard.movementsToday')}
             value={summary?.movementsToday ?? 0}
             icon={<IconArrowsLeftRight size="1.4rem" />} 
             color="teal"
@@ -99,14 +116,28 @@ export function DashboardView() {
         </Grid.Col>
 
         <Grid.Col span={{ base: 12 }}>
-          {loading ? (
-            <Center h={300}><Loader color="orange" /></Center>
-          ) : (
-            <Paper withBorder p="md" radius="md" h={300}>
-              <Title order={5}>Movimentações Recentes</Title>
-              <Text c="dimmed" size="sm">O gráfico estará aqui...</Text>
-            </Paper>
-          )}
+          <Paper withBorder p="md" radius="md">
+            <Title order={4} mb="md">{t('dashboard.recentMovements')}</Title>
+            
+            {loading ? (
+              <Center h={200}><Loader color="orange" /></Center>
+            ) : (summary?.recentMovements && summary.recentMovements.length > 0) ? (
+              <Table striped highlightOnHover>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>Produto</Table.Th>
+                    <Table.Th>Tipo</Table.Th>
+                    <Table.Th style={{ textAlign: 'center' }}>Qtd</Table.Th>
+                    <Table.Th>Usuário</Table.Th>
+                    <Table.Th>Data</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>{rows}</Table.Tbody>
+              </Table>
+            ) : (
+              <Text c="dimmed" ta="center" py="lg">Nenhuma movimentação recente.</Text>
+            )}
+          </Paper>
         </Grid.Col>
       </Grid>
     </>

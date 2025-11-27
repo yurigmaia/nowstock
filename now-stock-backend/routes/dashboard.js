@@ -1,9 +1,8 @@
 /**
  * @file dashboard.js
  * @description
- * Define a rota (endpoint) para buscar os dados resumidos do dashboard.
- * Esta rota é protegida e retorna um agregado de informações (contagens)
- * específicas da empresa do usuário logado (multi-tenancy).
+ * Rota para buscar dados resumidos do dashboard.
+ * Atualizado para incluir a lista das últimas 5 movimentações.
  */
 const express = require('express');
 const router = express.Router();
@@ -15,9 +14,7 @@ router.get('/summary', authenticateToken, async (req, res) => {
 
     try {
         const productsQuery = promisePool.query(
-            `SELECT COUNT(id_produto) as totalProducts 
-             FROM produtos 
-             WHERE id_empresa = ?`,
+            `SELECT COUNT(id_produto) as totalProducts FROM produtos WHERE id_empresa = ?`,
             [id_empresa]
         );
 
@@ -36,27 +33,41 @@ router.get('/summary', authenticateToken, async (req, res) => {
             [id_empresa]
         );
 
+        const recentQuery = promisePool.query(
+            `SELECT m.id_mov, p.nome AS produto, u.nome AS usuario, m.tipo, m.quantidade, m.data_movimentacao
+             FROM movimentacoes m
+             JOIN produtos p ON m.id_produto = p.id_produto
+             LEFT JOIN usuarios u ON m.id_usuario = u.id_usuario
+             WHERE m.id_empresa = ?
+             ORDER BY m.data_movimentacao DESC
+             LIMIT 10`,
+            [id_empresa]
+        );
+
         const [
             [productsResult],
             [lowStockResult],
-            [movementsResult]
+            [movementsResult],
+            [recentResult]
         ] = await Promise.all([
             productsQuery,
             lowStockQuery,
-            movementsQuery
+            movementsQuery,
+            recentQuery
         ]);
 
         const summary = {
             totalProducts: productsResult[0].totalProducts || 0,
             lowStockItems: lowStockResult[0].lowStockItems || 0,
-            movementsToday: movementsResult[0].movementsToday || 0
+            movementsToday: movementsResult[0].movementsToday || 0,
+            recentMovements: recentResult || []
         };
 
         res.status(200).json(summary);
 
     } catch (error) {
         console.error("Erro ao buscar dados do dashboard:", error);
-        res.status(500).json({ message: "Erro interno do servidor ao buscar dados do dashboard." });
+        res.status(500).json({ message: "Erro interno do servidor." });
     }
 });
 
