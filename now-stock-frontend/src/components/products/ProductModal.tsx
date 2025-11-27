@@ -6,12 +6,11 @@
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Modal } from '@mantine/core';
-// Corrigido: O formulário está na mesma pasta, dentro de /components/products
 import { ProductForm } from './ProductForm'; 
 import type { Product } from '../../types/entities';
 import { useState } from 'react';
 import { notifications } from '@mantine/notifications';
-import { apiService } from '../../services/api'; // Importa o serviço de API real
+import { apiService } from '../../services/api';
 
 interface ProductModalProps {
   opened: boolean;
@@ -27,12 +26,8 @@ export function ProductModal({ opened, onClose, product, onSaveSuccess }: Produc
   const handleFormSubmit = async (values: any) => {
     setIsSubmitting(true);
     
-    // O 'values' já vem do formulário no formato snake_case (ex: id_categoria)
-    // graças ao nosso ProductForm.tsx
-    
     try {
       if (product) {
-        // Modo Edição: Chama o updateProduct
         await apiService.updateProduct(product.id_produto, values);
         notifications.show({
             title: 'Sucesso!',
@@ -40,7 +35,6 @@ export function ProductModal({ opened, onClose, product, onSaveSuccess }: Produc
             color: 'green',
           });
       } else {
-        // Modo Criação: Chama o createProduct
         await apiService.createProduct(values);
         notifications.show({
             title: 'Sucesso!',
@@ -48,8 +42,8 @@ export function ProductModal({ opened, onClose, product, onSaveSuccess }: Produc
             color: 'green',
           });
       }
-      onSaveSuccess(); // Recarrega a tabela na tela principal
-      onClose(); // Fecha o modal
+      onSaveSuccess();
+      onClose();
     
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";

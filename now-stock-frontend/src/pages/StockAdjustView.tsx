@@ -17,8 +17,6 @@ import {
   Stack,
   TextInput,
   Group,
-  // Center, // Removido
-  // Loader, // Removido
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useState, useEffect } from "react";
@@ -29,7 +27,6 @@ import { useAuth } from '../hooks/useAuth';
 import { apiService } from "../services/api";
 import type { Product } from "../types/entities";
 
-// O tipo de movimentação para esta tela é 'entrada' ou 'saida'
 type AdjustFlow = 'entrada' | 'saida';
 
 export function StockAdjustView() {

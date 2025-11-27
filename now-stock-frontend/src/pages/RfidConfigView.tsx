@@ -5,7 +5,7 @@
  */
 import { Box, Title, Paper, Button, Stack, Text, Group } from "@mantine/core";
 import { IconUsb } from "@tabler/icons-react";
-import { useRfid } from "../hooks/useRfid"; // Usa o Hook Global
+import { useRfid } from "../hooks/useRfid";
 
 export function RfidConfigView() {
   const { connect, disconnect, isConnected, lastTag } = useRfid();

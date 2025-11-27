@@ -78,7 +78,6 @@ export function MovementsView() {
           title: 'Tag Desconhecida', 
           message: 'Nenhum produto cadastrado com esta tag.', 
           color: 'yellow',
-          // CORRIGIDO
           icon: <IconNfc size={16}/>
         });
       }

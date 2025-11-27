@@ -11,7 +11,7 @@ import { useState, useEffect } from "react";
 import { apiService } from "../services/api";
 import { notifications } from "@mantine/notifications";
 import { IconCheck, IconX } from "@tabler/icons-react";
-import { useTranslation } from "react-i18next"; // Importa o hook de tradução
+import { useTranslation } from "react-i18next";
 
 interface LogEntry {
   id_log: number;
@@ -22,7 +22,7 @@ interface LogEntry {
 }
 
 export function AdminView() {
-  const { t } = useTranslation(); // Inicializa a tradução
+  const { t } = useTranslation();
   const [logs] = useState<LogEntry[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -54,8 +54,6 @@ export function AdminView() {
           nome: company.nome,
           cnpj: company.cnpj || '',
         });
-        // const logsData = await apiService.getSystemLogs();
-        // setLogs(logsData);
       } catch (error) {
         console.error(error);
         notifications.show({ 

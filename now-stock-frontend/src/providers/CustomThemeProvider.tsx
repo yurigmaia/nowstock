@@ -7,10 +7,9 @@
 import { useMemo } from 'react';
 import type { ReactNode } from 'react';
 import { MantineProvider, createTheme } from '@mantine/core';
-import { useAuth } from '../hooks/useAuth'; // Importa o AuthContext
+import { useAuth } from '../hooks/useAuth';
 
 export const CustomThemeProvider = ({ children }: { children: ReactNode }) => {
-  // Lê o tema diretamente do AuthContext
   const { theme: colorScheme } = useAuth();
 
   const theme = useMemo(() => createTheme({
@@ -19,7 +18,6 @@ export const CustomThemeProvider = ({ children }: { children: ReactNode }) => {
   }), []);
 
   return (
-    // Passa o tema do AuthContext para o Mantine
     <MantineProvider theme={theme} forceColorScheme={colorScheme}>
       {children}
     </MantineProvider>

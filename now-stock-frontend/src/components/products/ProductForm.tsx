@@ -12,7 +12,6 @@ import { apiService } from '../../services/api';
 import type { Product } from '../../types/entities';
 import { useRfid } from '../../hooks/useRfid';
 import { notifications } from '@mantine/notifications';
-// CORRIGIDO: IconRfid -> IconNfc
 import { IconNfc } from '@tabler/icons-react';
 
 interface ProductFormProps {
@@ -69,7 +68,6 @@ export function ProductForm({ product, onSubmit, onCancel, loading }: ProductFor
         title: 'Tag Capturada!', 
         message: `Código ${lastTag} inserido no formulário.`, 
         color: 'blue',
-        // CORRIGIDO
         icon: <IconNfc size={16}/>
       });
       
