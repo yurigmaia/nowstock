@@ -220,5 +220,39 @@ router.put('/:id/preferences', authenticateToken, async (req, res) => {
         res.status(500).json({ message: "Erro interno do servidor." });
     }
 });
+router.put('/:id/profile', authenticateToken, async (req, res) => {
+    const { id } = req.params;
+    const { nome, email } = req.body;
+    const id_empresa = req.user.empresa;
+
+    if (req.user.id != id && req.user.nivel !== 'admin') {
+        return res.status(403).json({ message: "Sem permissão para editar este perfil." });
+    }
+
+    if (!nome || !email) {
+        return res.status(400).json({ message: "Nome e email são obrigatórios." });
+    }
+
+    try {
+        const [emailCheck] = await promisePool.query(
+            'SELECT id_usuario FROM usuarios WHERE email = ? AND id_usuario != ?',
+            [email, id]
+        );
+        if (emailCheck.length > 0) {
+            return res.status(409).json({ message: "Este e-mail já está em uso." });
+        }
+
+        await promisePool.query(
+            'UPDATE usuarios SET nome = ?, email = ? WHERE id_usuario = ? AND id_empresa = ?',
+            [nome, email, id, id_empresa]
+        );
+
+        res.json({ message: "Perfil atualizado com sucesso." });
+
+    } catch (error) {
+        console.error("Erro ao atualizar perfil:", error);
+        res.status(500).json({ message: "Erro interno do servidor." });
+    }
+});
 
 module.exports = router;

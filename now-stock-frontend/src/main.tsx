@@ -8,11 +8,10 @@ import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 import { Loader, Center } from '@mantine/core';
-import '@mantine/core/styles.css'; // Estilos base do Mantine
+import '@mantine/core/styles.css';
 
-// --- AQUI ESTAVA O PROBLEMA ---
 import { Notifications } from '@mantine/notifications';
-import '@mantine/notifications/styles.css'; // <--- ADICIONE ESTA LINHA OBRIGATÓRIA
+import '@mantine/notifications/styles.css';
 // ------------------------------
 
 import { BrowserRouter } from 'react-router-dom';

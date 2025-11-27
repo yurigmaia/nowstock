@@ -3,7 +3,7 @@
  * @description
  * Tela de administração para Gerenciamento de Usuários (CRUD).
  * Permite ao admin visualizar a lista de usuários, aprovar pendentes,
- * bloquear/editar existentes e incluir novos usuários manualmente através de um modal.
+ * bloquear/desativar existentes e incluir novos usuários manualmente.
  */
 import { useState, useEffect } from 'react';
 import {
@@ -14,8 +14,8 @@ import {
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import {
-  IconCheck, IconX, IconLock, IconPlus,
-  IconPencil
+  IconCheck, IconX, IconPlus,
+  IconPencil, IconBan
 } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import { apiService } from '../services/api';
@@ -32,6 +32,7 @@ export function UsersView() {
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<User[]>([]);
   const [modalLoading, setModalLoading] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
 
   const form = useForm({
     initialValues: {
@@ -41,9 +42,13 @@ export function UsersView() {
       level: "operador",
     },
     validate: {
-      name: (value) => (value.length > 0 ? null : "Nome obrigatório"),
+      name: (value) => (value.trim().length > 0 ? null : "Nome obrigatório"),
       email: (value) => (/^\S+@\S+$/.test(value) ? null : "Email inválido"),
-      password: (value) => (value.length > 0 ? null : "Senha obrigatória"),
+      password: (value) => {
+        if (!editingUser && value.length < 6) return "Senha obrigatória (mín 6 chars)";
+        if (editingUser && value.length > 0 && value.length < 6) return "Nova senha muito curta";
+        return null;
+      },
     },
   });
 
@@ -59,19 +64,44 @@ export function UsersView() {
     fetchUsers();
   }, []);
 
+  const handleOpenModal = (user: User | null) => {
+    setEditingUser(user);
+    if (user) {
+      form.setValues({
+        name: user.nome,
+        email: user.email,
+        password: "",
+        level: user.nivel_acesso,
+      });
+    } else {
+      form.reset();
+    }
+    setOpened(true);
+  };
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleAddUser = async (values: any) => {
+  const handleSubmit = async (values: any) => {
     setModalLoading(true);
     try {
-      await apiService.createUser({
-        name: values.name,
-        email: values.email,
-        password: values.password,
-        level: values.level,
-      });
-      notifications.show({ title: 'Sucesso', message: 'Usuário incluído manualmente.', color: 'green' });
+      if (editingUser) {
+        await apiService.adminUpdateUser(editingUser.id_usuario, {
+            nome: values.name,
+            email: values.email,
+            nivel_acesso: values.level,
+            status: editingUser.status
+        });
+        notifications.show({ title: 'Sucesso', message: 'Usuário atualizado.', color: 'green' });
+      } else {
+        await apiService.createUser({
+          name: values.name,
+          email: values.email,
+          password: values.password,
+          level: values.level,
+        });
+        notifications.show({ title: 'Sucesso', message: 'Usuário criado.', color: 'green' });
+      }
+      
       fetchUsers();
-      form.reset();
       setOpened(false);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
@@ -81,26 +111,30 @@ export function UsersView() {
     }
   };
 
-  const handleApprove = (userId: number) => {
-    apiService.updateUserStatus(userId, 'ativo').then(() => {
-      notifications.show({ title: 'Usuário Aprovado', message: 'O usuário agora está ativo.', color: 'green', icon: <IconCheck/> });
-      fetchUsers();
-    });
-  };
-
-  const handleBlock = (userId: number) => {
-    apiService.updateUserStatus(userId, 'inativo').then(() => {
-      notifications.show({ title: 'Usuário Bloqueado', message: 'O usuário foi movido para inativo.', color: 'gray', icon: <IconLock/> });
+  const handleStatusChange = (userId: number, newStatus: UserStatus) => {
+    apiService.updateUserStatus(userId, newStatus).then(() => {
+      const action = newStatus === 'ativo' ? 'ativado' : 'desativado';
+      notifications.show({ 
+          title: 'Status Atualizado', 
+          message: `Usuário ${action} com sucesso.`, 
+          color: newStatus === 'ativo' ? 'green' : 'gray', 
+          icon: <IconCheck/> 
+      });
       fetchUsers();
     });
   };
   
-  const handleReject = (userId: number) => {
-    console.log("Rejeitando/Excluindo usuário:", userId);
-  };
-  
-  const handleEdit = (user: User) => {
-    console.log("Editando usuário:", user);
+  const handleReject = async (userId: number) => {
+    if(confirm("Tem certeza que deseja rejeitar (excluir) a solicitação deste usuário?")) {
+        try {
+            await apiService.deleteAccount(userId);
+            notifications.show({ title: 'Rejeitado', message: 'Solicitação removida.', color: 'gray' });
+            fetchUsers();
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch(err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+            notifications.show({ title: 'Erro', message: 'Falha ao rejeitar.', color: 'red' });
+        }
+    }
   };
 
   const rows = users.map((user) => (
@@ -119,25 +153,35 @@ export function UsersView() {
       <Table.Td>
         <Group gap={4}>
           <Tooltip label="Editar">
-            <ActionIcon size="sm" variant="subtle" color="blue" onClick={() => handleEdit(user)}>
+            <ActionIcon size="sm" variant="subtle" color="blue" onClick={() => handleOpenModal(user)}>
               <IconPencil size={14} />
             </ActionIcon>
           </Tooltip>
+
           {user.status === 'ativo' && (
-            <Tooltip label="Bloquear">
-              <ActionIcon size="sm" variant="subtle" color="red" onClick={() => handleBlock(user.id_usuario)}>
-                <IconLock size={14} />
+            <Tooltip label="Desativar Usuário">
+              <ActionIcon size="sm" variant="subtle" color="red" onClick={() => handleStatusChange(user.id_usuario, 'inativo')}>
+                <IconBan size={14} />
               </ActionIcon>
             </Tooltip>
           )}
+
+          {user.status === 'inativo' && (
+            <Tooltip label="Reativar Usuário">
+              <ActionIcon size="sm" variant="subtle" color="green" onClick={() => handleStatusChange(user.id_usuario, 'ativo')}>
+                <IconCheck size={14} />
+              </ActionIcon>
+            </Tooltip>
+          )}
+
           {user.status === "pendente" && (
             <>
-              <Tooltip label="Aprovar">
-                <ActionIcon size="sm" variant="subtle" color="green" onClick={() => handleApprove(user.id_usuario)}>
+              <Tooltip label="Aprovar Acesso">
+                <ActionIcon size="sm" variant="subtle" color="green" onClick={() => handleStatusChange(user.id_usuario, 'ativo')}>
                   <IconCheck size={14} />
                 </ActionIcon>
               </Tooltip>
-              <Tooltip label="Rejeitar">
+              <Tooltip label="Rejeitar Solicitação">
                 <ActionIcon size="sm" variant="subtle" color="red" onClick={() => handleReject(user.id_usuario)}>
                   <IconX size={14} />
                 </ActionIcon>
@@ -155,7 +199,7 @@ export function UsersView() {
         <Title order={2} c="orange.7">
           Gestão de Usuários
         </Title>
-        <Button bg="orange.6" leftSection={<IconPlus size={16} />} onClick={() => setOpened(true)}>
+        <Button bg="orange.6" leftSection={<IconPlus size={16} />} onClick={() => handleOpenModal(null)}>
           Incluir Usuário
         </Button>
       </Group>
@@ -169,9 +213,9 @@ export function UsersView() {
               <Table.Tr>
                 <Table.Th>Nome</Table.Th>
                 <Table.Th>Email</Table.Th>
-                <Table.Th>Nível de Acesso</Table.Th>
+                <Table.Th>Nível</Table.Th>
                 <Table.Th>Status</Table.Th>
-                <Table.Th>Data de Cadastro</Table.Th>
+                <Table.Th>Cadastro</Table.Th>
                 <Table.Th>Ações</Table.Th>
               </Table.Tr>
             </Table.Thead>
@@ -188,8 +232,13 @@ export function UsersView() {
         )}
       </Paper>
 
-      <Modal opened={opened} onClose={() => setOpened(false)} title="Incluir Usuário" centered>
-        <form onSubmit={form.onSubmit(handleAddUser)}>
+      <Modal 
+        opened={opened} 
+        onClose={() => setOpened(false)} 
+        title={editingUser ? "Editar Usuário" : "Incluir Usuário"} 
+        centered
+      >
+        <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack gap="md">
             <TextInput
               label="Nome"
@@ -204,9 +253,8 @@ export function UsersView() {
               {...form.getInputProps("email")}
             />
             <PasswordInput 
-              label="Senha" 
+              label={editingUser ? "Nova Senha (Opcional)" : "Senha"}
               placeholder="******" 
-              required 
               {...form.getInputProps("password")} 
             />
             <Select
@@ -220,7 +268,7 @@ export function UsersView() {
               {...form.getInputProps("level")}
             />
             <Button fullWidth bg="orange.6" type="submit" loading={modalLoading}>
-              Criar Usuário
+              {editingUser ? "Salvar Alterações" : "Criar Usuário"}
             </Button>
           </Stack>
         </form>

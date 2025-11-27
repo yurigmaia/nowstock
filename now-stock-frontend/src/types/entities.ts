@@ -6,7 +6,6 @@
  * ao que o backend (Node.js) deve retornar.
  */
 
-// Tipos baseados nos ENUMs do SQL
 export type UserRole = 'admin' | 'operador' | 'visualizador';
 export type UserStatus = 'ativo' | 'inativo' | 'pendente';
 export type MovementType = 'entrada' | 'saida' | 'ajuste';

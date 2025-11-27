@@ -8,7 +8,6 @@
 import type { DashboardSummary } from "../types/dashboard";
 import type { User, Product, Category, Supplier, UserStatus, Company } from "../types/entities";
 
-// Verifique se seu backend está na 8000 ou 3000 e ajuste aqui se necessário
 const API_BASE_URL = 'http://localhost:3000/api'; 
 
 const getAuthHeaders = () => {
@@ -50,13 +49,11 @@ const handleResponse = async (response: Response) => {
 
 export const apiService = {
 
-  // --- DASHBOARD ---
   getDashboardSummary: async (): Promise<DashboardSummary> => {
     const response = await fetch(`${API_BASE_URL}/dashboard/summary`, { headers: getAuthHeaders() });
     return handleResponse(response);
   },
 
-  // --- USUÁRIOS ---
   getUsers: async (): Promise<User[]> => {
     const response = await fetch(`${API_BASE_URL}/users`, { headers: getAuthHeaders() });
     return handleResponse(response);
@@ -86,7 +83,6 @@ export const apiService = {
     return handleResponse(response);
   },
 
-  // --- PRODUTOS ---
   getProducts: async (): Promise<Product[]> => {
     const response = await fetch(`${API_BASE_URL}/produtos`, { headers: getAuthHeaders() });
     return handleResponse(response);
@@ -118,7 +114,6 @@ export const apiService = {
     return handleResponse(response);
   },
   
-  // --- CATEGORIAS ---
   getCategories: async (): Promise<Category[]> => {
     const response = await fetch(`${API_BASE_URL}/categorias`, { headers: getAuthHeaders() });
     return handleResponse(response);
@@ -152,7 +147,6 @@ export const apiService = {
     return handleResponse(response);
   },
 
-  // --- FORNECEDORES ---
   getSuppliers: async (): Promise<Supplier[]> => {
     const response = await fetch(`${API_BASE_URL}/fornecedores`, { headers: getAuthHeaders() });
     return handleResponse(response);
@@ -198,7 +192,6 @@ export const apiService = {
     return handleResponse(response);
   },
 
-  // --- MOVIMENTAÇÕES ---
   createMovement: async (data: any): Promise<void> => {
     const payload = {
       id_produto_manual: data.id_produto,
@@ -218,7 +211,6 @@ export const apiService = {
     return handleResponse(response);
   },
 
-  // --- PERFIL E PREFERÊNCIAS ---
   updateProfile: async (userId: number, data: any): Promise<User> => {
     const payload = { nome: data.nome, email: data.email };
     const response = await fetch(`${API_BASE_URL}/users/${userId}/profile`, {
@@ -251,9 +243,18 @@ export const apiService = {
     return handleResponse(response);
   },
 
-  // --- DADOS DA EMPRESA (ADMIN) ---
   getCompanyDetails: async (): Promise<Company> => {
     const response = await fetch(`${API_BASE_URL}/empresa/me`, { headers: getAuthHeaders() });
+    return handleResponse(response);
+  },
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  adminUpdateUser: async (id: number, data: any): Promise<User> => {
+    const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
     return handleResponse(response);
   },
 
@@ -266,13 +267,11 @@ export const apiService = {
     return handleResponse(response);
   },
 
-  // --- RELATÓRIOS ---
   getReport: async (reportType: string): Promise<any[]> => {
     const response = await fetch(`${API_BASE_URL}/reports/${reportType}`, { headers: getAuthHeaders() });
     return handleResponse(response);
   },
 
-  // --- RFID ---
   simulateRfidScan: async (rfidTag: string): Promise<any> => {
     const response = await fetch(`${API_BASE_URL}/inventory/simulate-rfid`, {
       method: 'POST',
