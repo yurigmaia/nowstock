@@ -10,6 +10,7 @@ const movimentacaoRoutes = require('./routes/movimentacao');
 const estoqueRoutes = require('./routes/estoque');        
 const empresaRoutes = require('./routes/empresa');
 const inventoryRoutes = require('./routes/inventoryRoutes');
+const reportsRoutes = require('./routes/reports');
 const cors = require('cors'); 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -29,6 +30,7 @@ app.use('/api/estoque', estoqueRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/empresa', empresaRoutes);
 app.use('/api/inventory', inventoryRoutes);
+app.use('/api/reports', reportsRoutes);
 
 app.get('/', (req, res) => {
     res.send("API do NowStock (Leitor RFID) está online e Express rodando!");
