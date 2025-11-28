@@ -4,22 +4,48 @@
     "cancel": "Cancelar",
     "success": "¡Éxito!",
     "error": "¡Error!",
-    "loading": "Cargando..."
+    "loading": "Cargando...",
+    "required": "Campo obligatorio",
+    "warning": "Aviso",
+    "select": "Seleccione",
+    "edit": "Editar"
   },
   "validation": {
     "nameShort": "Nombre muy corto",
     "cnpjInvalid": "CNPJ inválido",
-    "emailInvalid": "E-mail inválido",
+    "emailInvalid": "Correo inválido",
     "required": "Campo obligatorio"
   },
   "header": {
     "profile": {
       "edit": "Editar Perfil",
-      "logout": "Salir"
+      "logout": "Cerrar Sesión"
+    }
+  },
+  "profile": {
+    "title": "Mi Perfil",
+    "infoTitle": "Información Personal",
+    "nameLabel": "Nombre Completo",
+    "emailLabel": "Correo Electrónico",
+    "emailReadOnlyDescription": "Para cambiar su correo, contacte al administrador.",
+    "securitySection": "Seguridad",
+    "passwordChangeDescription": "Complete los campos a continuación solo si desea cambiar su contraseña.",
+    "currentPassword": "Contraseña Actual",
+    "currentPasswordPlaceholder": "Ingrese su contraseña actual",
+    "newPassword": "Nueva Contraseña",
+    "passwordPlaceholder": "Ingrese la nueva contraseña",
+    "confirmPassword": "Confirmar Contraseña",
+    "confirmPasswordPlaceholder": "Confirme la nueva contraseña",
+    "updateSuccess": "Perfil actualizado con éxito",
+    "updateError": "Error al actualizar perfil",
+    "passwordSuccess": "Contraseña cambiada con éxito",
+    "errors": {
+      "passwordRequirements": "La contraseña debe tener 6+ caracteres, mayúscula, minúscula, número y símbolo",
+      "passwordMismatch": "Las contraseñas no coinciden"
     }
   },
   "nav": {
-    "dashboard": "Tablero",
+    "dashboard": "Dashboard",
     "cadastros": "Registros",
     "produtos": "Productos",
     "categorias": "Categorías",
@@ -31,19 +57,19 @@
     "movimentacoes": "Movimientos",
     "entradasSaidas": "Entradas/Salidas",
     "devolucoes": "Devoluciones",
-    "relatorios": "Informes",
+    "relatorios": "Reportes",
     "admin": "Administración",
-    "configuracoes": "Configuraciones",
+    "configuracoes": "Configuración",
     "configurarRfid": "Configurar RFID"
   },
   "settings": {
-    "title": "Configuraciones",
+    "title": "Configuración",
     "themeTitle": "Tema de la Aplicación",
-    "themeSubtitle": "Elija entre interfaz clara u oscura.",
+    "themeSubtitle": "Elija entre la interfaz clara u oscura.",
     "themeLight": "Claro",
     "themeDark": "Oscuro",
     "langTitle": "Idioma",
-    "langSubtitle": "Seleccione su idioma preferido."
+    "langSubtitle": "Seleccione el idioma de preferencia para la interfaz."
   },
   "admin": {
     "title": "Administración del Sistema",
@@ -53,13 +79,13 @@
     "tabs": {
       "general": "Configuración General",
       "system": "Parámetros del Sistema",
-      "logs": "Registros del Sistema"
+      "logs": "Logs del Sistema"
     },
     "form": {
       "storeName": "Nombre de la Tienda",
       "cnpj": "CNPJ",
       "backupInterval": "Intervalo de Respaldo",
-      "alertEmail": "Email de Alerta de Stock",
+      "alertEmail": "Correo para Alertas de Stock",
       "saveParams": "Guardar Parámetros",
       "runBackup": "Ejecutar Respaldo Manual Ahora"
     },
@@ -71,11 +97,12 @@
     "logs": {
       "user": "Usuario",
       "action": "Acción Realizada",
-      "date": "Fecha del Registro",
-      "empty": "No se encontraron registros."
+      "date": "Fecha",
+      "empty": "No se encontraron logs."
     },
     "appLayout": {
       "nav": {
+        "home": "Dashboard",
         "products": "Productos",
         "categories": "Categorías",
         "suppliers": "Proveedores",
@@ -83,10 +110,10 @@
         "stockCurrent": "Stock Actual",
         "stockAdjust": "Ajuste Manual",
         "movements": "Movimientos",
-        "reports": "Informes",
+        "reports": "Reportes",
         "rfidConfig": "Configurar RFID",
         "admin": "Administración",
-        "settings": "Configuraciones"
+        "settings": "Configuración"
       }
     },
     "errors": {
@@ -94,11 +121,69 @@
     }
   },
   "dashboard": {
-    "title": "Tablero",
+    "title": "Dashboard",
     "totalProducts": "Total de Productos",
-    "lowStockItems": "Artículos con Bajo Stock",
+    "lowStockItems": "Ítems con Stock Bajo",
     "movementsToday": "Movimientos Hoy",
     "recentMovements": "Movimientos Recientes",
-    "fetchError": "Error al cargar datos del tablero."
+    "fetchError": "Error al cargar datos del dashboard."
+  },
+  "users": {
+    "title": "Gestión de Usuarios",
+    "create": "Agregar Usuario",
+    "empty": "No se encontraron usuarios.",
+    "confirmReject": "¿Está seguro de que desea rechazar (eliminar) la solicitud de este usuario?",
+    "table": {
+      "name": "Nombre",
+      "email": "Correo",
+      "level": "Nivel",
+      "status": "Estado",
+      "created": "Registro",
+      "actions": "Acciones"
+    },
+    "levels": {
+      "operador": "Operador",
+      "visualizador": "Visualizador",
+      "admin": "Admin"
+    },
+    "status": {
+      "ativo": "Activo",
+      "inativo": "Inactivo",
+      "pendente": "Pendiente",
+      "rejected": "Rechazado"
+    },
+    "modal": {
+      "editTitle": "Editar Usuario",
+      "createTitle": "Agregar Usuario",
+      "name": "Nombre",
+      "namePlaceholder": "Nombre del usuario",
+      "email": "Correo",
+      "level": "Nivel de Acceso",
+      "passwordReset": "Restablecer Contraseña (Opcional)",
+      "passwordInitial": "Contraseña Inicial",
+      "passwordHelpEdit": "Dejar en blanco para mantener la contraseña actual.",
+      "passwordHelpCreate": "Contraseña sugerida. El usuario puede cambiarla después.",
+      "passwordPlaceholderEdit": "Nueva contraseña..."
+    },
+    "actions": {
+      "disable": "Desactivar Usuario",
+      "activate": "Activar Usuario",
+      "approve": "Aprobar Acceso",
+      "reject": "Rechazar Solicitud"
+    },
+    "messages": {
+      "updated": "Usuario actualizado con éxito.",
+      "created": "Usuario creado. Contraseña por defecto: {{password}}",
+      "activated": "Usuario activado con éxito.",
+      "deactivated": "Usuario desactivado con éxito.",
+      "rejected": "Solicitud eliminada.",
+      "rejectError": "Error al rechazar solicitud."
+    },
+    "warnings": {
+      "passwordNotUpdated": "Datos guardados, pero la contraseña no se cambió (no compatible con esta ruta)."
+    },
+    "errors": {
+      "passwordShort": "Contraseña muy corta (mín 6 caracteres)"
+    }
   }
 }

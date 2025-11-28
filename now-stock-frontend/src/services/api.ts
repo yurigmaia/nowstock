@@ -220,6 +220,14 @@ export const apiService = {
     });
     return handleResponse(response);
   },
+  changePassword: async (userId: number, data: any): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/users/${userId}/change-password`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    return handleResponse(response);
+  },
 
   deleteAccount: async (userId: number): Promise<void> => {
     const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
@@ -248,12 +256,20 @@ export const apiService = {
     return handleResponse(response);
   },
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   adminUpdateUser: async (id: number, data: any): Promise<User> => {
     const response = await fetch(`${API_BASE_URL}/users/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(data)
+    });
+    return handleResponse(response);
+  },
+
+  adminResetPassword: async (userId: number, password: string): Promise<void> => {
+    const response = await fetch(`${API_BASE_URL}/users/${userId}/admin-reset-password`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ newPassword: password })
     });
     return handleResponse(response);
   },

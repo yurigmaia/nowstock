@@ -1,9 +1,13 @@
 /**
  * @component UsersView
  * @description
- * Tela de administração para Gerenciamento de Usuários (CRUD).
- * Permite ao admin visualizar a lista de usuários, aprovar pendentes,
- * bloquear/desativar existentes e incluir novos usuários manualmente.
+ * Tela de administração para Gerenciamento de Usuários.
+ * Permite listar, aprovar, bloquear e editar usuários.
+ * Correções aplicadas:
+ * - Tradução completa com i18n.
+ * - Correção do payload de envio (mapeamento name -> nome, level -> nivel_acesso).
+ * - Inclusão do campo 'status' obrigatório no update.
+ * - Segurança: Senha nunca é exibida na edição, apenas redefinida se preenchida.
  */
 import { useState, useEffect } from 'react';
 import {
@@ -19,6 +23,7 @@ import {
 } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import { apiService } from '../services/api';
+import { useTranslation } from 'react-i18next';
 import type { User, UserStatus } from '../types/entities';
 
 const statusColors: Record<UserStatus, string> = {
@@ -27,7 +32,10 @@ const statusColors: Record<UserStatus, string> = {
   inativo: 'gray',
 };
 
+const DEFAULT_PASSWORD = 'Senha@2025';
+
 export function UsersView() {
+  const { t } = useTranslation();
   const [opened, setOpened] = useState(false);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<User[]>([]);
@@ -42,11 +50,16 @@ export function UsersView() {
       level: "operador",
     },
     validate: {
-      name: (value) => (value.trim().length > 0 ? null : "Nome obrigatório"),
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : "Email inválido"),
+      name: (value) => (value.trim().length > 0 ? null : t('validation.required')),
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : t('validation.emailInvalid')),
       password: (value) => {
-        if (!editingUser && value.length < 6) return "Senha obrigatória (mín 6 chars)";
-        if (editingUser && value.length > 0 && value.length < 6) return "Nova senha muito curta";
+        // Na edição, senha é opcional (só preenche se quiser resetar)
+        if (editingUser) {
+             if (value.length > 0 && value.length < 6) return t('users.errors.passwordShort');
+             return null;
+        }
+        // Na criação, validamos se o usuário limpar o campo padrão
+        if (value.length < 6) return t('users.errors.passwordShort');
         return null;
       },
     },
@@ -56,56 +69,98 @@ export function UsersView() {
     setLoading(true);
     apiService.getUsers()
       .then(setUsers)
-      .catch((err) => notifications.show({ title: 'Erro', message: err.message, color: 'red' }))
+      .catch((err) => notifications.show({ 
+        title: t('common.error'), 
+        message: err.message, 
+        color: 'red' 
+      }))
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
     fetchUsers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleOpenModal = (user: User | null) => {
     setEditingUser(user);
     if (user) {
+      // MODO EDIÇÃO
       form.setValues({
         name: user.nome,
         email: user.email,
-        password: "",
+        password: "", // MANTENHA VAZIO: Não mostramos a senha atual por segurança
         level: user.nivel_acesso,
       });
     } else {
-      form.reset();
+      // MODO CRIAÇÃO
+      form.setValues({
+        name: "",
+        email: "",
+        password: DEFAULT_PASSWORD,
+        level: "operador",
+      });
     }
     setOpened(true);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleSubmit = async (values: any) => {
+  // Substitua a função handleSubmit atual por esta:
+  const handleSubmit = async (values: typeof form.values) => {
     setModalLoading(true);
     try {
       if (editingUser) {
-        await apiService.adminUpdateUser(editingUser.id_usuario, {
+        // 1. Atualiza dados cadastrais (Nome, Email, Nível, Status)
+        const updatePayload = {
             nome: values.name,
             email: values.email,
             nivel_acesso: values.level,
             status: editingUser.status
-        });
-        notifications.show({ title: 'Sucesso', message: 'Usuário atualizado.', color: 'green' });
+        };
+
+        await apiService.adminUpdateUser(editingUser.id_usuario, updatePayload);
+        
+        // 2. Se o admin digitou uma senha nova, chama a rota de reset
+        if (values.password && values.password.trim() !== "") {
+            await apiService.adminResetPassword(editingUser.id_usuario, values.password);
+             notifications.show({ 
+                title: t('common.success'), 
+                message: t('users.messages.updated'), // "Usuário atualizado"
+                color: 'green' 
+            });
+        } else {
+            // Só atualizou dados, sem senha
+            notifications.show({ 
+                title: t('common.success'), 
+                message: t('users.messages.updated'), 
+                color: 'green' 
+            });
+        }
+
       } else {
+        // MODO CRIAÇÃO (Permanece igual)
         await apiService.createUser({
           name: values.name,
           email: values.email,
           password: values.password,
           level: values.level,
         });
-        notifications.show({ title: 'Sucesso', message: 'Usuário criado.', color: 'green' });
+        notifications.show({ 
+            title: t('common.success'), 
+            message: t('users.messages.created', { password: values.password }), 
+            color: 'green', 
+            autoClose: 10000 
+        });
       }
       
       fetchUsers();
       setOpened(false);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      notifications.show({ title: 'Erro', message: err.message, color: 'red' });
+      notifications.show({ 
+          title: t('common.error'), 
+          message: err.message, 
+          color: 'red' 
+      });
     } finally {
       setModalLoading(false);
     }
@@ -113,10 +168,10 @@ export function UsersView() {
 
   const handleStatusChange = (userId: number, newStatus: UserStatus) => {
     apiService.updateUserStatus(userId, newStatus).then(() => {
-      const action = newStatus === 'ativo' ? 'ativado' : 'desativado';
+      const actionKey = newStatus === 'ativo' ? 'users.messages.activated' : 'users.messages.deactivated';
       notifications.show({ 
-          title: 'Status Atualizado', 
-          message: `Usuário ${action} com sucesso.`, 
+          title: t('common.success'), 
+          message: t(actionKey), 
           color: newStatus === 'ativo' ? 'green' : 'gray', 
           icon: <IconCheck/> 
       });
@@ -125,14 +180,22 @@ export function UsersView() {
   };
   
   const handleReject = async (userId: number) => {
-    if(confirm("Tem certeza que deseja rejeitar (excluir) a solicitação deste usuário?")) {
+    if(confirm(t('users.confirmReject'))) {
         try {
             await apiService.deleteAccount(userId);
-            notifications.show({ title: 'Rejeitado', message: 'Solicitação removida.', color: 'gray' });
+            notifications.show({ 
+                title: t('users.status.rejected'), 
+                message: t('users.messages.rejected'), 
+                color: 'gray' 
+            });
             fetchUsers();
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch(err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-            notifications.show({ title: 'Erro', message: 'Falha ao rejeitar.', color: 'red' });
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+        } catch(err: any) {
+            notifications.show({ 
+                title: t('common.error'), 
+                message: t('users.messages.rejectError'), 
+                color: 'red' 
+            });
         }
     }
   };
@@ -142,24 +205,24 @@ export function UsersView() {
       <Table.Td>{user.nome}</Table.Td>
       <Table.Td>{user.email}</Table.Td>
       <Table.Td style={{ textTransform: "capitalize" }}>
-        {user.nivel_acesso}
+        {t(`users.levels.${user.nivel_acesso}`)}
       </Table.Td>
       <Table.Td>
         <Badge color={statusColors[user.status]} variant="light">
-          {user.status}
+          {t(`users.status.${user.status}`)}
         </Badge>
       </Table.Td>
-      <Table.Td>{new Date(user.data_cadastro).toLocaleDateString('pt-BR')}</Table.Td>
+      <Table.Td>{new Date(user.data_cadastro).toLocaleDateString()}</Table.Td>
       <Table.Td>
         <Group gap={4}>
-          <Tooltip label="Editar">
+          <Tooltip label={t('common.edit')}>
             <ActionIcon size="sm" variant="subtle" color="blue" onClick={() => handleOpenModal(user)}>
               <IconPencil size={14} />
             </ActionIcon>
           </Tooltip>
 
           {user.status === 'ativo' && (
-            <Tooltip label="Desativar Usuário">
+            <Tooltip label={t('users.actions.disable')}>
               <ActionIcon size="sm" variant="subtle" color="red" onClick={() => handleStatusChange(user.id_usuario, 'inativo')}>
                 <IconBan size={14} />
               </ActionIcon>
@@ -167,7 +230,7 @@ export function UsersView() {
           )}
 
           {user.status === 'inativo' && (
-            <Tooltip label="Reativar Usuário">
+            <Tooltip label={t('users.actions.activate')}>
               <ActionIcon size="sm" variant="subtle" color="green" onClick={() => handleStatusChange(user.id_usuario, 'ativo')}>
                 <IconCheck size={14} />
               </ActionIcon>
@@ -176,12 +239,12 @@ export function UsersView() {
 
           {user.status === "pendente" && (
             <>
-              <Tooltip label="Aprovar Acesso">
+              <Tooltip label={t('users.actions.approve')}>
                 <ActionIcon size="sm" variant="subtle" color="green" onClick={() => handleStatusChange(user.id_usuario, 'ativo')}>
                   <IconCheck size={14} />
                 </ActionIcon>
               </Tooltip>
-              <Tooltip label="Rejeitar Solicitação">
+              <Tooltip label={t('users.actions.reject')}>
                 <ActionIcon size="sm" variant="subtle" color="red" onClick={() => handleReject(user.id_usuario)}>
                   <IconX size={14} />
                 </ActionIcon>
@@ -197,10 +260,10 @@ export function UsersView() {
     <Box>
       <Group justify="space-between" mb="xl">
         <Title order={2} c="orange.7">
-          Gestão de Usuários
+          {t('users.title')}
         </Title>
         <Button bg="orange.6" leftSection={<IconPlus size={16} />} onClick={() => handleOpenModal(null)}>
-          Incluir Usuário
+          {t('users.create')}
         </Button>
       </Group>
 
@@ -211,19 +274,19 @@ export function UsersView() {
           <Table striped highlightOnHover withTableBorder verticalSpacing="sm">
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Nome</Table.Th>
-                <Table.Th>Email</Table.Th>
-                <Table.Th>Nível</Table.Th>
-                <Table.Th>Status</Table.Th>
-                <Table.Th>Cadastro</Table.Th>
-                <Table.Th>Ações</Table.Th>
+                <Table.Th>{t('users.table.name')}</Table.Th>
+                <Table.Th>{t('users.table.email')}</Table.Th>
+                <Table.Th>{t('users.table.level')}</Table.Th>
+                <Table.Th>{t('users.table.status')}</Table.Th>
+                <Table.Th>{t('users.table.created')}</Table.Th>
+                <Table.Th>{t('users.table.actions')}</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
               {rows.length > 0 ? rows : (
                 <Table.Tr>
                   <Table.Td colSpan={6}>
-                    <Text ta="center" c="dimmed" py="xl">Nenhum usuário encontrado.</Text>
+                    <Text ta="center" c="dimmed" py="xl">{t('users.empty')}</Text>
                   </Table.Td>
                 </Table.Tr>
               )}
@@ -235,40 +298,44 @@ export function UsersView() {
       <Modal 
         opened={opened} 
         onClose={() => setOpened(false)} 
-        title={editingUser ? "Editar Usuário" : "Incluir Usuário"} 
+        title={editingUser ? t('users.modal.editTitle') : t('users.modal.createTitle')} 
         centered
       >
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack gap="md">
             <TextInput
-              label="Nome"
-              placeholder="João Silva"
+              label={t('users.modal.name')}
+              placeholder={t('users.modal.namePlaceholder')}
               required
               {...form.getInputProps("name")}
             />
             <TextInput
-              label="Email"
+              label={t('users.modal.email')}
               placeholder="joao@example.com"
               required
               {...form.getInputProps("email")}
             />
+            
             <PasswordInput 
-              label={editingUser ? "Nova Senha (Opcional)" : "Senha"}
-              placeholder="******" 
+              label={editingUser ? t('users.modal.passwordReset') : t('users.modal.passwordInitial')}
+              description={editingUser ? t('users.modal.passwordHelpEdit') : t('users.modal.passwordHelpCreate')}
+              placeholder={editingUser ? t('users.modal.passwordPlaceholderEdit') : "******"} 
               {...form.getInputProps("password")} 
             />
+
             <Select
-              label="Nível de Acesso"
-              placeholder="Selecione um nível"
+              label={t('users.modal.level')}
+              placeholder={t('common.select')}
               data={[
-                { value: "operador", label: "Operador" },
-                { value: "visualizador", label: "Visualizador" },
+                { value: "operador", label: t('users.levels.operador') },
+                { value: "visualizador", label: t('users.levels.visualizador') },
+                { value: "admin", label: t('users.levels.admin') },
               ]}
               required
               {...form.getInputProps("level")}
             />
             <Button fullWidth bg="orange.6" type="submit" loading={modalLoading}>
-              {editingUser ? "Salvar Alterações" : "Criar Usuário"}
+              {editingUser ? t('common.save') : t('users.create')}
             </Button>
           </Stack>
         </form>

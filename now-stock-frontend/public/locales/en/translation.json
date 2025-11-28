@@ -4,7 +4,11 @@
     "cancel": "Cancel",
     "success": "Success!",
     "error": "Error!",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "required": "Required field",
+    "warning": "Warning",
+    "select": "Select",
+    "edit": "Edit"
   },
   "validation": {
     "nameShort": "Name too short",
@@ -18,9 +22,31 @@
       "logout": "Logout"
     }
   },
+  "profile": {
+    "title": "My Profile",
+    "infoTitle": "Personal Information",
+    "nameLabel": "Full Name",
+    "emailLabel": "Email",
+    "emailReadOnlyDescription": "To change your email, please contact the administrator.",
+    "securitySection": "Security",
+    "passwordChangeDescription": "Fill in the fields below only if you wish to change your password.",
+    "currentPassword": "Current Password",
+    "currentPasswordPlaceholder": "Enter your current password",
+    "newPassword": "New Password",
+    "passwordPlaceholder": "Enter the new password",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Confirm the new password",
+    "updateSuccess": "Profile updated successfully",
+    "updateError": "Error updating profile",
+    "passwordSuccess": "Password changed successfully",
+    "errors": {
+      "passwordRequirements": "Password must contain 6+ chars, uppercase, lowercase, number, and symbol",
+      "passwordMismatch": "Passwords do not match"
+    }
+  },
   "nav": {
     "dashboard": "Dashboard",
-    "cadastros": "Registers",
+    "cadastros": "Records",
     "produtos": "Products",
     "categorias": "Categories",
     "fornecedores": "Suppliers",
@@ -34,7 +60,7 @@
     "relatorios": "Reports",
     "admin": "Administration",
     "configuracoes": "Settings",
-    "configurarRfid": "RFID Config"
+    "configurarRfid": "Configure RFID"
   },
   "settings": {
     "title": "Settings",
@@ -43,7 +69,7 @@
     "themeLight": "Light",
     "themeDark": "Dark",
     "langTitle": "Language",
-    "langSubtitle": "Select your preferred language."
+    "langSubtitle": "Select your preferred language for the interface."
   },
   "admin": {
     "title": "System Administration",
@@ -57,7 +83,7 @@
     },
     "form": {
       "storeName": "Store Name",
-      "cnpj": "Tax ID (CNPJ)",
+      "cnpj": "CNPJ",
       "backupInterval": "Backup Interval",
       "alertEmail": "Stock Alert Email",
       "saveParams": "Save Parameters",
@@ -71,11 +97,12 @@
     "logs": {
       "user": "User",
       "action": "Action Performed",
-      "date": "Log Date",
+      "date": "Date",
       "empty": "No logs found."
     },
     "appLayout": {
       "nav": {
+        "home": "Dashboard",
         "products": "Products",
         "categories": "Categories",
         "suppliers": "Suppliers",
@@ -84,7 +111,7 @@
         "stockAdjust": "Manual Adjustment",
         "movements": "Movements",
         "reports": "Reports",
-        "rfidConfig": "RFID Config",
+        "rfidConfig": "Configure RFID",
         "admin": "Administration",
         "settings": "Settings"
       }
@@ -95,10 +122,68 @@
   },
   "dashboard": {
     "title": "Dashboard",
-    "fetchError": "Failed to load dashboard data.",
     "totalProducts": "Total Products",
     "lowStockItems": "Low Stock Items",
     "movementsToday": "Movements Today",
-    "recentMovements": "Recent Movements"
+    "recentMovements": "Recent Movements",
+    "fetchError": "Failed to load dashboard data."
+  },
+  "users": {
+    "title": "User Management",
+    "create": "Add User",
+    "empty": "No users found.",
+    "confirmReject": "Are you sure you want to reject (delete) this user request?",
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "level": "Level",
+      "status": "Status",
+      "created": "Created At",
+      "actions": "Actions"
+    },
+    "levels": {
+      "operador": "Operator",
+      "visualizador": "Viewer",
+      "admin": "Admin"
+    },
+    "status": {
+      "ativo": "Active",
+      "inativo": "Inactive",
+      "pendente": "Pending",
+      "rejected": "Rejected"
+    },
+    "modal": {
+      "editTitle": "Edit User",
+      "createTitle": "Add User",
+      "name": "Name",
+      "namePlaceholder": "User name",
+      "email": "Email",
+      "level": "Access Level",
+      "passwordReset": "Reset Password (Optional)",
+      "passwordInitial": "Initial Password",
+      "passwordHelpEdit": "Leave blank to keep current password.",
+      "passwordHelpCreate": "Suggested default password. User can change it later.",
+      "passwordPlaceholderEdit": "New password..."
+    },
+    "actions": {
+      "disable": "Disable User",
+      "activate": "Activate User",
+      "approve": "Approve Access",
+      "reject": "Reject Request"
+    },
+    "messages": {
+      "updated": "User updated successfully.",
+      "created": "User created. Default password: {{password}}",
+      "activated": "User activated successfully.",
+      "deactivated": "User deactivated successfully.",
+      "rejected": "Request removed.",
+      "rejectError": "Failed to reject request."
+    },
+    "warnings": {
+      "passwordNotUpdated": "Data saved, but password was not changed (not supported by this route)."
+    },
+    "errors": {
+      "passwordShort": "Password too short (min 6 chars)"
+    }
   }
 }

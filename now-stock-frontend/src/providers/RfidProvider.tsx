@@ -112,7 +112,6 @@ export const RfidProvider = ({ children }: { children: ReactNode }) => {
   const disconnect = async () => {
     keepReading.current = false;
     if (readerRef.current) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       try {
         await readerRef.current.cancel();
       // eslint-disable-next-line @typescript-eslint/no-unused-vars

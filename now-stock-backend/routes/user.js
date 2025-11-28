@@ -226,32 +226,70 @@ router.put('/:id/profile', authenticateToken, async (req, res) => {
     const id_empresa = req.user.empresa;
 
     if (req.user.id != id && req.user.nivel !== 'admin') {
-        return res.status(403).json({ message: "Sem permissão para editar este perfil." });
+        return res.status(403).json({ message: "Sem permissão." });
     }
 
-    if (!nome || !email) {
-        return res.status(400).json({ message: "Nome e email são obrigatórios." });
-    }
+    if (!nome || !email) return res.status(400).json({ message: "Nome e email obrigatórios." });
 
     try {
         const [emailCheck] = await promisePool.query(
-            'SELECT id_usuario FROM usuarios WHERE email = ? AND id_usuario != ?',
+            'SELECT id_usuario FROM usuarios WHERE email = ? AND id_usuario != ?', 
             [email, id]
         );
-        if (emailCheck.length > 0) {
-            return res.status(409).json({ message: "Este e-mail já está em uso." });
-        }
+        if (emailCheck.length > 0) return res.status(409).json({ message: "Email em uso." });
 
         await promisePool.query(
             'UPDATE usuarios SET nome = ?, email = ? WHERE id_usuario = ? AND id_empresa = ?',
             [nome, email, id, id_empresa]
         );
-
-        res.json({ message: "Perfil atualizado com sucesso." });
-
+        res.json({ message: "Perfil atualizado." });
     } catch (error) {
-        console.error("Erro ao atualizar perfil:", error);
-        res.status(500).json({ message: "Erro interno do servidor." });
+        res.status(500).json({ message: "Erro no servidor." });
+    }
+});
+router.put('/:id/change-password', authenticateToken, async (req, res) => {
+    const { id } = req.params;
+    const { currentPassword, newPassword } = req.body;
+
+    if (req.user.id != id) return res.status(403).json({ message: "Sem permissão." });
+    if (!currentPassword || !newPassword) return res.status(400).json({ message: "Senhas obrigatórias." });
+
+    try {
+        const [rows] = await promisePool.query('SELECT senha FROM usuarios WHERE id_usuario = ?', [id]);
+        if (rows.length === 0) return res.status(404).json({ message: "Usuário não encontrado." });
+
+        const isMatch = await bcrypt.compare(currentPassword, rows[0].senha);
+        if (!isMatch) return res.status(401).json({ message: "Senha atual incorreta." });
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        await promisePool.query('UPDATE usuarios SET senha = ? WHERE id_usuario = ?', [hashedPassword, id]);
+        
+        res.json({ message: "Senha alterada com sucesso." });
+    } catch (error) {
+        console.error("Erro ao trocar senha:", error);
+        res.status(500).json({ message: "Erro no servidor." });
+    }
+});
+router.put('/:id/admin-reset-password', authenticateToken, checkAdmin, async (req, res) => {
+    const { id } = req.params;
+    const { newPassword } = req.body;
+
+    if (!newPassword || newPassword.length < 6) {
+        return res.status(400).json({ message: "A senha deve ter no mínimo 6 caracteres." });
+    }
+
+    try {
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        await promisePool.query('UPDATE usuarios SET senha = ? WHERE id_usuario = ?', [hashedPassword, id]);
+        
+        res.status(200).json({ message: "Senha redefinida com sucesso pelo administrador." });
+    } catch (error) {
+        console.error("Erro ao resetar senha:", error);
+        res.status(500).json({ message: "Erro interno ao redefinir senha." });
     }
 });
 

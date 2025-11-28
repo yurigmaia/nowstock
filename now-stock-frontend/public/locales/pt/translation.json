@@ -4,7 +4,11 @@
     "cancel": "Cancelar",
     "success": "Sucesso!",
     "error": "Erro!",
-    "loading": "Carregando..."
+    "loading": "Carregando...",
+    "required": "Campo obrigatório",
+    "warning": "Aviso",
+    "select": "Selecione",
+    "edit": "Editar"
   },
   "validation": {
     "nameShort": "Nome muito curto",
@@ -16,6 +20,28 @@
     "profile": {
       "edit": "Editar Perfil",
       "logout": "Sair"
+    }
+  },
+  "profile": {
+    "title": "Meu Perfil",
+    "infoTitle": "Informações Pessoais",
+    "nameLabel": "Nome Completo",
+    "emailLabel": "E-mail",
+    "emailReadOnlyDescription": "Para alterar seu e-mail, contate o administrador.",
+    "securitySection": "Segurança",
+    "passwordChangeDescription": "Preencha os campos abaixo apenas se desejar alterar sua senha.",
+    "currentPassword": "Senha Atual",
+    "currentPasswordPlaceholder": "Digite sua senha atual",
+    "newPassword": "Nova Senha",
+    "passwordPlaceholder": "Digite a nova senha",
+    "confirmPassword": "Confirmar Senha",
+    "confirmPasswordPlaceholder": "Confirme a nova senha",
+    "updateSuccess": "Perfil atualizado com sucesso",
+    "updateError": "Erro ao atualizar perfil",
+    "passwordSuccess": "Senha alterada com sucesso",
+    "errors": {
+      "passwordRequirements": "A senha deve ter 6+ caracteres, maiúscula, minúscula, número e símbolo",
+      "passwordMismatch": "As senhas não coincidem"
     }
   },
   "nav": {
@@ -94,12 +120,70 @@
       "fetchError": "Falha ao carregar dados da administração."
     }
   },
-    "dashboard": {
-      "title": "Dashboard",
-      "totalProducts": "Total de Produtos",
-      "lowStockItems": "Itens com Estoque Baixo",
-      "movementsToday": "Movimentações Hoje",
-      "recentMovements": "Movimentações Recentes",
-      "fetchError": "Falha ao carregar dados do dashboard."
+  "dashboard": {
+    "title": "Dashboard",
+    "totalProducts": "Total de Produtos",
+    "lowStockItems": "Itens com Estoque Baixo",
+    "movementsToday": "Movimentações Hoje",
+    "recentMovements": "Movimentações Recentes",
+    "fetchError": "Falha ao carregar dados do dashboard."
+  },
+  "users": {
+    "title": "Gestão de Usuários",
+    "create": "Incluir Usuário",
+    "empty": "Nenhum usuário encontrado.",
+    "confirmReject": "Tem certeza que deseja rejeitar (excluir) a solicitação deste usuário?",
+    "table": {
+      "name": "Nome",
+      "email": "Email",
+      "level": "Nível",
+      "status": "Status",
+      "created": "Cadastro",
+      "actions": "Ações"
+    },
+    "levels": {
+      "operador": "Operador",
+      "visualizador": "Visualizador",
+      "admin": "Admin"
+    },
+    "status": {
+      "ativo": "Ativo",
+      "inativo": "Inativo",
+      "pendente": "Pendente",
+      "rejected": "Rejeitado"
+    },
+    "modal": {
+      "editTitle": "Editar Usuário",
+      "createTitle": "Incluir Usuário",
+      "name": "Nome",
+      "namePlaceholder": "Nome do usuário",
+      "email": "Email",
+      "level": "Nível de Acesso",
+      "passwordReset": "Redefinir Senha (Opcional)",
+      "passwordInitial": "Senha Inicial",
+      "passwordHelpEdit": "Deixe em branco para manter a senha atual.",
+      "passwordHelpCreate": "Senha padrão sugerida. O usuário poderá alterar depois.",
+      "passwordPlaceholderEdit": "Nova senha..."
+    },
+    "actions": {
+      "disable": "Desativar Usuário",
+      "activate": "Ativar Usuário",
+      "approve": "Aprovar Acesso",
+      "reject": "Rejeitar Solicitação"
+    },
+    "messages": {
+      "updated": "Usuário atualizado com sucesso.",
+      "created": "Usuário criado. Senha padrão: {{password}}",
+      "activated": "Usuário ativado com sucesso.",
+      "deactivated": "Usuário desativado com sucesso.",
+      "rejected": "Solicitação removida.",
+      "rejectError": "Falha ao rejeitar solicitação."
+    },
+    "warnings": {
+      "passwordNotUpdated": "Dados salvos, mas a senha não foi alterada (funcionalidade não suportada nesta rota)."
+    },
+    "errors": {
+      "passwordShort": "Senha muito curta (mín 6 caracteres)"
+    }
   }
 }
