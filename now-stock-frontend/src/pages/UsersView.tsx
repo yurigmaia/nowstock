@@ -53,12 +53,10 @@ export function UsersView() {
       name: (value) => (value.trim().length > 0 ? null : t('validation.required')),
       email: (value) => (/^\S+@\S+$/.test(value) ? null : t('validation.emailInvalid')),
       password: (value) => {
-        // Na edição, senha é opcional (só preenche se quiser resetar)
         if (editingUser) {
              if (value.length > 0 && value.length < 6) return t('users.errors.passwordShort');
              return null;
         }
-        // Na criação, validamos se o usuário limpar o campo padrão
         if (value.length < 6) return t('users.errors.passwordShort');
         return null;
       },
@@ -85,15 +83,13 @@ export function UsersView() {
   const handleOpenModal = (user: User | null) => {
     setEditingUser(user);
     if (user) {
-      // MODO EDIÇÃO
       form.setValues({
         name: user.nome,
         email: user.email,
-        password: "", // MANTENHA VAZIO: Não mostramos a senha atual por segurança
+        password: "",
         level: user.nivel_acesso,
       });
     } else {
-      // MODO CRIAÇÃO
       form.setValues({
         name: "",
         email: "",
@@ -104,12 +100,10 @@ export function UsersView() {
     setOpened(true);
   };
 
-  // Substitua a função handleSubmit atual por esta:
   const handleSubmit = async (values: typeof form.values) => {
     setModalLoading(true);
     try {
       if (editingUser) {
-        // 1. Atualiza dados cadastrais (Nome, Email, Nível, Status)
         const updatePayload = {
             nome: values.name,
             email: values.email,
@@ -119,16 +113,14 @@ export function UsersView() {
 
         await apiService.adminUpdateUser(editingUser.id_usuario, updatePayload);
         
-        // 2. Se o admin digitou uma senha nova, chama a rota de reset
         if (values.password && values.password.trim() !== "") {
             await apiService.adminResetPassword(editingUser.id_usuario, values.password);
              notifications.show({ 
                 title: t('common.success'), 
-                message: t('users.messages.updated'), // "Usuário atualizado"
+                message: t('users.messages.updated'),
                 color: 'green' 
             });
         } else {
-            // Só atualizou dados, sem senha
             notifications.show({ 
                 title: t('common.success'), 
                 message: t('users.messages.updated'), 
@@ -137,7 +129,6 @@ export function UsersView() {
         }
 
       } else {
-        // MODO CRIAÇÃO (Permanece igual)
         await apiService.createUser({
           name: values.name,
           email: values.email,
@@ -329,7 +320,6 @@ export function UsersView() {
               data={[
                 { value: "operador", label: t('users.levels.operador') },
                 { value: "visualizador", label: t('users.levels.visualizador') },
-                { value: "admin", label: t('users.levels.admin') },
               ]}
               required
               {...form.getInputProps("level")}

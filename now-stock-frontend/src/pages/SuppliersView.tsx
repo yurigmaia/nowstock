@@ -2,8 +2,9 @@
  * @component SuppliersView
  * @description
  * Tela para o Gerenciamento de Fornecedores (CRUD).
- * Permite ao usuário visualizar, adicionar, editar e excluir fornecedores.
- * Os dados são buscados e enviados através do 'apiService'.
+ * * ATUALIZAÇÃO:
+ * - Apenas ADMIN pode Criar, Editar ou Excluir.
+ * - Operadores e Visualizadores apenas veem a lista.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
@@ -32,9 +33,14 @@ import { useTranslation } from "react-i18next";
 
 import { apiService } from "../services/api";
 import type { Supplier } from "../types/entities";
+import { useAuth } from "../hooks/useAuth";
 
 export function SuppliersView() {
   const { t } = useTranslation();
+  const { user } = useAuth();
+
+  const canEdit = user?.nivel_acesso === 'admin';
+
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
@@ -134,12 +140,11 @@ export function SuppliersView() {
   };
   
   const handleDelete = async (id: number) => {
-    // Adicionada confirmação de segurança usando i18n
     if (confirm(t('suppliers.confirmDelete'))) {
         try {
             await apiService.deleteSupplier(id);
             notifications.show({ 
-                title: t('common.success'), // Usando sucesso ao invés de 'Excluído' para padronizar
+                title: t('common.success'), 
                 message: t('suppliers.messages.deleted'), 
                 color: 'gray' 
             });
@@ -160,20 +165,23 @@ export function SuppliersView() {
       <Table.Td>{supplier.cnpj}</Table.Td>
       <Table.Td>{supplier.telefone}</Table.Td>
       <Table.Td>{supplier.email}</Table.Td>
-      <Table.Td>
-        <Group gap={4} justify="flex-end">
-          <Tooltip label={t('common.edit')}>
-            <ActionIcon size="sm" variant="subtle" color="blue" onClick={() => handleOpenModal(supplier)}>
-              <IconPencil size={14} />
-            </ActionIcon>
-          </Tooltip>
-          <Tooltip label={t('common.delete')}>
-            <ActionIcon size="sm" variant="subtle" color="red" onClick={() => handleDelete(supplier.id_fornecedor)}>
-              <IconTrash size={14} />
-            </ActionIcon>
-          </Tooltip>
-        </Group>
-      </Table.Td>
+      
+      {canEdit && (
+        <Table.Td>
+            <Group gap={4} justify="flex-end">
+            <Tooltip label={t('common.edit')}>
+                <ActionIcon size="sm" variant="subtle" color="blue" onClick={() => handleOpenModal(supplier)}>
+                <IconPencil size={14} />
+                </ActionIcon>
+            </Tooltip>
+            <Tooltip label={t('common.delete')}>
+                <ActionIcon size="sm" variant="subtle" color="red" onClick={() => handleDelete(supplier.id_fornecedor)}>
+                <IconTrash size={14} />
+                </ActionIcon>
+            </Tooltip>
+            </Group>
+        </Table.Td>
+      )}
     </Table.Tr>
   ));
 
@@ -183,9 +191,12 @@ export function SuppliersView() {
         <Title order={2} c="orange.7">
           {t('suppliers.title')}
         </Title>
-        <Button bg="orange.6" leftSection={<IconPlus size={16} />} onClick={() => handleOpenModal(null)}>
-          {t('suppliers.create')}
-        </Button>
+        
+        {canEdit && (
+            <Button bg="orange.6" leftSection={<IconPlus size={16} />} onClick={() => handleOpenModal(null)}>
+            {t('suppliers.create')}
+            </Button>
+        )}
       </Group>
 
       <Paper p="md" withBorder shadow="md" radius="md">
@@ -199,13 +210,13 @@ export function SuppliersView() {
                 <Table.Th>{t('suppliers.table.cnpj')}</Table.Th>
                 <Table.Th>{t('suppliers.table.phone')}</Table.Th>
                 <Table.Th>{t('suppliers.table.email')}</Table.Th>
-                <Table.Th style={{ textAlign: 'right' }}>{t('suppliers.table.actions')}</Table.Th>
+                {canEdit && <Table.Th style={{ textAlign: 'right' }}>{t('suppliers.table.actions')}</Table.Th>}
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
               {rows.length > 0 ? rows : (
                 <Table.Tr>
-                  <Table.Td colSpan={5}>
+                  <Table.Td colSpan={canEdit ? 5 : 4}>
                     <Text ta="center" c="dimmed" py="xl">{t('suppliers.empty')}</Text>
                   </Table.Td>
                 </Table.Tr>
@@ -215,48 +226,50 @@ export function SuppliersView() {
         )}
       </Paper>
 
-      <Modal 
-        opened={modalOpened} 
-        onClose={handleCloseModal} 
-        title={editingSupplier ? t('suppliers.modal.editTitle') : t('suppliers.modal.createTitle')}
-        centered
-      >
-        <form onSubmit={form.onSubmit(handleSubmit)}>
-          <Stack gap="md">
-            <TextInput
-              label={t('suppliers.form.name')}
-              placeholder={t('suppliers.form.placeholders.name')}
-              required
-              {...form.getInputProps("nome")}
-            />
-            <TextInput
-              label={t('suppliers.form.cnpj')}
-              placeholder="00000000000191"
-              maxLength={14}
-              required
-              {...form.getInputProps("cnpj")}
-            />
-            <TextInput
-              label={t('suppliers.form.phone')}
-              placeholder="(11) 98765-4321"
-              {...form.getInputProps("telefone")}
-            />
-            <TextInput
-              label={t('suppliers.form.email')}
-              placeholder="email@example.com"
-              {...form.getInputProps("email")}
-            />
-            <Textarea
-              label={t('suppliers.form.address')}
-              placeholder={t('suppliers.form.placeholders.address')}
-              {...form.getInputProps("endereco")}
-            />
-            <Button fullWidth bg="orange.6" type="submit" loading={modalLoading}>
-              {t('common.save')}
-            </Button>
-          </Stack>
-        </form>
-      </Modal>
+      {modalOpened && (
+        <Modal 
+            opened={modalOpened} 
+            onClose={handleCloseModal} 
+            title={editingSupplier ? t('suppliers.modal.editTitle') : t('suppliers.modal.createTitle')}
+            centered
+        >
+            <form onSubmit={form.onSubmit(handleSubmit)}>
+            <Stack gap="md">
+                <TextInput
+                label={t('suppliers.form.name')}
+                placeholder={t('suppliers.form.placeholders.name')}
+                required
+                {...form.getInputProps("nome")}
+                />
+                <TextInput
+                label={t('suppliers.form.cnpj')}
+                placeholder="00000000000191"
+                maxLength={14}
+                required
+                {...form.getInputProps("cnpj")}
+                />
+                <TextInput
+                label={t('suppliers.form.phone')}
+                placeholder="(11) 98765-4321"
+                {...form.getInputProps("telefone")}
+                />
+                <TextInput
+                label={t('suppliers.form.email')}
+                placeholder="email@example.com"
+                {...form.getInputProps("email")}
+                />
+                <Textarea
+                label={t('suppliers.form.address')}
+                placeholder={t('suppliers.form.placeholders.address')}
+                {...form.getInputProps("endereco")}
+                />
+                <Button fullWidth bg="orange.6" type="submit" loading={modalLoading}>
+                {t('common.save')}
+                </Button>
+            </Stack>
+            </form>
+        </Modal>
+      )}
     </Box>
   );
 }

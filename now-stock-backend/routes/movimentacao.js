@@ -2,10 +2,9 @@
  * @file movimentacao.js
  * @description
  * Define as rotas (endpoints) para o registro e consulta de movimentações de estoque.
- * Inclui a rota principal (POST /) para registrar entradas, saídas, devoluções e ajustes,
- * utilizando uma transação SQL para garantir a integridade dos dados.
- * Também inclui uma rota (GET /historico) para consultar o histórico de movimentações.
- * Todas as rotas são protegidas e filtradas por 'id_empresa'.
+ * * CORREÇÃO DE PERMISSÕES:
+ * - POST: Restrito a 'Admin' ou 'Operador' (Registrar movimentação).
+ * - GET /historico: Aberto para todos os usuários logados (Visualizar histórico).
  */
 const express = require('express');
 const router = express.Router();
@@ -86,7 +85,7 @@ router.post('/', authenticateToken, checkAdminOrOperator, async (req, res) => {
             if (estoqueRows.length === 0 || estoqueRows[0].quantidade_atual < quantidade) {
                  await connection.rollback();
                  return res.status(400).json({ 
-                    message: "Estoque insuficiente para esta saída. Saldo atual: " + (estoqueRows[0]?.quantidade_atual || 0)
+                   message: "Estoque insuficiente para esta saída. Saldo atual: " + (estoqueRows[0]?.quantidade_atual || 0)
                  });
             }
         }
@@ -135,7 +134,7 @@ router.post('/', authenticateToken, checkAdminOrOperator, async (req, res) => {
     }
 });
 
-router.get('/historico', authenticateToken, checkAdminOrOperator, async (req, res) => {
+router.get('/historico', authenticateToken, async (req, res) => {
     const { tipo, id_produto, id_usuario } = req.query;
     const id_empresa = req.user.empresa;
 

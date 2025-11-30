@@ -2,17 +2,16 @@
  * @file estoque.js
  * @description
  * Define as rotas (endpoints) para a consulta da entidade 'estoque'.
- * A rota principal (GET /) retorna uma lista consolidada dos produtos
- * da empresa, suas quantidades atuais (da tabela 'estoque') e
- * dados associados (de 'categorias' e 'fornecedores').
- * Todas as rotas são protegidas e filtradas por 'id_empresa'.
+ * * CORREÇÃO DE PERMISSÕES:
+ * - GET: Aberto para todos os usuários logados (authenticateToken), 
+ * permitindo que 'Visualizadores' vejam o saldo atual.
  */
 const express = require('express');
 const router = express.Router();
 const promisePool = require('../config/db'); 
-const { authenticateToken, checkAdminOrOperator } = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 
-router.get('/', authenticateToken, checkAdminOrOperator, async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
     const id_empresa = req.user.empresa;
 
     const query = `

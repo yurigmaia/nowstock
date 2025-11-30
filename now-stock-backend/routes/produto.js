@@ -1,17 +1,17 @@
 /**
  * @file produto.js
  * @description
- * Define as rotas (endpoints) para o CRUD (Criar, Ler, Atualizar, Deletar)
- * da entidade 'produtos'. Inclui middlewares de autenticação (authenticateToken)
- * e autorização (checkAdminOrOperator), e garante o isolamento de dados (multi-tenancy)
- * filtrando todas as consultas pelo 'id_empresa' do usuário logado.
+ * Define as rotas (endpoints) para o CRUD da entidade 'produtos'.
+ * * CORREÇÃO DE PERMISSÕES:
+ * - GET: Aberto para todos os usuários logados (authenticateToken), permitindo que 'Visualizadores' vejam a lista.
+ * - POST/PUT/DELETE: Restrito a 'Admin' ou 'Operador' (checkAdminOrOperator).
  */
 const express = require('express');
 const router = express.Router();
 const promisePool = require('../config/db'); 
 const { authenticateToken, checkAdminOrOperator } = require('../middleware/auth'); 
 
-router.get('/', authenticateToken, checkAdminOrOperator, async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
     const id_empresa = req.user.empresa;
 
     try {

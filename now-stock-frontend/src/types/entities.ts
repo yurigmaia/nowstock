@@ -5,16 +5,19 @@
  * do sistema. Os nomes das propriedades (em snake_case) correspondem 1:1
  * ao que o backend (Node.js) deve retornar.
  */
+// cspell:disable
 
 export type UserRole = 'admin' | 'operador' | 'visualizador';
 export type UserStatus = 'ativo' | 'inativo' | 'pendente';
-export type MovementType = 'entrada' | 'saida' | 'ajuste';
+export type MovementType = 'entrada' | 'saida' | 'ajuste' | 'devolucao';
 export type MovementUnit = 'unidade' | 'lote';
 export type ReturnState = 'estoque' | 'descarte';
 export type ReaderType = 'USB' | 'WiFi' | 'Bluetooth';
 export type BackupInterval = 'diario' | 'semanal' | 'mensal';
 export type AppColorScheme = 'light' | 'dark';
 export type AppLanguage = 'pt' | 'en' | 'es';
+
+// --- Entidades Base ---
 
 export interface Company {
   id_empresa: number;
@@ -25,6 +28,8 @@ export interface Company {
 }
 
 export interface User {
+  // 'id' adicionado para compatibilidade com hooks de auth que esperam um id padrão
+  id: number;
   id_usuario: number;
   id_empresa: number;
   nome: string;
@@ -32,9 +37,12 @@ export interface User {
   nivel_acesso: UserRole;
   data_cadastro: string;
   status: UserStatus;
-  tema: AppColorScheme;
-  idioma: string;
+  tema?: AppColorScheme;
+  idioma?: string;
 }
+
+// Correção: Usar 'type' em vez de interface vazia para evitar erro do ESLint
+export type UserResponse = User;
 
 export interface Supplier {
   id_fornecedor: number;
@@ -44,7 +52,7 @@ export interface Supplier {
   telefone: string | null;
   email: string | null;
   endereco: string | null;
-  data_cadastro: string;
+  data_cadastro?: string;
 }
 
 export interface Category {
@@ -61,14 +69,17 @@ export interface Product {
   id_fornecedor: number | null;
   nome: string;
   descricao: string | null;
-  preco_custo: number | null;
-  preco_venda: number | null;
-  quantidade_minima: number | null;
-  etiqueta_rfid: string | null;
-  data_cadastro: string;
+  preco_custo: number;
+  preco_venda: number;
+  quantidade_minima: number;
+  etiqueta_rfid: string;
+  data_cadastro?: string;
   
-  quantidade_atual: number;
-  localizacao: string | null;
+  // Campos virtuais (vindos de JOINs ou da tabela estoque)
+  quantidade_atual?: number;
+  localizacao?: string | null;
+  nome_categoria?: string;
+  nome_fornecedor?: string;
 }
 
 export interface Stock {
@@ -126,4 +137,20 @@ export interface Configuration {
   intervalo_leitura: number;
   email_alerta: string | null;
   intervalo_backup: BackupInterval;
+}
+
+// Interface auxiliar para os itens da lista de movimentos recentes do dashboard
+export interface RecentMovement {
+  id_mov: number;
+  nome_produto: string;
+  tipo: MovementType;
+  quantidade: number;
+  data_movimentacao: string;
+  nome_usuario?: string;
+}
+export interface DashboardSummary {
+  totalProducts: number;
+  lowStockCount: number;
+  movementsToday: number;
+  recentMovements: RecentMovement[];
 }

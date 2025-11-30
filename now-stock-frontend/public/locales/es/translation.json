@@ -22,7 +22,8 @@
   "header": {
     "profile": {
       "edit": "Editar Perfil",
-      "logout": "Cerrar Sesión"
+      "logout": "Cerrar Sesión",
+      "myAccount": "Mi Cuenta"
     }
   },
   "nav": {
@@ -127,7 +128,7 @@
     "title": "Gestión de Productos",
     "create": "Agregar Producto",
     "confirmDelete": "¿Está seguro de que desea eliminar este producto?",
-    "empty": "No se encontraron productos. Haga clic en \"Agregar Producto\" para comenzar.",
+    "empty": "No se encontraron productos.",
     "table": {
       "name": "Nombre",
       "rfid": "Etiqueta RFID",

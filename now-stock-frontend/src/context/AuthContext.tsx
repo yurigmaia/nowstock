@@ -1,19 +1,21 @@
 /**
  * @context AuthContext
  * @description
- * Define o "contrato" (interface) e o Contexto React para
- * o estado de autenticação global E preferências do usuário (tema e idioma).
+ * Define o "contrato" (interface) para o estado de autenticação global 
+ * E preferências do usuário.
+ * * CORREÇÃO: Agora usa o tipo 'User' de '../types/entities' para garantir
+ * que campos como 'nivel_acesso' sejam reconhecidos.
  */
 import { createContext } from 'react';
-import type { UserResponse } from '../services/authService';
-
-export type AppColorScheme = 'light' | 'dark';
+import type { User, AppColorScheme } from '../types/entities';
 
 export interface AuthContextType {
   isAuthenticated: boolean;
-  user: UserResponse | null;
-  login: (token: string, user: UserResponse) => void;
+  user: User | null;
+  
+  login: (token: string, user: User) => void;
   logout: () => void;
+  setUser: (user: User) => void; 
 
   theme: AppColorScheme;
   language: string;

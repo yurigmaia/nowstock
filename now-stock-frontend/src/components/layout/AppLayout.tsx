@@ -1,13 +1,13 @@
 /**
  * @component AppLayout
  * @description
- * Layout principal da aplicação. Contém o cabeçalho com logo e menu de perfil,
- * e a barra lateral de navegação dividida em duas seções (principal e rodapé).
- * Controla a exibição de links baseados no nível de acesso do usuário (admin).
+ * Layout principal da aplicação. Contém o cabeçalho e a barra lateral.
+ * * CORREÇÃO: Filtra links baseados no nível de acesso.
+ * - Visualizador NÃO VÊ: Movimentações, Ajuste Manual, RFID, Admin, Usuários.
  */
-import { AppShell, Burger, Group, NavLink, Menu, rem, Box, ActionIcon } from '@mantine/core';
+import { AppShell, Burger, Group, NavLink, Menu, rem, Box, ActionIcon, Avatar, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   IconHome, IconBox, IconTruckDelivery, IconFileAnalytics, IconSettings,
   IconEdit, IconLogout, IconUserCircle, IconFilePlus, IconCategory,
@@ -22,9 +22,11 @@ export function AppLayout() {
   const [opened, { toggle }] = useDisclosure();
   const { logout, user } = useAuth();
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const isAdmin = user?.nivel === 'admin';
+  const isAdmin = user?.nivel_acesso === 'admin';
+  const canOperate = user?.nivel_acesso === 'admin' || user?.nivel_acesso === 'operador';
 
   return (
     <AppShell
@@ -61,11 +63,24 @@ export function AppLayout() {
                   aria-label="Menu do Perfil"
                   className={classes.profileButton}
                 >
-                  <IconUserCircle stroke={1.5} />
+                  {user?.nome ? (
+                    <Avatar color="orange" radius="xl" size="sm">
+                      {user.nome.charAt(0).toUpperCase()}
+                    </Avatar>
+                  ) : (
+                    <IconUserCircle stroke={1.5} />
+                  )}
                 </ActionIcon>
               </Menu.Target>
               <Menu.Dropdown className={classes.menuDropdown}>
-                <Menu.Label>Minha Conta</Menu.Label>
+                <Menu.Label>{t('header.profile.myAccount')}</Menu.Label>
+                <Menu.Item>
+                    <Box style={{ display: 'flex', flexDirection: 'column' }}>
+                        <Text size="sm" fw={500}>{user?.nome}</Text>
+                        <Text size="xs" c="dimmed">{user?.email}</Text>
+                    </Box>
+                </Menu.Item>
+                <Menu.Divider />
                 <Menu.Item
                   component={Link}
                   to="/profile"
@@ -74,10 +89,9 @@ export function AppLayout() {
                 >
                   {t('header.profile.edit')}
                 </Menu.Item>
-                <Menu.Divider />
                 <Menu.Item
                   color="red"
-                  onClick={logout}
+                  onClick={() => { logout(); navigate('/login'); }}
                   leftSection={<IconLogout style={{ width: rem(16), height: rem(16) }} />}
                   className={classes.menuItem}
                 >
@@ -91,7 +105,7 @@ export function AppLayout() {
 
       <AppShell.Navbar p={0} className={classes.navbar}>
         <div className={classes.navbarStack}>
-                    <Box className={classes.navSectionMain}>
+          <Box className={classes.navSectionMain}>
             <NavLink 
               component={Link} to="/" 
               label={t('nav.dashboard')}
@@ -126,18 +140,23 @@ export function AppLayout() {
               childrenOffset={28}
               defaultOpened={pathname.startsWith('/stock-current') || pathname.startsWith('/stock-adjust')}
             >
-               <NavLink component={Link} to="/stock-current" label={t('nav.estoqueAtual')} leftSection={<IconFileAnalytics size="1.0rem" stroke={1.5} />} active={pathname === '/stock-current'} className={classes.navLink} classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} />
-               <NavLink component={Link} to="/stock-adjust" label={t('nav.ajusteManual')} leftSection={<IconTools size="1.0rem" stroke={1.5} />} active={pathname === '/stock-adjust'} className={classes.navLink} classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} />
+                <NavLink component={Link} to="/stock-current" label={t('nav.estoqueAtual')} leftSection={<IconFileAnalytics size="1.0rem" stroke={1.5} />} active={pathname === '/stock-current'} className={classes.navLink} classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} />
+                
+                {canOperate && (
+                    <NavLink component={Link} to="/stock-adjust" label={t('nav.ajusteManual')} leftSection={<IconTools size="1.0rem" stroke={1.5} />} active={pathname === '/stock-adjust'} className={classes.navLink} classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} />
+                )}
             </NavLink>
             
-            <NavLink
-              label={t('nav.movimentacoes')}
-              component={Link} to="/movements"
-              leftSection={<IconArrowLeftRight size="1.1rem" stroke={1.5} />}
-              active={pathname === '/movements'}
-              className={classes.navLink}
-              classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }}
-            />
+            {canOperate && (
+                <NavLink
+                label={t('nav.movimentacoes')}
+                component={Link} to="/movements"
+                leftSection={<IconArrowLeftRight size="1.1rem" stroke={1.5} />}
+                active={pathname === '/movements'}
+                className={classes.navLink}
+                classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }}
+                />
+            )}
 
             <NavLink 
               component={Link} to="/reports" 
@@ -148,14 +167,16 @@ export function AppLayout() {
               classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} 
             />
 
-            <NavLink 
-              component={Link} to="/rfid-config" 
-              label={t('nav.configurarRfid')}
-              leftSection={<IconNfc size="1.1rem" stroke={1.5} />} 
-              active={pathname === '/rfid-config'} 
-              className={classes.navLink} 
-              classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} 
-            />
+            {canOperate && (
+                <NavLink 
+                component={Link} to="/rfid-config" 
+                label={t('nav.configurarRfid')}
+                leftSection={<IconNfc size="1.1rem" stroke={1.5} />} 
+                active={pathname === '/rfid-config'} 
+                className={classes.navLink} 
+                classNames={{ root: classes.navLinkRoot, label: classes.navLinkLabel }} 
+                />
+            )}
           </Box>
 
           <Box className={classes.navSectionFooter}>

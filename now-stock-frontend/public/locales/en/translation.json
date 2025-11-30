@@ -22,7 +22,8 @@
   "header": {
     "profile": {
       "edit": "Edit Profile",
-      "logout": "Logout"
+      "logout": "Logout",
+      "myAccount": "My Account"
     }
   },
   "nav": {
@@ -127,7 +128,7 @@
     "title": "Product Management",
     "create": "Add Product",
     "confirmDelete": "Are you sure you want to delete this product?",
-    "empty": "No products found. Click \"Add Product\" to start.",
+    "empty": "No products found.",
     "table": {
       "name": "Name",
       "rfid": "RFID Tag",

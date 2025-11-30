@@ -2,8 +2,8 @@
  * @component ProductsView
  * @description
  * Tela principal para Gerenciamento de Produtos (CRUD).
- * Exibe uma lista de produtos e permite ao usuário adicionar, editar
- * e excluir itens através de um modal.
+ * * ATUALIZAÇÃO:
+ * - Oculta botões de ação (Criar, Editar, Excluir) para usuários 'visualizador'.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
@@ -28,9 +28,14 @@ import type { Product } from "../types/entities";
 import { ProductModal } from "../components/products/ProductModal";
 import { notifications } from "@mantine/notifications";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "../hooks/useAuth";
 
 export function ProductsView() {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  
+  const canEdit = user?.nivel_acesso === 'admin' || user?.nivel_acesso === 'operador';
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -94,20 +99,23 @@ export function ProductsView() {
       <Table.Td>{product.etiqueta_rfid}</Table.Td>
       <Table.Td style={{ textAlign: 'center' }}>{product.quantidade_atual}</Table.Td>
       <Table.Td>{product.localizacao || "N/A"}</Table.Td>
-      <Table.Td>
-        <Group gap="xs" justify="flex-end">
-          <Tooltip label={t('products.actions.edit')}>
-            <ActionIcon variant="subtle" color="blue" onClick={() => handleEdit(product)}>
-              <IconPencil size={16} />
-            </ActionIcon>
-          </Tooltip>
-          <Tooltip label={t('products.actions.delete')}>
-            <ActionIcon variant="subtle" color="red" onClick={() => handleDelete(product.id_produto)}>
-              <IconTrash size={16} />
-            </ActionIcon>
-          </Tooltip>
-        </Group>
-      </Table.Td>
+      
+      {canEdit && (
+        <Table.Td>
+            <Group gap="xs" justify="flex-end">
+            <Tooltip label={t('products.actions.edit')}>
+                <ActionIcon variant="subtle" color="blue" onClick={() => handleEdit(product)}>
+                <IconPencil size={16} />
+                </ActionIcon>
+            </Tooltip>
+            <Tooltip label={t('products.actions.delete')}>
+                <ActionIcon variant="subtle" color="red" onClick={() => handleDelete(product.id_produto)}>
+                <IconTrash size={16} />
+                </ActionIcon>
+            </Tooltip>
+            </Group>
+        </Table.Td>
+      )}
     </Table.Tr>
   ));
 
@@ -115,13 +123,16 @@ export function ProductsView() {
     <Container size="xl" py="xl">
       <Group justify="space-between" mb="lg">
         <Title order={2} c="orange.7">{t('products.title')}</Title>
-        <Button
-          leftSection={<IconPlus size={14} />}
-          onClick={handleAdd}
-          bg="orange.6"
-        >
-          {t('products.create')}
-        </Button>
+        
+        {canEdit && (
+            <Button
+            leftSection={<IconPlus size={14} />}
+            onClick={handleAdd}
+            bg="orange.6"
+            >
+            {t('products.create')}
+            </Button>
+        )}
       </Group>
 
       {error && (
@@ -141,13 +152,13 @@ export function ProductsView() {
                 <Table.Th>{t('products.table.rfid')}</Table.Th>
                 <Table.Th style={{ textAlign: 'center' }}>{t('products.table.quantity')}</Table.Th>
                 <Table.Th>{t('products.table.location')}</Table.Th>
-                <Table.Th style={{ textAlign: 'right' }}>{t('products.table.actions')}</Table.Th>
+                {canEdit && <Table.Th style={{ textAlign: 'right' }}>{t('products.table.actions')}</Table.Th>}
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
               {rows.length > 0 ? rows : (
                 <Table.Tr>
-                  <Table.Td colSpan={5}>
+                  <Table.Td colSpan={canEdit ? 5 : 4}>
                     <Text ta="center" c="dimmed" py="xl">
                       {t('products.empty')}
                     </Text>

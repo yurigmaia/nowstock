@@ -8,11 +8,11 @@
 import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AuthContext, type AppColorScheme } from '../context/AuthContext';
-import type { UserResponse } from '../services/authService';
+import { AuthContext } from '../context/AuthContext';
+import type { User, AppColorScheme } from '../types/entities';
 import { apiService } from '../services/api';
 
-const getStoredUser = (): UserResponse | null => {
+const getStoredUser = (): User | null => {
   const storedUser = localStorage.getItem('user');
   if (!storedUser) return null;
   try {
@@ -23,7 +23,7 @@ const getStoredUser = (): UserResponse | null => {
   }
 };
 
-const getStoredToken = (): string | null => localStorage.getItem('authToken');
+const getStoredToken = (): string | null => localStorage.getItem('token');
 
 const getStoredTheme = (): AppColorScheme => (localStorage.getItem('nowstock-theme') as AppColorScheme) || 'dark';
 const getStoredLang = (): string => localStorage.getItem('i18nextLng') || 'pt';
@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { i18n } = useTranslation();
 
   const [token, setToken] = useState<string | null>(getStoredToken);
-  const [user, setUser] = useState<UserResponse | null>(getStoredUser);
+  const [user, setUserState] = useState<User | null>(getStoredUser);
   
   const [theme, setThemeState] = useState<AppColorScheme>(getStoredTheme);
   const [language, setLanguageState] = useState<string>(getStoredLang);
@@ -43,10 +43,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [language, i18n]);
 
-  const login = (newToken: string, newUser: UserResponse) => {
+  const setUser = (userData: User) => {
+    setUserState(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+  };
+
+  const login = (newToken: string, newUser: User) => {
     setToken(newToken);
-    setUser(newUser);
-    localStorage.setItem('authToken', newToken);
+    setUserState(newUser);
+    
+    localStorage.setItem('token', newToken);
     localStorage.setItem('user', JSON.stringify(newUser));
 
     const userTheme = (newUser.tema as AppColorScheme) || 'dark';
@@ -61,8 +67,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     setToken(null);
-    setUser(null);
-    localStorage.removeItem('authToken');
+    setUserState(null);
+    localStorage.removeItem('token');
     localStorage.removeItem('user');
   };
 
@@ -78,6 +84,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const setLanguage = (newLang: string) => {
     setLanguageState(newLang);
+    localStorage.setItem('i18nextLng', newLang);
+    i18n.changeLanguage(newLang);
     
     if (user) {
       apiService.updateUserPreferences(user.id, { idioma: newLang })
@@ -91,6 +99,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     <AuthContext.Provider value={{ 
       isAuthenticated, 
       user, 
+      setUser,
       login, 
       logout, 
       theme, 

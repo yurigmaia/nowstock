@@ -2,8 +2,9 @@
  * @component CategoriesView
  * @description
  * Tela para o Gerenciamento de Categorias (CRUD).
- * Permite ao usuário visualizar, adicionar, editar e excluir categorias.
- * Os dados são buscados e enviados através do 'apiService'.
+ * * ATUALIZAÇÃO:
+ * - Apenas ADMIN pode Criar, Editar ou Excluir.
+ * - Operadores e Visualizadores apenas veem a lista.
  */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -33,9 +34,14 @@ import { notifications } from "@mantine/notifications";
 import { apiService } from "../services/api";
 import type { Category } from "../types/entities";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "../hooks/useAuth";
 
 export function CategoriesView() {
   const { t } = useTranslation();
+  const { user } = useAuth();
+
+  const canEdit = user?.nivel_acesso === 'admin';
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
@@ -145,20 +151,23 @@ export function CategoriesView() {
     <Table.Tr key={category.id_categoria}>
       <Table.Td>{category.nome}</Table.Td>
       <Table.Td>{category.descricao}</Table.Td>
-      <Table.Td>
-        <Group gap={4} justify="flex-end">
-          <Tooltip label={t('common.edit')}>
-            <ActionIcon size="sm" variant="subtle" color="blue" onClick={() => handleOpenModal(category)}>
-              <IconPencil size={14} />
-            </ActionIcon>
-          </Tooltip>
-          <Tooltip label={t('common.delete')}>
-            <ActionIcon size="sm" variant="subtle" color="red" onClick={() => handleDelete(category.id_categoria)}>
-              <IconTrash size={14} />
-            </ActionIcon>
-          </Tooltip>
-        </Group>
-      </Table.Td>
+      
+      {canEdit && (
+        <Table.Td>
+            <Group gap={4} justify="flex-end">
+            <Tooltip label={t('common.edit')}>
+                <ActionIcon size="sm" variant="subtle" color="blue" onClick={() => handleOpenModal(category)}>
+                <IconPencil size={14} />
+                </ActionIcon>
+            </Tooltip>
+            <Tooltip label={t('common.delete')}>
+                <ActionIcon size="sm" variant="subtle" color="red" onClick={() => handleDelete(category.id_categoria)}>
+                <IconTrash size={14} />
+                </ActionIcon>
+            </Tooltip>
+            </Group>
+        </Table.Td>
+      )}
     </Table.Tr>
   ));
 
@@ -168,9 +177,12 @@ export function CategoriesView() {
         <Title order={2} c="orange.7">
           {t('categories.title')}
         </Title>
-        <Button bg="orange.6" leftSection={<IconPlus size={16} />} onClick={() => handleOpenModal(null)}>
-          {t('categories.create')}
-        </Button>
+        
+        {canEdit && (
+            <Button bg="orange.6" leftSection={<IconPlus size={16} />} onClick={() => handleOpenModal(null)}>
+            {t('categories.create')}
+            </Button>
+        )}
       </Group>
 
       <Paper p="md" withBorder shadow="md" radius="md">
@@ -182,13 +194,14 @@ export function CategoriesView() {
               <Table.Tr>
                 <Table.Th>{t('categories.table.name')}</Table.Th>
                 <Table.Th>{t('categories.table.description')}</Table.Th>
-                <Table.Th style={{ textAlign: 'right' }}>{t('categories.table.actions')}</Table.Th>
+                {/* Cabeçalho Ações: Só Admin */}
+                {canEdit && <Table.Th style={{ textAlign: 'right' }}>{t('categories.table.actions')}</Table.Th>}
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
               {rows.length > 0 ? rows : (
                 <Table.Tr>
-                  <Table.Td colSpan={3}>
+                  <Table.Td colSpan={canEdit ? 3 : 2}>
                     <Text ta="center" c="dimmed" py="xl">{t('categories.empty')}</Text>
                   </Table.Td>
                 </Table.Tr>
@@ -198,31 +211,33 @@ export function CategoriesView() {
         )}
       </Paper>
 
-      <Modal 
-        opened={modalOpened} 
-        onClose={handleCloseModal} 
-        title={editingCategory ? t('categories.modal.editTitle') : t('categories.modal.createTitle')}
-        centered
-      >
-        <form onSubmit={form.onSubmit(handleSubmit)}>
-          <Stack gap="md">
-            <TextInput
-              label={t('categories.form.name')}
-              placeholder={t('categories.form.placeholders.name')}
-              required
-              {...form.getInputProps("nome")}
-            />
-            <Textarea
-              label={t('categories.form.description')}
-              placeholder={t('categories.form.placeholders.description')}
-              {...form.getInputProps("descricao")}
-            />
-            <Button fullWidth bg="orange.6" type="submit" loading={modalLoading}>
-              {t('common.save')}
-            </Button>
-          </Stack>
-        </form>
-      </Modal>
+      {modalOpened && (
+        <Modal 
+            opened={modalOpened} 
+            onClose={handleCloseModal} 
+            title={editingCategory ? t('categories.modal.editTitle') : t('categories.modal.createTitle')}
+            centered
+        >
+            <form onSubmit={form.onSubmit(handleSubmit)}>
+            <Stack gap="md">
+                <TextInput
+                label={t('categories.form.name')}
+                placeholder={t('categories.form.placeholders.name')}
+                required
+                {...form.getInputProps("nome")}
+                />
+                <Textarea
+                label={t('categories.form.description')}
+                placeholder={t('categories.form.placeholders.description')}
+                {...form.getInputProps("descricao")}
+                />
+                <Button fullWidth bg="orange.6" type="submit" loading={modalLoading}>
+                {t('common.save')}
+                </Button>
+            </Stack>
+            </form>
+        </Modal>
+      )}
     </Box>
   );
 }

@@ -1,9 +1,10 @@
 /**
  * @file auth.js
  * @description
- * Define as rotas de autenticação públicas do sistema (CRUD).
- * Inclui o cadastro inicial de Empresa + Admin (transacional),
- * o login de usuários e o cadastro de novos operadores pendentes.
+ * Define as rotas de autenticação públicas do sistema.
+ * - /register-initial: Cria Empresa + Usuário Admin (Transação).
+ * - /login: Autentica e retorna o objeto User compatível com o frontend.
+ * - /register-user: Solicitação de cadastro em empresa existente (Status Pendente).
  */
 const express = require('express');
 const router = express.Router();
@@ -22,7 +23,7 @@ router.post('/register-initial', async (req, res) => {
     } = req.body;
 
     if (!nome_usuario || !email || !senha || !nome_empresa || !cnpj) {
-        return res.status(400).json({ message: "Todos os campos de usuário (Nome, Email, Senha) e empresa (Nome, CNPJ) são obrigatórios." });
+        return res.status(400).json({ message: "Todos os campos de usuário e empresa são obrigatórios." });
     }
 
     let connection;
@@ -38,7 +39,7 @@ router.post('/register-initial', async (req, res) => {
         }
 
         const [companyResult] = await connection.query(
-            `INSERT INTO empresas (nome, cnpj) VALUES (?, ?)`,
+            `INSERT INTO empresas (nome, cnpj, data_cadastro) VALUES (?, ?, NOW())`,
             [nome_empresa, cnpj]
         );
         const id_empresa = companyResult.insertId;
@@ -47,7 +48,8 @@ router.post('/register-initial', async (req, res) => {
         const hashedPassword = await bcrypt.hash(senha, salt);
 
         const [userResult] = await connection.query(
-            `INSERT INTO usuarios (id_empresa, nome, email, senha, nivel_acesso, status) VALUES (?, ?, ?, ?, 'admin', 'ativo')`, 
+            `INSERT INTO usuarios (id_empresa, nome, email, senha, nivel_acesso, status, data_cadastro) 
+             VALUES (?, ?, ?, ?, 'admin', 'ativo', NOW())`, 
             [id_empresa, nome_usuario, email, hashedPassword]
         );
         const id_usuario = userResult.insertId;
@@ -66,15 +68,11 @@ router.post('/register-initial', async (req, res) => {
         });
 
     } catch (error) {
-        if (connection) {
-            await connection.rollback();
-        }
+        if (connection) await connection.rollback();
         console.error("Erro na transação de cadastro inicial:", error);
         res.status(500).json({ message: "Erro interno do servidor durante o cadastro inicial." });
     } finally {
-        if (connection) {
-            connection.release();
-        }
+        if (connection) connection.release();
     }
 });
 
@@ -86,7 +84,14 @@ router.post('/login', async (req, res) => {
     }
 
     try {
-        const [rows] = await promisePool.query('SELECT * FROM usuarios WHERE email = ?', [email]);
+        const [rows] = await promisePool.query(
+            `SELECT u.*, e.nome as nome_empresa 
+             FROM usuarios u 
+             JOIN empresas e ON u.id_empresa = e.id_empresa 
+             WHERE u.email = ?`, 
+            [email]
+        );
+        
         const user = rows[0];
 
         if (!user) {
@@ -104,9 +109,13 @@ router.post('/login', async (req, res) => {
         }
         
         const token = jwt.sign(
-            { id: user.id_usuario, nivel: user.nivel_acesso, empresa: user.id_empresa },
-            process.env.JWT_SECRET,
-            { expiresIn: '1h' } 
+            { 
+                id: user.id_usuario, 
+                nivel: user.nivel_acesso,
+                empresa: user.id_empresa 
+            },
+            process.env.JWT_SECRET || 'fallback_secret',
+            { expiresIn: '8h' } 
         );
         
         res.json({ 
@@ -114,12 +123,16 @@ router.post('/login', async (req, res) => {
             token,
             user: {
                 id: user.id_usuario,
+                id_usuario: user.id_usuario,
+                id_empresa: user.id_empresa,
                 nome: user.nome,
                 email: user.email,
-                nivel: user.nivel_acesso,
-                id_empresa: user.id_empresa,
-                tema: user.tema,
-                idioma: user.idioma
+                nivel_acesso: user.nivel_acesso,
+                status: user.status,
+                data_cadastro: user.data_cadastro,
+                tema: user.tema || 'dark',
+                idioma: user.idioma || 'pt',
+                nome_empresa: user.nome_empresa 
             }
         });
 
@@ -142,7 +155,8 @@ router.post('/register-user', async (req, res) => {
     }
 
     try {
-        const [companyRows] = await promisePool.query('SELECT id_empresa FROM empresas WHERE cnpj = ?', [cnpj_empresa]);
+        const cleanCnpj = cnpj_empresa.replace(/\D/g, '');
+        const [companyRows] = await promisePool.query('SELECT id_empresa FROM empresas WHERE cnpj = ?', [cleanCnpj]);
         const company = companyRows[0];
 
         if (!company) {
@@ -159,8 +173,8 @@ router.post('/register-user', async (req, res) => {
         const hashedPassword = await bcrypt.hash(senha, salt);
 
         const query = `
-            INSERT INTO usuarios (id_empresa, nome, email, senha, nivel_acesso, status)
-            VALUES (?, ?, ?, ?, 'operador', 'pendente')
+            INSERT INTO usuarios (id_empresa, nome, email, senha, nivel_acesso, status, data_cadastro)
+            VALUES (?, ?, ?, ?, 'operador', 'pendente', NOW())
         `;
         
         await promisePool.query(query, [
@@ -168,7 +182,7 @@ router.post('/register-user', async (req, res) => {
         ]);
 
         res.status(201).json({ 
-            message: "Solicitação de cadastro enviada com sucesso! Aguarde a aprovação do administrador."
+            message: "Solicitação enviada! Aguarde a aprovação do administrador da empresa."
         });
 
     } catch (error) {

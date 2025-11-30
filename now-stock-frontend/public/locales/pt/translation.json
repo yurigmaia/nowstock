@@ -22,7 +22,8 @@
   "header": {
     "profile": {
       "edit": "Editar Perfil",
-      "logout": "Sair"
+      "logout": "Sair",
+      "myAccount": "Minha Conta"
     }
   },
   "nav": {
@@ -127,7 +128,7 @@
     "title": "Gerenciamento de Produtos",
     "create": "Adicionar Produto",
     "confirmDelete": "Tem certeza que deseja excluir este produto?",
-    "empty": "Nenhum produto encontrado. Clique em \"Adicionar Produto\" para começar.",
+    "empty": "Nenhum produto encontrado.",
     "table": {
       "name": "Nome",
       "rfid": "Tag RFID",

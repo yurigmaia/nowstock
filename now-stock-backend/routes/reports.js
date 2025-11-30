@@ -2,14 +2,15 @@
  * @file reports.js
  * @description
  * Rotas para gerar os relatórios do sistema (Estoque, Baixo Estoque, Movimentações).
- * Todas as consultas são filtradas pelo 'id_empresa' para garantir isolamento de dados.
+ * * CORREÇÃO: Middleware alterado para 'authenticateToken' apenas.
+ * * Isso permite que Visualizadores acessem sem serem deslogados por erro 403.
  */
 const express = require('express');
 const router = express.Router();
 const promisePool = require('../config/db');
-const { authenticateToken, checkAdminOrOperator } = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 
-router.use(authenticateToken, checkAdminOrOperator);
+router.use(authenticateToken);
 
 router.get('/:type', async (req, res) => {
     const { type } = req.params;
