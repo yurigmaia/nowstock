@@ -6,9 +6,12 @@
     "error": "Erro!",
     "loading": "Carregando...",
     "required": "Campo obrigatório",
+    "select": "Selecione...",
+    "currencySymbol": "R$ ",
     "warning": "Aviso",
-    "select": "Selecione",
-    "edit": "Editar"
+    "edit": "Editar",
+    "delete": "Excluir",
+    "unknownError": "Erro desconhecido"
   },
   "validation": {
     "nameShort": "Nome muito curto",
@@ -21,6 +24,24 @@
       "edit": "Editar Perfil",
       "logout": "Sair"
     }
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "cadastros": "Cadastros",
+    "produtos": "Produtos",
+    "categorias": "Categorias",
+    "fornecedores": "Fornecedores",
+    "usuarios": "Usuários",
+    "estoque": "Estoque",
+    "estoqueAtual": "Estoque Atual",
+    "ajusteManual": "Ajuste Manual",
+    "movimentacoes": "Movimentações",
+    "entradasSaidas": "Entradas/Saídas",
+    "devolucoes": "Devoluções",
+    "relatorios": "Relatórios",
+    "admin": "Administração",
+    "configuracoes": "Configurações",
+    "configurarRfid": "Configurar RFID"
   },
   "profile": {
     "title": "Meu Perfil",
@@ -44,23 +65,314 @@
       "passwordMismatch": "As senhas não coincidem"
     }
   },
-  "nav": {
-    "dashboard": "Dashboard",
-    "cadastros": "Cadastros",
-    "produtos": "Produtos",
-    "categorias": "Categorias",
-    "fornecedores": "Fornecedores",
-    "usuarios": "Usuários",
-    "estoque": "Estoque",
-    "estoqueAtual": "Estoque Atual",
-    "ajusteManual": "Ajuste Manual",
-    "movimentacoes": "Movimentações",
-    "entradasSaidas": "Entradas/Saídas",
-    "devolucoes": "Devoluções",
-    "relatorios": "Relatórios",
-    "admin": "Administração",
-    "configuracoes": "Configurações",
-    "configurarRfid": "Configurar RFID"
+  "users": {
+    "title": "Gestão de Usuários",
+    "create": "Incluir Usuário",
+    "empty": "Nenhum usuário encontrado.",
+    "confirmReject": "Tem certeza que deseja rejeitar (excluir) a solicitação deste usuário?",
+    "table": {
+      "name": "Nome",
+      "email": "Email",
+      "level": "Nível",
+      "status": "Status",
+      "created": "Cadastro",
+      "actions": "Ações"
+    },
+    "levels": {
+      "operador": "Operador",
+      "visualizador": "Visualizador",
+      "admin": "Admin"
+    },
+    "status": {
+      "ativo": "Ativo",
+      "inativo": "Inativo",
+      "pendente": "Pendente",
+      "rejected": "Rejeitado"
+    },
+    "modal": {
+      "editTitle": "Editar Usuário",
+      "createTitle": "Incluir Usuário",
+      "name": "Nome",
+      "namePlaceholder": "Nome do usuário",
+      "email": "Email",
+      "level": "Nível de Acesso",
+      "passwordReset": "Redefinir Senha (Opcional)",
+      "passwordInitial": "Senha Inicial",
+      "passwordHelpEdit": "Deixe em branco para manter a senha atual.",
+      "passwordHelpCreate": "Senha padrão sugerida. O usuário poderá alterar depois.",
+      "passwordPlaceholderEdit": "Nova senha..."
+    },
+    "actions": {
+      "disable": "Desativar Usuário",
+      "activate": "Ativar Usuário",
+      "approve": "Aprobar Acesso",
+      "reject": "Rejeitar Solicitação"
+    },
+    "messages": {
+      "updated": "Usuário atualizado com sucesso.",
+      "created": "Usuário criado. Senha padrão: {{password}}",
+      "activated": "Usuário ativado com sucesso.",
+      "deactivated": "Usuário desativado com sucesso.",
+      "rejected": "Solicitação removida.",
+      "rejectError": "Falha ao rejeitar solicitação."
+    },
+    "warnings": {
+      "passwordNotUpdated": "Dados salvos, mas a senha não foi alterada (funcionalidade não suportada nesta rota)."
+    },
+    "errors": {
+      "passwordShort": "Senha muito curta (mín 6 caracteres)"
+    }
+  },
+  "products": {
+    "title": "Gerenciamento de Produtos",
+    "create": "Adicionar Produto",
+    "confirmDelete": "Tem certeza que deseja excluir este produto?",
+    "empty": "Nenhum produto encontrado. Clique em \"Adicionar Produto\" para começar.",
+    "table": {
+      "name": "Nome",
+      "rfid": "Tag RFID",
+      "quantity": "Qtd. Atual",
+      "location": "Localização",
+      "actions": "Ações"
+    },
+    "modal": {
+      "editTitle": "Editar Produto",
+      "createTitle": "Adicionar Novo Produto"
+    },
+    "form": {
+      "name": "Nome do Produto",
+      "description": "Descrição",
+      "category": "Categoria",
+      "supplier": "Fornecedor",
+      "rfid": "Etiqueta RFID",
+      "rfidHelp": "Aproxime a tag do leitor para preencher automaticamente",
+      "location": "Localização Padrão",
+      "minQty": "Qtd. Mínima",
+      "costPrice": "Preço de Custo",
+      "salePrice": "Preço de Venda",
+      "save": "Salvar Produto",
+      "errors": {
+        "nameShort": "Nome muito curto",
+        "rfidRequired": "Tag RFID é obrigatória",
+        "categoryRequired": "Selecione uma categoria",
+        "supplierRequired": "Selecione um fornecedor"
+      }
+    },
+    "rfid": {
+      "capturedTitle": "Tag Capturada!",
+      "capturedMessage": "Código {{tag}} inserido no formulário."
+    },
+    "messages": {
+      "deleted": "Produto excluído.",
+      "updated": "Produto atualizado com sucesso.",
+      "created": "Produto criado com sucesso."
+    },
+    "actions": {
+      "edit": "Editar Produto",
+      "delete": "Excluir Produto"
+    },
+    "errors": {
+      "load": "Falha ao carregar produtos",
+      "saveTitle": "Erro ao Salvar"
+    }
+  },
+  "categories": {
+    "title": "Categorias",
+    "create": "Adicionar Categoria",
+    "empty": "Nenhuma categoria encontrada.",
+    "confirmDelete": "Tem certeza que deseja excluir esta categoria?",
+    "table": {
+      "name": "Nome",
+      "description": "Descrição",
+      "actions": "Ações"
+    },
+    "form": {
+      "name": "Nome",
+      "description": "Descrição",
+      "placeholders": {
+        "name": "Ex: Periféricos",
+        "description": "Descreva a categoria"
+      },
+      "errors": {
+        "nameRequired": "Nome é obrigatório"
+      }
+    },
+    "modal": {
+      "editTitle": "Editar Categoria",
+      "createTitle": "Adicionar Categoria"
+    },
+    "messages": {
+      "updated": "Categoria atualizada.",
+      "created": "Categoria adicionada.",
+      "deleted": "Categoria removida."
+    }
+  },
+  "suppliers": {
+    "title": "Fornecedores",
+    "create": "Adicionar Fornecedor",
+    "empty": "Nenhum fornecedor encontrado.",
+    "confirmDelete": "Tem certeza que deseja excluir este fornecedor?",
+    "table": {
+      "name": "Nome",
+      "cnpj": "CNPJ",
+      "phone": "Telefone",
+      "email": "Email",
+      "actions": "Ações"
+    },
+    "form": {
+      "name": "Nome",
+      "cnpj": "CNPJ",
+      "phone": "Telefone",
+      "email": "Email",
+      "address": "Endereço",
+      "placeholders": {
+        "name": "Nome do Fornecedor",
+        "address": "Rua A, 100, São Paulo"
+      }
+    },
+    "modal": {
+      "editTitle": "Editar Fornecedor",
+      "createTitle": "Adicionar Fornecedor"
+    },
+    "validation": {
+      "nameRequired": "Nome é obrigatório",
+      "cnpjInvalid": "CNPJ deve ter 14 dígitos",
+      "emailInvalid": "Email inválido"
+    },
+    "messages": {
+      "updated": "Fornecedor atualizado.",
+      "created": "Fornecedor adicionado.",
+      "deleted": "Fornecedor removido."
+    }
+  },
+  "stockCurrent": {
+    "title": "Estoque Atual",
+    "table": {
+      "product": "Produto",
+      "category": "Categoria",
+      "supplier": "Fornecedor",
+      "quantity": "Quantidade Atual",
+      "location": "Localização"
+    },
+    "empty": "Nenhum item em estoque encontrado.",
+    "errors": {
+      "loadTitle": "Erro ao Carregar Dados",
+      "load": "Falha ao carregar dados do estoque"
+    }
+  },
+  "stockAdjust": {
+    "title": "Ajuste Manual de Estoque",
+    "unknownUser": "Usuário Desconhecido",
+    "type": {
+      "in": "Entrada",
+      "out": "Saída"
+    },
+    "form": {
+      "product": "Produto",
+      "productPlaceholder": "Selecione um produto...",
+      "quantity": "Quantidade",
+      "user": "Usuário",
+      "date": "Data da Movimentação",
+      "reason": "Justificativa",
+      "reasonPlaceholder": "Ex: Contagem de inventário, produto danificado...",
+      "submit": "Registrar Ajuste"
+    },
+    "validation": {
+      "productRequired": "Selecione um produto",
+      "qtyPositive": "A quantidade deve ser maior que zero",
+      "reasonRequired": "A justificativa é obrigatória"
+    },
+    "messages": {
+      "success": "Ajuste de estoque registrado.",
+      "error": "Não foi possível registrar o ajuste."
+    }
+  },
+  "movements": {
+    "title": "Registrar Movimentação",
+    "unknownUser": "Usuário Desconhecido",
+    "types": {
+      "entrada": "Entrada",
+      "saida": "Saída",
+      "devolucao": "Devolução"
+    },
+    "units": {
+      "unit": "Unidade",
+      "lot": "Lote"
+    },
+    "destinations": {
+      "stock": "Retornar ao Estoque",
+      "discard": "Descartar"
+    },
+    "form": {
+      "rfid": "Etiqueta RFID",
+      "rfidPlaceholder": "Aproxime a tag...",
+      "rfidDescription": "Detecta automaticamente o produto",
+      "product": "Produto",
+      "productPlaceholder": "Selecione ou passe a tag...",
+      "quantity": "Quantidade",
+      "unit": "Unidade",
+      "reason": "Motivo",
+      "reasonPlaceholder": "Ex: Defeito, avaria...",
+      "destination": "Destino",
+      "user": "Usuário",
+      "date": "Data",
+      "submit": "Registrar Movimentação"
+    },
+    "validation": {
+      "productRequired": "Selecione um produto",
+      "qtyPositive": "A quantidade deve ser maior que zero",
+      "reasonRequired": "O motivo é obrigatório para devoluções"
+    },
+    "notifications": {
+      "identifiedTitle": "Produto Identificado!",
+      "identifiedMessage": "Selecionado: {{product}}",
+      "unknownTagTitle": "Tag Desconhecida",
+      "unknownTagMessage": "Nenhum produto cadastrado com esta tag.",
+      "success": "Movimentação ({{type}}) registrada."
+    }
+  },
+  "reports": {
+    "title": "Relatórios",
+    "pdfTitle": "Relatório",
+    "types": {
+      "currentStock": "Estoque Atual",
+      "lowStock": "Produtos em Falta",
+      "mostMoved": "Mais Movimentados",
+      "history": "Histórico"
+    },
+    "columns": {
+      "product": "Produto",
+      "quantity": "Quantidade",
+      "status": "Status",
+      "currentQty": "Qtd. Atual",
+      "minQty": "Qtd. Mínima",
+      "movements": "Movimentações",
+      "period": "Período",
+      "type": "Tipo",
+      "date": "Data"
+    },
+    "status": {
+      "ok": "OK",
+      "low": "Baixo"
+    },
+    "actions": {
+      "exportPdf": "Exportar PDF",
+      "exportExcel": "Exportar Excel",
+      "print": "Imprimir"
+    },
+    "empty": "Nenhum dado encontrado."
+  },
+  "rfidConfig": {
+    "title": "Conexão RFID (USB)",
+    "status": {
+      "connected": "Conectado",
+      "disconnected": "Desconectado"
+    },
+    "actions": {
+      "connect": "Conectar USB",
+      "disconnect": "Desconectar"
+    },
+    "lastRead": "Última leitura:"
   },
   "settings": {
     "title": "Configurações",
@@ -70,6 +382,14 @@
     "themeDark": "Escuro",
     "langTitle": "Idioma",
     "langSubtitle": "Selecione o idioma de preferência para a interface."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "totalProducts": "Total de Produtos",
+    "lowStockItems": "Itens com Estoque Baixo",
+    "movementsToday": "Movimentações Hoje",
+    "recentMovements": "Movimentações Recentes",
+    "fetchError": "Falha ao carregar dados do dashboard."
   },
   "admin": {
     "title": "Administração do Sistema",
@@ -118,72 +438,6 @@
     },
     "errors": {
       "fetchError": "Falha ao carregar dados da administração."
-    }
-  },
-  "dashboard": {
-    "title": "Dashboard",
-    "totalProducts": "Total de Produtos",
-    "lowStockItems": "Itens com Estoque Baixo",
-    "movementsToday": "Movimentações Hoje",
-    "recentMovements": "Movimentações Recentes",
-    "fetchError": "Falha ao carregar dados do dashboard."
-  },
-  "users": {
-    "title": "Gestão de Usuários",
-    "create": "Incluir Usuário",
-    "empty": "Nenhum usuário encontrado.",
-    "confirmReject": "Tem certeza que deseja rejeitar (excluir) a solicitação deste usuário?",
-    "table": {
-      "name": "Nome",
-      "email": "Email",
-      "level": "Nível",
-      "status": "Status",
-      "created": "Cadastro",
-      "actions": "Ações"
-    },
-    "levels": {
-      "operador": "Operador",
-      "visualizador": "Visualizador",
-      "admin": "Admin"
-    },
-    "status": {
-      "ativo": "Ativo",
-      "inativo": "Inativo",
-      "pendente": "Pendente",
-      "rejected": "Rejeitado"
-    },
-    "modal": {
-      "editTitle": "Editar Usuário",
-      "createTitle": "Incluir Usuário",
-      "name": "Nome",
-      "namePlaceholder": "Nome do usuário",
-      "email": "Email",
-      "level": "Nível de Acesso",
-      "passwordReset": "Redefinir Senha (Opcional)",
-      "passwordInitial": "Senha Inicial",
-      "passwordHelpEdit": "Deixe em branco para manter a senha atual.",
-      "passwordHelpCreate": "Senha padrão sugerida. O usuário poderá alterar depois.",
-      "passwordPlaceholderEdit": "Nova senha..."
-    },
-    "actions": {
-      "disable": "Desativar Usuário",
-      "activate": "Ativar Usuário",
-      "approve": "Aprovar Acesso",
-      "reject": "Rejeitar Solicitação"
-    },
-    "messages": {
-      "updated": "Usuário atualizado com sucesso.",
-      "created": "Usuário criado. Senha padrão: {{password}}",
-      "activated": "Usuário ativado com sucesso.",
-      "deactivated": "Usuário desativado com sucesso.",
-      "rejected": "Solicitação removida.",
-      "rejectError": "Falha ao rejeitar solicitação."
-    },
-    "warnings": {
-      "passwordNotUpdated": "Dados salvos, mas a senha não foi alterada (funcionalidade não suportada nesta rota)."
-    },
-    "errors": {
-      "passwordShort": "Senha muito curta (mín 6 caracteres)"
     }
   }
 }

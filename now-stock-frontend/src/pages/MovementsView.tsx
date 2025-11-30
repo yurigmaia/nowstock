@@ -16,11 +16,14 @@ import { useAuth } from '../hooks/useAuth';
 import { apiService } from "../services/api";
 import type { Product } from "../types/entities";
 import { useRfid } from "../hooks/useRfid";
+import { useTranslation } from "react-i18next";
 
 type MovementFlow = 'entrada' | 'saida' | 'devolucao';
 
 export function MovementsView() {
-  const { user } = useAuth();
+  const { t } = useTranslation();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { user } = useAuth() as any;
   const { lastTag, clearTag } = useRfid();
   
   const [loading, setLoading] = useState(false);
@@ -47,14 +50,14 @@ export function MovementsView() {
       unit: "unidade",
       reason: "",
       state: "estoque",
-      user: user?.nome || "Usuário Desconhecido",
+      user: user?.nome || t('movements.unknownUser'),
       date: new Date().toISOString().split("T")[0],
     },
     validate: {
-      productId: (value) => (value ? null : "Selecione um produto"),
-      quantity: (value) => (value > 0 ? null : "A quantidade deve ser maior que zero"),
+      productId: (value) => (value ? null : t('movements.validation.productRequired')),
+      quantity: (value) => (value > 0 ? null : t('movements.validation.qtyPositive')),
       reason: (value) => 
-        (movementType === 'devolucao' && !value.trim()) ? "O motivo é obrigatório para devoluções" : null,
+        (movementType === 'devolucao' && !value.trim()) ? t('movements.validation.reasonRequired') : null,
     }
   });
 
@@ -68,15 +71,15 @@ export function MovementsView() {
         form.setFieldValue('productId', String(foundProduct.id_produto));
         
         notifications.show({ 
-          title: 'Produto Identificado!', 
-          message: `Selecionado: ${foundProduct.nome}`, 
+          title: t('movements.notifications.identifiedTitle'), 
+          message: t('movements.notifications.identifiedMessage', { product: foundProduct.nome }), 
           color: 'green',
           icon: <IconCheck size={16}/>
         });
       } else {
         notifications.show({ 
-          title: 'Tag Desconhecida', 
-          message: 'Nenhum produto cadastrado com esta tag.', 
+          title: t('movements.notifications.unknownTagTitle'), 
+          message: t('movements.notifications.unknownTagMessage'), 
           color: 'yellow',
           icon: <IconNfc size={16}/>
         });
@@ -103,19 +106,22 @@ export function MovementsView() {
 
       await apiService.createMovement(payload);
 
+      const typeLabel = t(`movements.types.${movementType}`);
+      
       notifications.show({
-        title: "Sucesso!",
-        message: `Movimentação (${movementType}) registrada.`,
+        title: t('common.success'),
+        message: t('movements.notifications.success', { type: typeLabel }),
         color: 'green',
         icon: <IconCheck />,
       });
       form.reset();
       form.setFieldValue('date', new Date().toISOString().split("T")[0]);
+      if(user) form.setFieldValue('user', user.nome);
 
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
+      const errorMessage = error instanceof Error ? error.message : t('common.unknownError');
       notifications.show({
-        title: 'Erro',
+        title: t('common.error'),
         message: errorMessage,
         color: 'red',
         icon: <IconX />,
@@ -127,7 +133,7 @@ export function MovementsView() {
 
   return (
     <Box>
-      <Title order={2} c="orange.7" mb="lg">Registrar Movimentação</Title>
+      <Title order={2} c="orange.7" mb="lg">{t('movements.title')}</Title>
 
       <Paper p="md" withBorder shadow="md" radius="md" style={{ maxWidth: 600 }}>
         <form onSubmit={form.onSubmit(handleSubmit)}>
@@ -136,50 +142,87 @@ export function MovementsView() {
               value={movementType}
               onChange={(value: string) => setMovementType(value as MovementFlow)}
               data={[
-                { value: "entrada", label: "Entrada" },
-                { value: "saida", label: "Saída" },
-                { value: "devolucao", label: "Devolução" },
+                { value: "entrada", label: t('movements.types.entrada') },
+                { value: "saida", label: t('movements.types.saida') },
+                { value: "devolucao", label: t('movements.types.devolucao') },
               ]}
               color="orange"
               fullWidth
             />
 
             <TextInput
-              label="Etiqueta RFID"
-              placeholder="Aproxime a tag..."
-              description="Detecta automaticamente o produto"
-              // CORRIGIDO
+              label={t('movements.form.rfid')}
+              placeholder={t('movements.form.rfidPlaceholder')}
+              description={t('movements.form.rfidDescription')}
               rightSection={<IconNfc size={16} style={{ opacity: 0.5 }} />}
               {...form.getInputProps("rfidTag")}
             />
             
             <Select
-              label="Produto"
-              placeholder="Selecione ou passe a tag..."
+              label={t('movements.form.product')}
+              placeholder={t('movements.form.productPlaceholder')}
               searchable
               required
               data={productList}
               {...form.getInputProps("productId")}
             />
             
-            <NumberInput label="Quantidade" placeholder="1" min={1} required {...form.getInputProps("quantity")} />
+            <NumberInput 
+              label={t('movements.form.quantity')} 
+              placeholder="1" 
+              min={1} 
+              required 
+              {...form.getInputProps("quantity")} 
+            />
 
             {movementType !== 'devolucao' && (
-              <Select label="Unidade" data={[{ value: "unidade", label: "Unidade" }, { value: "lote", label: "Lote" }]} required {...form.getInputProps("unit")} />
+              <Select 
+                label={t('movements.form.unit')} 
+                data={[
+                  { value: "unidade", label: t('movements.units.unit') }, 
+                  { value: "lote", label: t('movements.units.lot') }
+                ]} 
+                required 
+                {...form.getInputProps("unit")} 
+              />
             )}
 
             {movementType === 'devolucao' && (
               <>
-                <Textarea label="Motivo" placeholder="Ex: Defeito..." required {...form.getInputProps("reason")} />
-                <Select label="Destino" data={[{ value: "estoque", label: "Retornar ao Estoque" }, { value: "descarte", label: "Descartar" }]} required {...form.getInputProps("state")} />
+                <Textarea 
+                  label={t('movements.form.reason')} 
+                  placeholder={t('movements.form.reasonPlaceholder')} 
+                  required 
+                  {...form.getInputProps("reason")} 
+                />
+                <Select 
+                  label={t('movements.form.destination')} 
+                  data={[
+                    { value: "estoque", label: t('movements.destinations.stock') }, 
+                    { value: "descarte", label: t('movements.destinations.discard') }
+                  ]} 
+                  required 
+                  {...form.getInputProps("state")} 
+                />
               </>
             )}
 
-            <TextInput label="Usuário" disabled {...form.getInputProps("user")} />
-            <TextInput label="Data" type="date" disabled {...form.getInputProps("date")} />
+            <TextInput 
+              label={t('movements.form.user')} 
+              disabled 
+              {...form.getInputProps("user")} 
+            />
+            <TextInput 
+              label={t('movements.form.date')} 
+              type="date" 
+              disabled 
+              {...form.getInputProps("date")} 
+            />
 
             <Group justify="flex-end" mt="md">
-              <Button fullWidth bg="orange.6" type="submit" loading={loading}>Registrar Movimentação</Button>
+              <Button fullWidth bg="orange.6" type="submit" loading={loading}>
+                {t('movements.form.submit')}
+              </Button>
             </Group>
           </Stack>
         </form>

@@ -11,6 +11,7 @@ import type { Product } from '../../types/entities';
 import { useState } from 'react';
 import { notifications } from '@mantine/notifications';
 import { apiService } from '../../services/api';
+import { useTranslation } from 'react-i18next';
 
 interface ProductModalProps {
   opened: boolean;
@@ -20,8 +21,10 @@ interface ProductModalProps {
 }
 
 export function ProductModal({ opened, onClose, product, onSaveSuccess }: ProductModalProps) {
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const title = product ? 'Editar Produto' : 'Adicionar Novo Produto';
+  
+  const title = product ? t('products.modal.editTitle') : t('products.modal.createTitle');
 
   const handleFormSubmit = async (values: any) => {
     setIsSubmitting(true);
@@ -30,15 +33,15 @@ export function ProductModal({ opened, onClose, product, onSaveSuccess }: Produc
       if (product) {
         await apiService.updateProduct(product.id_produto, values);
         notifications.show({
-            title: 'Sucesso!',
-            message: 'Produto atualizado com sucesso.',
+            title: t('common.success'),
+            message: t('products.messages.updated'),
             color: 'green',
           });
       } else {
         await apiService.createProduct(values);
         notifications.show({
-            title: 'Sucesso!',
-            message: 'Produto criado com sucesso.',
+            title: t('common.success'),
+            message: t('products.messages.created'),
             color: 'green',
           });
       }
@@ -46,9 +49,9 @@ export function ProductModal({ opened, onClose, product, onSaveSuccess }: Produc
       onClose();
     
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
+      const errorMessage = error instanceof Error ? error.message : t('common.unknownError');
       notifications.show({
-        title: 'Erro ao Salvar',
+        title: t('products.errors.saveTitle'),
         message: errorMessage,
         color: 'red',
       });

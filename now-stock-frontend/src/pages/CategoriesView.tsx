@@ -32,8 +32,10 @@ import { notifications } from "@mantine/notifications";
 
 import { apiService } from "../services/api";
 import type { Category } from "../types/entities";
+import { useTranslation } from "react-i18next";
 
 export function CategoriesView() {
+  const { t } = useTranslation();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
@@ -44,12 +46,17 @@ export function CategoriesView() {
     setLoading(true);
     apiService.getCategories()
       .then(setCategories)
-      .catch((err) => notifications.show({ title: 'Erro', message: err.message, color: 'red' }))
+      .catch((err) => notifications.show({ 
+        title: t('common.error'), 
+        message: err.message, 
+        color: 'red' 
+      }))
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
     fetchCategories();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const form = useForm({
@@ -58,7 +65,7 @@ export function CategoriesView() {
       descricao: "",
     },
     validate: {
-      nome: (value) => (value.trim().length < 2 ? 'Nome é obrigatório' : null),
+      nome: (value) => (value.trim().length < 2 ? t('categories.form.errors.nameRequired') : null),
     }
   });
 
@@ -88,27 +95,49 @@ export function CategoriesView() {
     try {
       if (editingCategory) {
         await apiService.updateCategory(editingCategory.id_categoria, payload);
-        notifications.show({ title: 'Sucesso', message: 'Categoria atualizada.', color: 'green' });
+        notifications.show({ 
+            title: t('common.success'), 
+            message: t('categories.messages.updated'), 
+            color: 'green' 
+        });
       } else {
         await apiService.createCategory(payload);
-        notifications.show({ title: 'Sucesso', message: 'Categoria adicionada.', color: 'green' });
+        notifications.show({ 
+            title: t('common.success'), 
+            message: t('categories.messages.created'), 
+            color: 'green' 
+        });
       }
       fetchCategories();
       handleCloseModal();
     } catch (err: any) {
-      notifications.show({ title: 'Erro', message: err.message, color: 'red' });
+      notifications.show({ 
+          title: t('common.error'), 
+          message: err.message, 
+          color: 'red' 
+      });
     } finally {
       setModalLoading(false);
     }
   };
   
   const handleDelete = async (id: number) => {
-    try {
-      await apiService.deleteCategory(id);
-      notifications.show({ title: 'Excluído', message: 'Categoria removida.', color: 'gray' });
-      fetchCategories();
-    } catch (err: any) {
-      notifications.show({ title: 'Erro', message: err.message, color: 'red' });
+    if (confirm(t('categories.confirmDelete'))) {
+        try {
+        await apiService.deleteCategory(id);
+        notifications.show({ 
+            title: t('common.success'), 
+            message: t('categories.messages.deleted'), 
+            color: 'gray' 
+        });
+        fetchCategories();
+        } catch (err: any) {
+        notifications.show({ 
+            title: t('common.error'), 
+            message: err.message, 
+            color: 'red' 
+        });
+        }
     }
   };
 
@@ -118,12 +147,12 @@ export function CategoriesView() {
       <Table.Td>{category.descricao}</Table.Td>
       <Table.Td>
         <Group gap={4} justify="flex-end">
-          <Tooltip label="Editar">
+          <Tooltip label={t('common.edit')}>
             <ActionIcon size="sm" variant="subtle" color="blue" onClick={() => handleOpenModal(category)}>
               <IconPencil size={14} />
             </ActionIcon>
           </Tooltip>
-          <Tooltip label="Excluir">
+          <Tooltip label={t('common.delete')}>
             <ActionIcon size="sm" variant="subtle" color="red" onClick={() => handleDelete(category.id_categoria)}>
               <IconTrash size={14} />
             </ActionIcon>
@@ -137,10 +166,10 @@ export function CategoriesView() {
     <Box>
       <Group justify="space-between" mb="xl">
         <Title order={2} c="orange.7">
-          Categorias
+          {t('categories.title')}
         </Title>
         <Button bg="orange.6" leftSection={<IconPlus size={16} />} onClick={() => handleOpenModal(null)}>
-          Adicionar Categoria
+          {t('categories.create')}
         </Button>
       </Group>
 
@@ -151,16 +180,16 @@ export function CategoriesView() {
           <Table striped highlightOnHover withTableBorder verticalSpacing="sm">
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Nome</Table.Th>
-                <Table.Th>Descrição</Table.Th>
-                <Table.Th style={{ textAlign: 'right' }}>Ações</Table.Th>
+                <Table.Th>{t('categories.table.name')}</Table.Th>
+                <Table.Th>{t('categories.table.description')}</Table.Th>
+                <Table.Th style={{ textAlign: 'right' }}>{t('categories.table.actions')}</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
               {rows.length > 0 ? rows : (
                 <Table.Tr>
                   <Table.Td colSpan={3}>
-                    <Text ta="center" c="dimmed" py="xl">Nenhuma categoria encontrada.</Text>
+                    <Text ta="center" c="dimmed" py="xl">{t('categories.empty')}</Text>
                   </Table.Td>
                 </Table.Tr>
               )}
@@ -172,24 +201,24 @@ export function CategoriesView() {
       <Modal 
         opened={modalOpened} 
         onClose={handleCloseModal} 
-        title={editingCategory ? 'Editar Categoria' : 'Adicionar Categoria'}
+        title={editingCategory ? t('categories.modal.editTitle') : t('categories.modal.createTitle')}
         centered
       >
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack gap="md">
             <TextInput
-              label="Nome"
-              placeholder="Ex: Periféricos"
+              label={t('categories.form.name')}
+              placeholder={t('categories.form.placeholders.name')}
               required
               {...form.getInputProps("nome")}
             />
             <Textarea
-              label="Descrição"
-              placeholder="Descreva a categoria"
+              label={t('categories.form.description')}
+              placeholder={t('categories.form.placeholders.description')}
               {...form.getInputProps("descricao")}
             />
             <Button fullWidth bg="orange.6" type="submit" loading={modalLoading}>
-              Salvar
+              {t('common.save')}
             </Button>
           </Stack>
         </form>

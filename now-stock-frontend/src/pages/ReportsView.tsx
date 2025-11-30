@@ -41,12 +41,23 @@ export function ReportsView() {
     fetchReport();
   }, [reportType]);
 
+  // Função auxiliar para obter o título do relatório atual traduzido
+  const getReportTitle = () => {
+    switch (reportType) {
+      case 'current-stock': return t('reports.types.currentStock');
+      case 'low-stock': return t('reports.types.lowStock');
+      case 'most-moved': return t('reports.types.mostMoved');
+      case 'history': return t('reports.types.history');
+      default: return '';
+    }
+  };
+
   const getHeaders = (): string[] => {
     switch (reportType) {
-      case 'current-stock': return ['Produto', 'Quantidade', 'Status'];
-      case 'low-stock': return ['Produto', 'Qtd. Atual', 'Qtd. Mínima'];
-      case 'most-moved': return ['Produto', 'Movimentações', 'Período'];
-      case 'history': return ['Produto', 'Tipo', 'Quantidade', 'Data'];
+      case 'current-stock': return [t('reports.columns.product'), t('reports.columns.quantity'), t('reports.columns.status')];
+      case 'low-stock': return [t('reports.columns.product'), t('reports.columns.currentQty'), t('reports.columns.minQty')];
+      case 'most-moved': return [t('reports.columns.product'), t('reports.columns.movements'), t('reports.columns.period')];
+      case 'history': return [t('reports.columns.product'), t('reports.columns.type'), t('reports.columns.quantity'), t('reports.columns.date')];
       default: return [];
     }
   };
@@ -54,20 +65,27 @@ export function ReportsView() {
   const getRowData = (row: any): string[] => {
     switch (reportType) {
       case 'current-stock': 
-        return [row.nome, String(row.quantidade_atual), row.quantidade_atual > row.quantidade_minima ? 'OK' : 'Baixo'];
+        return [
+          row.nome, 
+          String(row.quantidade_atual), 
+          row.quantidade_atual > row.quantidade_minima ? t('reports.status.ok') : t('reports.status.low')
+        ];
       case 'low-stock': 
         return [row.nome, String(row.quantidade_atual), String(row.quantidade_minima)];
       case 'most-moved': 
         return [row.nome_produto, String(row.total_movimentacoes), row.periodo];
       case 'history': 
-        return [row.nome_produto, row.tipo, String(row.quantidade), new Date(row.data_movimentacao).toLocaleDateString()];
+        // Traduzindo o tipo de movimentação se possível
+        // eslint-disable-next-line no-case-declarations
+        const typeLabel = t(`movements.types.${row.tipo}`) || row.tipo;
+        return [row.nome_produto, typeLabel, String(row.quantidade), new Date(row.data_movimentacao).toLocaleDateString()];
       default: return [];
     }
   };
 
   const handleExportPDF = () => {
     const doc = new jsPDF();
-    doc.text(`Relatório: ${t(`nav.${reportType}` as any) || reportType}`, 14, 10);
+    doc.text(`${t('reports.pdfTitle')}: ${getReportTitle()}`, 14, 10);
     autoTable(doc, {
       head: [getHeaders()],
       body: data.map(getRowData),
@@ -105,7 +123,7 @@ export function ReportsView() {
         <Table.Tr>
           <Table.Td colSpan={5}>
             <Text ta="center" c="dimmed" py="xl">
-              Nenhum dado encontrado.
+              {t('reports.empty')}
             </Text>
           </Table.Td>
         </Table.Tr>
@@ -124,7 +142,7 @@ export function ReportsView() {
   return (
     <Box>
       <Title order={2} c="orange.7" mb="lg">
-        {t('nav.relatorios')}
+        {t('reports.title')}
       </Title>
 
       <Paper p="md" withBorder shadow="md" radius="md">
@@ -133,10 +151,10 @@ export function ReportsView() {
             value={reportType}
             onChange={(value) => setReportType(value as ReportType)}
             data={[
-              { value: "current-stock", label: t('nav.estoqueAtual') },
-              { value: "low-stock", label: "Produtos em Falta" },
-              { value: "most-moved", label: "Mais Movimentados" },
-              { value: "history", label: "Histórico" },
+              { value: "current-stock", label: t('reports.types.currentStock') },
+              { value: "low-stock", label: t('reports.types.lowStock') },
+              { value: "most-moved", label: t('reports.types.mostMoved') },
+              { value: "history", label: t('reports.types.history') },
             ]}
             color="orange"
             fullWidth
@@ -149,7 +167,7 @@ export function ReportsView() {
               onClick={handleExportPDF}
               disabled={data.length === 0}
             >
-              Exportar PDF
+              {t('reports.actions.exportPdf')}
             </Button>
             <Button 
               variant="default" 
@@ -157,14 +175,14 @@ export function ReportsView() {
               onClick={handleExportExcel}
               disabled={data.length === 0}
             >
-              Exportar Excel
+              {t('reports.actions.exportExcel')}
             </Button>
             <Button 
               variant="default" 
               leftSection={<IconPrinter size={16} />}
               onClick={handlePrint}
             >
-              Imprimir
+              {t('reports.actions.print')}
             </Button>
           </Group>
 

@@ -28,11 +28,13 @@ import { IconPlus, IconPencil, IconTrash } from "@tabler/icons-react";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
+import { useTranslation } from "react-i18next";
 
 import { apiService } from "../services/api";
 import type { Supplier } from "../types/entities";
 
 export function SuppliersView() {
+  const { t } = useTranslation();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
@@ -43,12 +45,17 @@ export function SuppliersView() {
     setLoading(true);
     apiService.getSuppliers()
       .then(setSuppliers)
-      .catch((err) => notifications.show({ title: 'Erro', message: err.message, color: 'red' }))
+      .catch((err) => notifications.show({ 
+        title: t('common.error'), 
+        message: err.message, 
+        color: 'red' 
+      }))
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
     fetchSuppliers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const form = useForm({
@@ -60,11 +67,11 @@ export function SuppliersView() {
       endereco: "",
     },
     validate: {
-      nome: (value) => (value.trim().length < 2 ? 'Nome é obrigatório' : null),
+      nome: (value) => (value.trim().length < 2 ? t('suppliers.validation.nameRequired') : null),
       cnpj: (value) => (
-        /^\d{14}$/.test(value.replace(/[^\d]/g, '')) ? null : 'CNPJ deve ter 14 dígitos'
+        /^\d{14}$/.test(value.replace(/[^\d]/g, '')) ? null : t('suppliers.validation.cnpjInvalid')
       ),
-      email: (value) => (value && /^\S+@\S+$/.test(value) ? null : 'Email inválido'),
+      email: (value) => (value && /^\S+@\S+$/.test(value) ? null : t('suppliers.validation.emailInvalid')),
     }
   });
 
@@ -100,27 +107,50 @@ export function SuppliersView() {
     try {
       if (editingSupplier) {
         await apiService.updateSupplier(editingSupplier.id_fornecedor, payload);
-        notifications.show({ title: 'Sucesso', message: 'Fornecedor atualizado.', color: 'green' });
+        notifications.show({ 
+            title: t('common.success'), 
+            message: t('suppliers.messages.updated'), 
+            color: 'green' 
+        });
       } else {
         await apiService.createSupplier(payload);
-        notifications.show({ title: 'Sucesso', message: 'Fornecedor adicionado.', color: 'green' });
+        notifications.show({ 
+            title: t('common.success'), 
+            message: t('suppliers.messages.created'), 
+            color: 'green' 
+        });
       }
       fetchSuppliers();
       handleCloseModal();
     } catch (err: any) {
-      notifications.show({ title: 'Erro', message: err.message, color: 'red' });
+      notifications.show({ 
+          title: t('common.error'), 
+          message: err.message, 
+          color: 'red' 
+      });
     } finally {
       setModalLoading(false);
     }
   };
   
   const handleDelete = async (id: number) => {
-    try {
-      await apiService.deleteSupplier(id);
-      notifications.show({ title: 'Excluído', message: 'Fornecedor removido.', color: 'gray' });
-      fetchSuppliers();
-    } catch (err: any) {
-      notifications.show({ title: 'Erro', message: err.message, color: 'red' });
+    // Adicionada confirmação de segurança usando i18n
+    if (confirm(t('suppliers.confirmDelete'))) {
+        try {
+            await apiService.deleteSupplier(id);
+            notifications.show({ 
+                title: t('common.success'), // Usando sucesso ao invés de 'Excluído' para padronizar
+                message: t('suppliers.messages.deleted'), 
+                color: 'gray' 
+            });
+            fetchSuppliers();
+        } catch (err: any) {
+            notifications.show({ 
+                title: t('common.error'), 
+                message: err.message, 
+                color: 'red' 
+            });
+        }
     }
   };
 
@@ -132,12 +162,12 @@ export function SuppliersView() {
       <Table.Td>{supplier.email}</Table.Td>
       <Table.Td>
         <Group gap={4} justify="flex-end">
-          <Tooltip label="Editar">
+          <Tooltip label={t('common.edit')}>
             <ActionIcon size="sm" variant="subtle" color="blue" onClick={() => handleOpenModal(supplier)}>
               <IconPencil size={14} />
             </ActionIcon>
           </Tooltip>
-          <Tooltip label="Excluir">
+          <Tooltip label={t('common.delete')}>
             <ActionIcon size="sm" variant="subtle" color="red" onClick={() => handleDelete(supplier.id_fornecedor)}>
               <IconTrash size={14} />
             </ActionIcon>
@@ -151,10 +181,10 @@ export function SuppliersView() {
     <Box>
       <Group justify="space-between" mb="xl">
         <Title order={2} c="orange.7">
-          Fornecedores
+          {t('suppliers.title')}
         </Title>
         <Button bg="orange.6" leftSection={<IconPlus size={16} />} onClick={() => handleOpenModal(null)}>
-          Adicionar Fornecedor
+          {t('suppliers.create')}
         </Button>
       </Group>
 
@@ -165,18 +195,18 @@ export function SuppliersView() {
           <Table striped highlightOnHover withTableBorder verticalSpacing="sm">
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Nome</Table.Th>
-                <Table.Th>CNPJ</Table.Th>
-                <Table.Th>Telefone</Table.Th>
-                <Table.Th>Email</Table.Th>
-                <Table.Th style={{ textAlign: 'right' }}>Ações</Table.Th>
+                <Table.Th>{t('suppliers.table.name')}</Table.Th>
+                <Table.Th>{t('suppliers.table.cnpj')}</Table.Th>
+                <Table.Th>{t('suppliers.table.phone')}</Table.Th>
+                <Table.Th>{t('suppliers.table.email')}</Table.Th>
+                <Table.Th style={{ textAlign: 'right' }}>{t('suppliers.table.actions')}</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
               {rows.length > 0 ? rows : (
                 <Table.Tr>
                   <Table.Td colSpan={5}>
-                    <Text ta="center" c="dimmed" py="xl">Nenhum fornecedor encontrado.</Text>
+                    <Text ta="center" c="dimmed" py="xl">{t('suppliers.empty')}</Text>
                   </Table.Td>
                 </Table.Tr>
               )}
@@ -188,41 +218,41 @@ export function SuppliersView() {
       <Modal 
         opened={modalOpened} 
         onClose={handleCloseModal} 
-        title={editingSupplier ? 'Editar Fornecedor' : 'Adicionar Fornecedor'}
+        title={editingSupplier ? t('suppliers.modal.editTitle') : t('suppliers.modal.createTitle')}
         centered
       >
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack gap="md">
             <TextInput
-              label="Nome"
-              placeholder="Nome do Fornecedor"
+              label={t('suppliers.form.name')}
+              placeholder={t('suppliers.form.placeholders.name')}
               required
               {...form.getInputProps("nome")}
             />
             <TextInput
-              label="CNPJ"
+              label={t('suppliers.form.cnpj')}
               placeholder="00000000000191"
               maxLength={14}
               required
               {...form.getInputProps("cnpj")}
             />
             <TextInput
-              label="Telefone"
+              label={t('suppliers.form.phone')}
               placeholder="(11) 98765-4321"
               {...form.getInputProps("telefone")}
             />
             <TextInput
-              label="Email"
+              label={t('suppliers.form.email')}
               placeholder="email@example.com"
               {...form.getInputProps("email")}
             />
             <Textarea
-              label="Endereço"
-              placeholder="Rua A, 100, São Paulo"
+              label={t('suppliers.form.address')}
+              placeholder={t('suppliers.form.placeholders.address')}
               {...form.getInputProps("endereco")}
             />
             <Button fullWidth bg="orange.6" type="submit" loading={modalLoading}>
-              Salvar
+              {t('common.save')}
             </Button>
           </Stack>
         </form>

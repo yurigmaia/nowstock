@@ -2,8 +2,6 @@
  * @component StockAdjustView
  * @description
  * Tela para registro de ajustes manuais de estoque (Entrada/Saída).
- * Permite ao usuário logado selecionar um produto, definir a quantidade
- * do ajuste e fornecer uma justificativa obrigatória.
  */
 import {
   Box,
@@ -26,11 +24,14 @@ import { IconCheck, IconX } from "@tabler/icons-react";
 import { useAuth } from '../hooks/useAuth';
 import { apiService } from "../services/api";
 import type { Product } from "../types/entities";
+import { useTranslation } from "react-i18next";
 
 type AdjustFlow = 'entrada' | 'saida';
 
 export function StockAdjustView() {
-  const { user } = useAuth();
+  const { t } = useTranslation();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { user } = useAuth() as any;
   const [loading, setLoading] = useState(false);
   const [productList, setProductList] = useState<{ value: string; label: string }[]>([]);
 
@@ -50,13 +51,13 @@ export function StockAdjustView() {
       tipo: "entrada" as AdjustFlow,
       quantidade: 1,
       justificativa: "",
-      usuario: user?.nome || "Usuário Desconhecido",
+      usuario: user?.nome || t('stockAdjust.unknownUser'),
       data: new Date().toISOString().split("T")[0],
     },
     validate: {
-      id_produto: (value) => (value ? null : "Selecione um produto"),
-      quantidade: (value) => (value > 0 ? null : "A quantidade deve ser maior que zero"),
-      justificativa: (value) => (value.trim().length > 0 ? null : "A justificativa é obrigatória"),
+      id_produto: (value) => (value ? null : t('stockAdjust.validation.productRequired')),
+      quantidade: (value) => (value > 0 ? null : t('stockAdjust.validation.qtyPositive')),
+      justificativa: (value) => (value.trim().length > 0 ? null : t('stockAdjust.validation.reasonRequired')),
     }
   });
 
@@ -77,19 +78,21 @@ export function StockAdjustView() {
       await apiService.createMovement(payload);
 
       notifications.show({
-        title: "Sucesso!",
-        message: "Ajuste de estoque registrado.",
+        title: t('common.success'),
+        message: t('stockAdjust.messages.success'),
         color: 'green',
         icon: <IconCheck />,
       });
       form.reset();
       form.setFieldValue('data', new Date().toISOString().split("T")[0]);
+      // Garante que o nome do usuário não seja apagado no reset
+      if(user) form.setFieldValue('usuario', user.nome);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       notifications.show({
-        title: 'Erro',
-        message: error.message || "Não foi possível registrar o ajuste.",
+        title: t('common.error'),
+        message: error.message || t('stockAdjust.messages.error'),
         color: 'red',
         icon: <IconX />,
       });
@@ -101,7 +104,7 @@ export function StockAdjustView() {
   return (
     <Box>
       <Title order={2} c="orange.7" mb="lg">
-        Ajuste Manual de Estoque
+        {t('stockAdjust.title')}
       </Title>
 
       <Paper p="md" withBorder shadow="md" radius="md" style={{ maxWidth: 600 }}>
@@ -110,16 +113,16 @@ export function StockAdjustView() {
             <SegmentedControl
               {...form.getInputProps("tipo")}
               data={[
-                { value: "entrada", label: "Entrada" },
-                { value: "saida", label: "Saída" },
+                { value: "entrada", label: t('stockAdjust.type.in') },
+                { value: "saida", label: t('stockAdjust.type.out') },
               ]}
               color="orange"
               fullWidth
             />
             
             <Select
-              label="Produto"
-              placeholder="Selecione um produto..."
+              label={t('stockAdjust.form.product')}
+              placeholder={t('stockAdjust.form.productPlaceholder')}
               searchable
               required
               data={productList}
@@ -127,7 +130,7 @@ export function StockAdjustView() {
             />
 
             <NumberInput
-              label="Quantidade"
+              label={t('stockAdjust.form.quantity')}
               placeholder="0"
               min={1}
               required
@@ -135,21 +138,21 @@ export function StockAdjustView() {
             />
 
             <TextInput
-              label="Usuário"
+              label={t('stockAdjust.form.user')}
               disabled
               {...form.getInputProps("usuario")}
             />
 
             <TextInput
-              label="Data da Movimentação"
+              label={t('stockAdjust.form.date')}
               type="date"
               disabled
               {...form.getInputProps("data")}
             />
 
             <Textarea
-              label="Justificativa"
-              placeholder="Ex: Contagem de inventário, produto danificado..."
+              label={t('stockAdjust.form.reason')}
+              placeholder={t('stockAdjust.form.reasonPlaceholder')}
               required
               minRows={3}
               {...form.getInputProps("justificativa")}
@@ -162,7 +165,7 @@ export function StockAdjustView() {
                 type="submit" 
                 loading={loading}
               >
-                Registrar Ajuste
+                {t('stockAdjust.form.submit')}
               </Button>
             </Group>
           </Stack>

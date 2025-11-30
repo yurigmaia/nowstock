@@ -13,6 +13,7 @@ import type { Product } from '../../types/entities';
 import { useRfid } from '../../hooks/useRfid';
 import { notifications } from '@mantine/notifications';
 import { IconNfc } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 interface ProductFormProps {
   product?: Product | null;
@@ -26,6 +27,7 @@ const formatIdToString = (id: number | undefined | null): string | null => {
 };
 
 export function ProductForm({ product, onSubmit, onCancel, loading }: ProductFormProps) {
+  const { t } = useTranslation();
   const { lastTag, clearTag } = useRfid();
   
   const [categories, setCategories] = useState<{ value: string; label: string }[]>([]);
@@ -53,10 +55,10 @@ export function ProductForm({ product, onSubmit, onCancel, loading }: ProductFor
       localizacao: product?.localizacao || '',
     },
     validate: {
-      nome: (value) => (value.trim().length < 3 ? 'Nome muito curto' : null),
-      etiqueta_rfid: (value) => (value.trim().length === 0 ? 'Tag RFID é obrigatória' : null),
-      id_categoria: (value) => (value === null ? 'Selecione uma categoria' : null),
-      id_fornecedor: (value) => (value === null ? 'Selecione um fornecedor' : null),
+      nome: (value) => (value.trim().length < 3 ? t('products.form.errors.nameShort') : null),
+      etiqueta_rfid: (value) => (value.trim().length === 0 ? t('products.form.errors.rfidRequired') : null),
+      id_categoria: (value) => (value === null ? t('products.form.errors.categoryRequired') : null),
+      id_fornecedor: (value) => (value === null ? t('products.form.errors.supplierRequired') : null),
     },
   });
 
@@ -65,8 +67,8 @@ export function ProductForm({ product, onSubmit, onCancel, loading }: ProductFor
       form.setFieldValue('etiqueta_rfid', lastTag);
       
       notifications.show({ 
-        title: 'Tag Capturada!', 
-        message: `Código ${lastTag} inserido no formulário.`, 
+        title: t('products.rfid.capturedTitle'), 
+        message: t('products.rfid.capturedMessage', { tag: lastTag }), 
         color: 'blue',
         icon: <IconNfc size={16}/>
       });
@@ -78,13 +80,22 @@ export function ProductForm({ product, onSubmit, onCancel, loading }: ProductFor
 
   return (
     <form onSubmit={form.onSubmit(onSubmit)}>
-      <TextInput label="Nome do Produto" required {...form.getInputProps('nome')} />
-      <Textarea label="Descrição" mt="md" {...form.getInputProps('descricao')} />
+      <TextInput 
+        label={t('products.form.name')} 
+        required 
+        {...form.getInputProps('nome')} 
+      />
+      
+      <Textarea 
+        label={t('products.form.description')} 
+        mt="md" 
+        {...form.getInputProps('descricao')} 
+      />
       
       <SimpleGrid cols={2} mt="md">
         <Select
-          label="Categoria"
-          placeholder="Selecione..."
+          label={t('products.form.category')}
+          placeholder={t('common.select')}
           data={categories}
           required
           searchable
@@ -92,8 +103,8 @@ export function ProductForm({ product, onSubmit, onCancel, loading }: ProductFor
           {...form.getInputProps('id_categoria')}
         />
         <Select
-          label="Fornecedor"
-          placeholder="Selecione..."
+          label={t('products.form.supplier')}
+          placeholder={t('common.select')}
           data={suppliers}
           required
           searchable
@@ -103,26 +114,49 @@ export function ProductForm({ product, onSubmit, onCancel, loading }: ProductFor
       </SimpleGrid>
       
       <TextInput 
-        label="Etiqueta RFID" 
-        description="Aproxime a tag do leitor para preencher automaticamente"
-        // CORRIGIDO
+        label={t('products.form.rfid')} 
+        description={t('products.form.rfidHelp')}
         rightSection={<IconNfc size={16} style={{ opacity: 0.5 }} />}
         mt="md" 
         required 
         {...form.getInputProps('etiqueta_rfid')} 
       />
       
-      <TextInput label="Localização Padrão" mt="md" {...form.getInputProps('localizacao')} />
+      <TextInput 
+        label={t('products.form.location')} 
+        mt="md" 
+        {...form.getInputProps('localizacao')} 
+      />
 
       <SimpleGrid cols={3} mt="md">
-         <NumberInput label="Qtd. Mínima" {...form.getInputProps('quantidade_minima')} min={0} />
-         <NumberInput label="Preço de Custo" prefix="R$ " decimalScale={2} fixedDecimalScale {...form.getInputProps('preco_custo')} />
-         <NumberInput label="Preço de Venda" prefix="R$ " decimalScale={2} fixedDecimalScale {...form.getInputProps('preco_venda')} />
+         <NumberInput 
+            label={t('products.form.minQty')} 
+            {...form.getInputProps('quantidade_minima')} 
+            min={0} 
+         />
+         <NumberInput 
+            label={t('products.form.costPrice')} 
+            prefix={t('common.currencySymbol')} 
+            decimalScale={2} 
+            fixedDecimalScale 
+            {...form.getInputProps('preco_custo')} 
+         />
+         <NumberInput 
+            label={t('products.form.salePrice')} 
+            prefix={t('common.currencySymbol')} 
+            decimalScale={2} 
+            fixedDecimalScale 
+            {...form.getInputProps('preco_venda')} 
+         />
       </SimpleGrid>
       
       <Group justify="flex-end" mt="xl">
-        <Button variant="default" onClick={onCancel} disabled={loading}>Cancelar</Button>
-        <Button type="submit" loading={loading} bg="orange.6">Salvar Produto</Button>
+        <Button variant="default" onClick={onCancel} disabled={loading}>
+          {t('common.cancel')}
+        </Button>
+        <Button type="submit" loading={loading} bg="orange.6">
+          {t('products.form.save')}
+        </Button>
       </Group>
     </form>
   );

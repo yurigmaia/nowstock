@@ -2,8 +2,7 @@
  * @component StockCurrentView
  * @description
  * Tela de consulta que exibe uma lista de todos os produtos e seu
- * status atual de estoque. Busca dados de produtos, categorias e
- * fornecedores do 'apiService' e os combina para uma visualização rica.
+ * status atual de estoque.
  */
 import { useState, useEffect } from "react";
 import {
@@ -20,6 +19,7 @@ import {
 import { IconAlertCircle } from "@tabler/icons-react";
 import { apiService } from "../services/api";
 import type { Product, Category, Supplier } from "../types/entities";
+import { useTranslation } from "react-i18next";
 
 interface RichStockItem {
   id_produto: number;
@@ -31,6 +31,7 @@ interface RichStockItem {
 }
 
 export function StockCurrentView() {
+  const { t } = useTranslation();
   const [stockItems, setStockItems] = useState<RichStockItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -60,7 +61,7 @@ export function StockCurrentView() {
         setStockItems(richData);
 
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Falha ao carregar dados do estoque";
+        const errorMessage = err instanceof Error ? err.message : t('stockCurrent.errors.load');
         console.error("Erro ao buscar dados do estoque:", errorMessage);
         setError(errorMessage);
       } finally {
@@ -69,6 +70,7 @@ export function StockCurrentView() {
     };
 
     fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const rows = stockItems.map((item) => (
@@ -94,7 +96,7 @@ export function StockCurrentView() {
       <Container size="md" pt="xl">
         <Alert
           icon={<IconAlertCircle size="1rem" />}
-          title="Erro ao Carregar Dados"
+          title={t('stockCurrent.errors.loadTitle')}
           color="red"
           variant="filled"
         >
@@ -107,18 +109,18 @@ export function StockCurrentView() {
   return (
     <Box>
       <Title order={2} c="orange.7" mb="lg">
-        Estoque Atual
+        {t('stockCurrent.title')}
       </Title>
 
       <Paper p="md" withBorder shadow="md" radius="md">
         <Table striped highlightOnHover withTableBorder verticalSpacing="sm">
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>Produto</Table.Th>
-              <Table.Th>Categoria</Table.Th>
-              <Table.Th>Fornecedor</Table.Th>
-              <Table.Th ta="center">Quantidade Atual</Table.Th>
-              <Table.Th>Localização</Table.Th>
+              <Table.Th>{t('stockCurrent.table.product')}</Table.Th>
+              <Table.Th>{t('stockCurrent.table.category')}</Table.Th>
+              <Table.Th>{t('stockCurrent.table.supplier')}</Table.Th>
+              <Table.Th ta="center">{t('stockCurrent.table.quantity')}</Table.Th>
+              <Table.Th>{t('stockCurrent.table.location')}</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -126,7 +128,7 @@ export function StockCurrentView() {
               <Table.Tr>
                 <Table.Td colSpan={5}>
                   <Text ta="center" c="dimmed" py="xl">
-                    Nenhum item em estoque encontrado.
+                    {t('stockCurrent.empty')}
                   </Text>
                 </Table.Td>
               </Table.Tr>

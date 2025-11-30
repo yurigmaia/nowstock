@@ -27,8 +27,10 @@ import { apiService } from "../services/api";
 import type { Product } from "../types/entities";
 import { ProductModal } from "../components/products/ProductModal";
 import { notifications } from "@mantine/notifications";
+import { useTranslation } from "react-i18next";
 
 export function ProductsView() {
+  const { t } = useTranslation();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +43,7 @@ export function ProductsView() {
     apiService.getProducts()
       .then(setProducts)
       .catch((err) => {
-        const errorMessage = err instanceof Error ? err.message : "Falha ao carregar produtos";
+        const errorMessage = err instanceof Error ? err.message : t('products.errors.load');
         setError(errorMessage);
       })
       .finally(() => setLoading(false));
@@ -49,6 +51,7 @@ export function ProductsView() {
 
   useEffect(() => {
     fetchProducts();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAdd = () => {
@@ -62,13 +65,21 @@ export function ProductsView() {
   };
 
   const handleDelete = async (productId: number) => {
-    if (confirm("Tem certeza que deseja excluir este produto?")) {
+    if (confirm(t('products.confirmDelete'))) {
         try {
             await apiService.deleteProduct(productId);
-            notifications.show({ title: 'Sucesso', message: 'Produto excluído.', color: 'gray' });
+            notifications.show({ 
+                title: t('common.success'), 
+                message: t('products.messages.deleted'), 
+                color: 'gray' 
+            });
             fetchProducts();
         } catch (err: any) {
-            notifications.show({ title: 'Erro', message: err.message, color: 'red' });
+            notifications.show({ 
+                title: t('common.error'), 
+                message: err.message, 
+                color: 'red' 
+            });
         }
     }
   };
@@ -85,12 +96,12 @@ export function ProductsView() {
       <Table.Td>{product.localizacao || "N/A"}</Table.Td>
       <Table.Td>
         <Group gap="xs" justify="flex-end">
-          <Tooltip label="Editar Produto">
+          <Tooltip label={t('products.actions.edit')}>
             <ActionIcon variant="subtle" color="blue" onClick={() => handleEdit(product)}>
               <IconPencil size={16} />
             </ActionIcon>
           </Tooltip>
-          <Tooltip label="Excluir Produto">
+          <Tooltip label={t('products.actions.delete')}>
             <ActionIcon variant="subtle" color="red" onClick={() => handleDelete(product.id_produto)}>
               <IconTrash size={16} />
             </ActionIcon>
@@ -103,18 +114,18 @@ export function ProductsView() {
   return (
     <Container size="xl" py="xl">
       <Group justify="space-between" mb="lg">
-        <Title order={2} c="orange.7">Gerenciamento de Produtos</Title>
+        <Title order={2} c="orange.7">{t('products.title')}</Title>
         <Button
           leftSection={<IconPlus size={14} />}
           onClick={handleAdd}
           bg="orange.6"
         >
-          Adicionar Produto
+          {t('products.create')}
         </Button>
       </Group>
 
       {error && (
-        <Alert icon={<IconAlertCircle size="1rem" />} title="Erro ao Carregar" color="red" variant="filled" mb="lg">
+        <Alert icon={<IconAlertCircle size="1rem" />} title={t('common.error')} color="red" variant="filled" mb="lg">
           {error}
         </Alert>
       )}
@@ -126,11 +137,11 @@ export function ProductsView() {
           <Table striped highlightOnHover withTableBorder withColumnBorders verticalSpacing="sm">
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Nome</Table.Th>
-                <Table.Th>Tag RFID</Table.Th>
-                <Table.Th style={{ textAlign: 'center' }}>Qtd. Atual</Table.Th>
-                <Table.Th>Localização</Table.Th>
-                <Table.Th style={{ textAlign: 'right' }}>Ações</Table.Th>
+                <Table.Th>{t('products.table.name')}</Table.Th>
+                <Table.Th>{t('products.table.rfid')}</Table.Th>
+                <Table.Th style={{ textAlign: 'center' }}>{t('products.table.quantity')}</Table.Th>
+                <Table.Th>{t('products.table.location')}</Table.Th>
+                <Table.Th style={{ textAlign: 'right' }}>{t('products.table.actions')}</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -138,7 +149,7 @@ export function ProductsView() {
                 <Table.Tr>
                   <Table.Td colSpan={5}>
                     <Text ta="center" c="dimmed" py="xl">
-                      Nenhum produto encontrado. Clique em "Adicionar Produto" para começar.
+                      {t('products.empty')}
                     </Text>
                   </Table.Td>
                 </Table.Tr>
