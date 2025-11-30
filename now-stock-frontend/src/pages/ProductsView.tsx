@@ -2,8 +2,8 @@
  * @component ProductsView
  * @description
  * Tela principal para Gerenciamento de Produtos (CRUD).
- * * ATUALIZAÇÃO:
- * - Oculta botões de ação (Criar, Editar, Excluir) para usuários 'visualizador'.
+ * * CORREÇÃO VISUAL:
+ * - Substituído Container por Box para alinhar com o layout das outras telas.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
@@ -14,7 +14,7 @@ import {
   Group,
   ActionIcon,
   Tooltip,
-  Container,
+  Box, // <--- Trocado Container por Box
   Loader,
   Alert,
   Text,
@@ -120,8 +120,8 @@ export function ProductsView() {
   ));
 
   return (
-    <Container size="xl" py="xl">
-      <Group justify="space-between" mb="lg">
+    <Box>
+      <Group justify="space-between" mb="xl"> 
         <Title order={2} c="orange.7">{t('products.title')}</Title>
         
         {canEdit && (
@@ -181,6 +181,6 @@ export function ProductsView() {
           onSaveSuccess={handleSaveSuccess}
         />
       )}
-    </Container>
+    </Box>
   );
 }

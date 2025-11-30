@@ -15,7 +15,7 @@ import {
 } from '@tabler/icons-react';
 import { useAuth } from '../../hooks/useAuth';
 import classes from './AppLayout.module.css';
-import Logo from '../../assets/textlogoorange.svg?react';
+import Logo from '../../assets/textlogoorangenew.svg?react';
 import { useTranslation } from 'react-i18next';
 
 export function AppLayout() {
